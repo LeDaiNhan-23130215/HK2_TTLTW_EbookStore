@@ -1,0 +1,35 @@
+package controllers;
+
+import com.google.gson.Gson;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import services.AdminServices;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
+
+@WebServlet("/admin-chart-category")
+public class AdminDashboardOrdersByCate extends HttpServlet {
+    private final AdminServices adminServices = new AdminServices();
+    private final Gson gson = new Gson();
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+
+        Map<String, Double> data = adminServices.getRevenuePerCategory();
+
+        resp.getWriter().write(
+                gson.toJson(Map.of(
+                        "labels", new ArrayList<>(data.keySet()),
+                        "values", new ArrayList<>(data.values())
+                ))
+        );
+}
+}

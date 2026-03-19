@@ -1,0 +1,303 @@
+main {
+  margin: 60px auto;
+  display: flex;
+  flex-direction: row;
+  padding: 0 60px;
+  gap: 20px;
+}
+
+main .sidebar {
+  flex: 0 0 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  position: sticky;
+  top: 30px;
+  align-self: flex-start;
+}
+
+main .sidebar .filter {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #004aad;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+main .sidebar .filter h3 {
+  background-color: #004aad;
+  color: white;
+  padding: 10px 15px;
+}
+
+main .sidebar .filter label {
+  padding: 10px 0;
+  cursor: pointer;
+  padding-left: 15px;
+}
+
+main .sidebar .filter input {
+  cursor: pointer;
+}
+
+main .sidebar .filter label:hover {
+  background-color: lightblue;
+  color: #004aad;
+}
+
+main .sidebar .filter a {
+  text-decoration: none;
+  color: white;
+  margin: 10px 15px;
+  background-color: #004aad;
+  padding: 10px 15px;
+  border-radius: 10px;
+  text-align: center;
+  border: 2px solid #004aad;
+  transition: 0.3s;
+  font-weight: bold;
+}
+
+main .sidebar .filter a:hover {
+  color: #004aad;
+  background-color: white;
+}
+
+main .content .product-grid {
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 10px;
+}
+
+main .content .selected-filters {
+  border-bottom: none;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+main .content .selected-filters .filter-show {
+  background-color: white;
+  overflow: hidden;
+}
+
+main .content .selected-filters span {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 20px;
+  display: flex;
+  color: #0396c7;
+  font-weight: bold;
+}
+
+main .content .selected-filters .filter-show span p {
+  color: black;
+}
+
+main .content .local-filters {
+  display: flex;
+  overflow: hidden;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+main .content strong {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #0396c7;
+  color: white;
+  padding: 10px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Container chính */
+.local-filter-menu {
+  position: relative;
+  width: fit-content;
+  margin-bottom: 10px;
+}
+
+/* Nút hamburger */
+.hamburger-btn {
+  background: #0396c7;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  transition: 0.5s ease;
+}
+
+.hamburger-btn:hover {
+  background: #0277a3;
+}
+
+/* Danh sách filter */
+.local-filter-button-container {
+  display: flex;
+  gap: 4px;
+  margin-top: 10px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+  transform-origin: top;
+  transition: max-height 0.3s ease, opacity 0.3s ease, transform 0.3s ease,
+    padding 0.3s ease;
+  flex-direction: row;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* trạng thái mở */
+.local-filter-button-container.open {
+  max-height: 500px;
+  opacity: 1;
+  padding: 12px; /* trả lại padding */
+  transform: scaleY(1);
+}
+
+.sort-button {
+  text-decoration: black;
+  color: #0396c7;
+  background: #f2f2f2;
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.sort-button:hover {
+  background: #0396c7;
+  color: white;
+}
+
+main .content .local-filters .local-filter-button-container button {
+  color: #0396c7;
+  border: none;
+  width: 162px;
+  border: none;
+  background-color: white;
+  margin: 5px 5px;
+  border-radius: 10px;
+  border: 2px solid #0396c7;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+main .content .local-filters .local-filter-button-container button:hover {
+  color: white;
+  background-color: #0396c7;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin: 20px auto;
+  gap: 10px;
+}
+
+.page-btn {
+  border: 1px solid #004aad;
+  background-color: white;
+  color: #004aad;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: 0.2s;
+  text-decoration: none;
+}
+
+.page-btn:hover {
+  background-color: #004aad;
+  color: white;
+}
+
+.page-btn.active {
+  background-color: #004aad;
+  color: white;
+}
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.filter-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #f1f3f5;
+  border-radius: 16px;
+  font-size: 14px;
+}
+
+.filter-tag button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  color: #888;
+}
+
+.filter-tag button:hover {
+  color: #e03131;
+}
+
+
+@media (max-width: 1024px) {
+}
+
+@media (max-width: 768px) {
+}
+
+@media (max-width: 600px) {
+  main {
+    display: flex;
+    flex-direction: column;
+    padding: 0 30px;
+  }
+  .hamburger-btn {
+    justify-content: center;
+    width: 500px;
+  }
+
+  .local-filters {
+    justify-content: center;
+    align-items: center;
+  }
+  .local-filter-button-container {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .local-filter-button-container.open {
+    width: 500px;
+  }
+
+  .sort-button {
+    width: 100%;
+  }
+
+  main .content .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

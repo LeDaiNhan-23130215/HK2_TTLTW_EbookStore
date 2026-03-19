@@ -1,0 +1,340 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body{
+    background-color: #f4f4f4;
+}
+
+body .checkout-container{
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 90%;
+    max-width: 1200px;
+    margin: 40px auto;
+    gap: 30px;
+}
+
+body .checkout-container .checkout-left{
+    flex: 2;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+body .checkout-container .checkout-left .image{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+body .checkout-container .checkout-left .image img{
+    width: 150px;
+    background-color: #0396c7;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+body .checkout-container .checkout-left .label-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+    color: #0396c7;
+    font-weight: bold;
+}
+
+body .checkout-container .checkout-left .label-infor{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+body .checkout-container .checkout-left .label-infor p{
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+body .checkout-container .checkout-left .label-infor a{
+    color: #0396c7;
+    text-decoration: none;
+    transition: all 0.5s ease;
+}
+
+body .checkout-container .checkout-left .label-infor a:hover {
+    color: hsl(195, 98%, 50%);
+    cursor: pointer;
+}
+
+body .checkout-container .checkout-left .user-information{
+    margin-bottom: 30px;
+    border-bottom: 1px solid #ccc;
+}
+
+body .checkout-container .checkout-left .user-information > p{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: #aaa;
+}
+
+body .checkout-container .checkout-left form p{
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+body .checkout-container .checkout-left form .payment-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+body .checkout-container .checkout-left form .payment-container .payment-option{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+body .checkout-container .checkout-left form .payment-container .payment-option:hover {
+    border-color: #0396c7;
+    background-color: #f8fbfd;
+}
+
+body .checkout-container .checkout-left form .payment-container input[type="radio"]:checked + label {
+    color: #0396c7;
+    font-weight: 600;
+}
+
+body .checkout-container .checkout-left form .payment-container input[type="radio"] {
+    display: none;
+}
+
+body .checkout-container .checkout-left form .payment-container .payment-option label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    cursor: pointer;
+}
+
+body .checkout-container .checkout-left form .payment-container .payment-option img{
+    width: 40px;
+    height: auto;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+body .checkout-container .checkout-left form .payment-container .qr-container{
+    display: flex;
+    margin-top: 20px;
+    display: none;
+}
+
+body .checkout-container .checkout-left form .payment-container .qr-container img {
+    width: 160px;
+    height: 160px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+body .checkout-container .checkout-left form .payment-container .qr-container p {
+    color: #0396c7;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+body .checkout-container .checkout-left form .payment-container .qr-container.active{
+    display: block;
+}
+
+body .checkout-container .checkout-left .option{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+body .checkout-container .checkout-left .option a{
+    color: #0396c7;
+    text-decoration: none;
+}
+
+body .checkout-container .checkout-left .option a i{
+    margin-right: 10px;
+}
+
+body .checkout-container .checkout-left .option button{
+    border: none;
+    background-color: #0396c7;
+    color: #fff;
+    padding: 15px 25px;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: all 0.5s ease;
+}
+
+body .checkout-container .checkout-left .option button:hover{
+    background-color: hsl(195, 98%, 50%);
+    cursor: pointer;
+}
+
+body .checkout-container .checkout-left .option button {
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+body .checkout-container .checkout-left .option button:active {
+    transform: scale(0.97);
+}
+
+body .checkout-container .checkout-right{
+    flex: 1;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+body .checkout-container .checkout-right .label-right{
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ccc;
+}
+
+body .checkout-container .checkout-right .product-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+}
+
+body .checkout-container .checkout-right .product-row .product-detail{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+body .checkout-container .checkout-right .product-price,
+body .checkout-container .checkout-right .sub-price-title{
+    color: #aaa;
+}
+
+body .checkout-container .checkout-right .total-price-title{
+    font-size: 1.2rem;
+    color: #aaa;
+}
+
+body .checkout-container .checkout-right .total-price{
+    font-size: 1.4rem;
+    color: #0396c7;
+}
+
+body .checkout-container .checkout-right .product-row .product-detail img{
+    width: 70px;
+    height: auto;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 0.5px solid #ccc;
+}
+
+body .checkout-container .checkout-right .price{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ccc;
+}
+
+body .checkout-container .checkout-right .total{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+/* ==== Responsive cho màn hình ≤ 900px ==== */
+@media (max-width: 900px) {
+    /* Container chuyển sang cột dọc */
+    body .checkout-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 20px;
+        width: 95%;
+        margin: 20px auto;
+    }
+
+    /* Hai cột full width */
+    body .checkout-container .checkout-left,
+    body .checkout-container .checkout-right {
+        width: 100%;
+    }
+
+    /* Ảnh logo nhỏ hơn */
+    body .checkout-container .checkout-left .image img {
+        width: 120px;
+    }
+
+    /* Form option button full width */
+    body .checkout-container .checkout-left .option button {
+        padding: 10px;
+        width: 50%;
+    }
+
+    /* Product row trong checkout-right xếp dọc */
+    body .checkout-container .checkout-right .product-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    /* Chi tiết sản phẩm xếp hàng ngang nhưng vừa container */
+    body .checkout-container .checkout-right .product-row .product-detail {
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Ảnh sản phẩm nhỏ hơn */
+    body .checkout-container .checkout-right .product-row .product-detail img {
+        width: 60px;
+    }
+
+    /* Giá và tổng xếp dọc */
+    body .checkout-container .checkout-right .price,
+    body .checkout-container .checkout-right .total {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    /* Payment container full width */
+    body .checkout-container .checkout-left form .payment-container .payment-option {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    body .checkout-container .checkout-left form .payment-container .payment-option img {
+        width: 35px;
+    }
+
+    body .checkout-container .checkout-left form .payment-container .qr-container img {
+        width: 140px;
+        height: 140px;
+    }
+}

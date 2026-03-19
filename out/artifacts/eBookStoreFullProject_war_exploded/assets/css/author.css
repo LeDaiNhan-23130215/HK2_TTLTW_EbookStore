@@ -1,0 +1,212 @@
+/* --- RESET CSS --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f8f9fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* --- HEADER (Demo) --- */
+header {
+    background: #fff;
+    padding: 15px 0;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 30px;
+}
+
+header .logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+    text-align: center;
+}
+
+/* --- PHẦN 1: THÔNG TIN TÁC GIẢ (Layout Left-Right) --- */
+.author-profile {
+    display: flex;
+    background: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    gap: 40px;
+    align-items: flex-start;
+}
+
+/* Cột bên trái: Ảnh */
+.author-left {
+    flex: 0 0 300px;
+    text-align: center;
+}
+
+.author-left img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    border: 1px solid #eee;
+}
+
+.author-social {
+    margin-top: 15px;
+}
+
+.author-social a {
+    color: #555;
+    font-size: 20px;
+    margin: 0 10px;
+    transition: 0.3s;
+}
+
+.author-social a:hover {
+    color: #007bff;
+}
+
+/* Cột bên phải: Tiểu sử */
+.author-right {
+    flex: 1;
+}
+
+.author-name {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #007bff;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+.author-meta {
+    font-style: italic;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.author-bio {
+    font-size: 1.1rem;
+    text-align: justify;
+    margin-bottom: 20px;
+}
+
+.bio-stats {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.stat-item strong {
+    display: block;
+    font-size: 1.2rem;
+    color: #2c3e50;
+}
+
+.stat-item span {
+    font-size: 0.9rem;
+    color: #777;
+}
+
+/* --- PHẦN 2: CÁC TÁC PHẨM (Grid Layout) --- */
+.author-books-section {
+    margin-top: 40px;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #2c3e50;
+    border-left: 5px solid #007bff;
+    padding-left: 15px;
+}
+
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 25px;
+}
+
+.book-card {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.3s;
+    text-align: center;
+    padding-bottom: 15px;
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.book-cover {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    background-color: #eee;
+}
+
+.book-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin: 10px 0 5px;
+    padding: 0 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.book-year {
+    font-size: 0.9rem;
+    color: #888;
+    margin-bottom: 10px;
+}
+
+.btn-view {
+    display: inline-block;
+    padding: 8px 20px;
+    background: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+.btn-view:hover {
+    background: #0056b3;
+}
+
+/* --- RESPONSIVE (Mobile) --- */
+@media (max-width: 768px) {
+    .author-profile {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .author-left {
+        flex: 0 0 auto;
+        width: 200px;
+        margin-bottom: 20px;
+    }
+
+    .author-right {
+        text-align: center;
+    }
+
+    .bio-stats {
+        justify-content: center;
+    }
+}

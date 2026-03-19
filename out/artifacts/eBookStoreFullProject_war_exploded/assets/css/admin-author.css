@@ -1,0 +1,332 @@
+/* ================= RESET ================= */
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body{
+    margin: 0;
+    display: flex;
+    background: #f5f6fa;
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar{
+    width: 240px;
+    height: 100vh;
+    background: #0396c7;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+}
+
+.sidebar-logo{
+    text-align: center;
+    padding: 15px;
+}
+
+.sidebar-nav{
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+.sidebar-nav a{
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 10px 15px;
+    margin: 2px 0;
+    transition: background 0.3s;
+    border-radius: 5px;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+    background: #2563eb;
+    color: white;
+}
+
+/* ================= MAIN ================= */
+.main-content{
+    margin-left: 240px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ================= TOPBAR ================= */
+.topbar{
+    background: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 25px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.topbar-title{
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.topbar button {
+    background: #2563eb;
+    border: none;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.topbar button:hover {
+    background: #1d4ed8;
+}
+
+/* ================= FORM ================= */
+.dashboard{
+    padding: 20px;
+}
+
+.add-form {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.add-form h2 {
+    color: #2563eb;
+    user-select: none;
+}
+
+.add-form .form-row {
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.add-form label {
+    margin-bottom: 5px;
+    color: #374151;
+    font-weight: bold;
+}
+
+.add-form input,
+.add-form textarea {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.add-form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* giữ tên class cũ cho khỏi sửa JSP */
+.btn-addCategory {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-addCategory:hover {
+    background: #1e40af;
+}
+
+/* ================= TABLE ================= */
+.table-section {
+    margin: 25px;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    overflow-x: auto;
+}
+
+.table-section table {
+    width: 100%;
+    border-collapse: collapse;
+
+    /* 🔧 Author có nhiều cột → tăng min-width */
+    min-width: 1100px;
+}
+
+.table-section th,
+.table-section td {
+    padding: 12px 18px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: middle;
+}
+
+.table-section th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* 🔧 Căn giữa các cột số */
+.table-section td:nth-child(1),
+.table-section td:nth-child(3),
+.table-section td:nth-child(5) {
+    text-align: center;
+}
+
+.table-section tr:hover {
+    background: #f1f5f9;
+}
+
+/* ================= ACTION BUTTON ================= */
+.btn-Edit, .btn-Del {
+    border: none;
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.btn-Edit {
+    background: #facc15;
+    color: #111827;
+    margin-right: 8px;
+}
+
+.btn-Edit:hover {
+    background: #eab308;
+}
+
+.btn-Del {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-Del:hover {
+    background: #dc2626;
+}
+
+/* ================= TOGGLE ADD FORM ================= */
+.add-form form {
+    margin-top: 10px;
+    display: none;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: 0.3s ease;
+}
+
+.add-form.open form {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Icon xoay khi mở */
+.toggle-title i {
+    transition: 0.3s ease;
+}
+
+.add-form.open .toggle-title i {
+    transform: rotate(45deg);
+}
+
+/* ================= INPUT FOCUS ================= */
+.add-form input:focus,
+.add-form textarea:focus,
+.add-form select:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+/* ================= FIX SELECTOR ƯU TIÊN ================= */
+body .sidebar {
+    width: 240px;
+    height: 100vh;
+}
+
+body .main-content {
+    margin-left: 240px;
+}
+
+body .main-content .add-form {
+    background: white;
+    border-radius: 10px;
+}
+
+/* ================= DARK MODE FIX ================= */
+body.dark .add-form {
+    background: #1e293b;
+    color: #f9fafb;
+    border: 1px solid #334155;
+}
+
+body.dark .add-form label {
+    color: #cbd5e1;
+}
+
+body.dark .add-form input,
+body.dark .add-form textarea {
+    background: #334155;
+    color: #f9fafb;
+    border: 1px solid #475569;
+}
+
+/* ================= RESPONSIVE FIX ================= */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70px;
+    }
+    .main-content {
+        margin-left: 70px;
+    }
+}
+
+/* ================= DARK MODE ================= */
+body.dark {
+    background: #111827;
+    color: #f3f4f6;
+}
+
+body.dark .sidebar {
+    background: #0f172a;
+}
+
+body.dark .topbar {
+    background: #1e293b;
+}
+
+body.dark .add-form,
+body.dark .table-section {
+    background: #1e293b;
+    border: 1px solid #334155;
+}
+
+body.dark input,
+body.dark textarea {
+    background: #334155;
+    color: #f9fafb;
+    border: 1px solid #475569;
+}
+
+body.dark .table-section th {
+    background: #273449;
+}
+
+body.dark .table-section tr:hover {
+    background: #2d3b52;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70px;
+    }
+    .main-content {
+        margin-left: 70px;
+    }
+}

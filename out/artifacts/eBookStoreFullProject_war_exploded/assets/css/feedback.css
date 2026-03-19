@@ -1,0 +1,79 @@
+.feedback-container {
+    max-width: 900px; 
+    margin: 40px auto; 
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
+    font-family: Arial, sans-serif;
+}
+
+.feedback-container h2 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.feedback-container p:first-of-type {
+    color: #666;
+    margin-bottom: 25px;
+    line-height: 1.5;
+    border-bottom: 1px solid #eee; 
+    padding-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+
+.form-group label.group-title {
+    display: block;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+
+.required-star {
+    color: red;
+    margin-left: 2px;
+}
+
+
+.textarea-field {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; 
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.textarea-field:focus {
+    border-color: #004aad; /* Màu border khi focus */
+    outline: none;
+}
+
+.textarea-field {
+    min-height: 150px;
+    resize: none; 
+}
+
+.submit-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #004aad; 
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.submit-button:hover {
+    background-color: rgb(30, 68, 126); 
+}

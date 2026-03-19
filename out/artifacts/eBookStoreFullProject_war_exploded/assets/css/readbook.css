@@ -1,0 +1,85 @@
+/* ===== Tổng thể ===== */
+
+
+header, footer {
+ 
+  background-color: #3b5998;
+  color: #f6f6f6;
+  
+}
+
+/* ===== Bố cục chính ===== */
+.reader-container {
+  display: flex;
+  flex: 1;
+  padding: 20px;
+  gap: 20px;
+}
+
+/* ===== Khung đọc sách ===== */
+.book-view {
+  flex: 2;
+}
+
+.book-view iframe {
+  width: 100%;
+  height: 80vh;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  background: white;
+}
+
+/* ===== Thanh công cụ ===== */
+.book-controls {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around; /* chia đều khoảng cách các nhóm */
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.book-controls h3 {
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: #3b5998;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.btn {
+  display: inline-block;
+  margin-top: 5px;
+  padding: 6px 12px;
+  background-color: #3b5998;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: 0.2s;
+}
+
+.btn:hover {
+  background-color: #2d4373;
+}
+
+textarea {
+  width: 100%;
+  height: 70px;
+  resize: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px;
+}
+
+label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

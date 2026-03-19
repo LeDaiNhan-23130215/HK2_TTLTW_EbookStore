@@ -1,0 +1,160 @@
+/* =========================
+   MAIN FILTER
+========================= */
+.main-filters {
+  margin: 60px auto;
+}
+
+/* =========================
+   CONTAINER
+========================= */
+.main-container {
+  display: flex;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 20px auto;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* =========================
+   SIDE BANNER
+========================= */
+.side-banner {
+  width: 180px;
+  background: linear-gradient(135deg, #f0f7ff, #e0f0ff);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.side-banner img {
+  width: 100%;
+  height: auto;
+}
+
+/* =========================
+   MAIN CONTENT
+========================= */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 320px;
+}
+
+.main-content h3 {
+  font-size: 1.6rem;
+  color: #004aad;
+}
+
+/* =========================
+   FILTER ROW
+========================= */
+.filter-row {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background-color: #f9faff;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #dde7f5;
+}
+
+/* =========================
+   FILTER ITEM (1 dòng)
+========================= */
+.filter-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+/* =========================
+   FILTER OPTION
+========================= */
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid #b5b5b5;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: white;
+  transition: 0.25s;
+  white-space: nowrap;
+}
+
+.filter-option:hover {
+  background-color: #eaf3ff;
+  border-color: #004aad;
+}
+
+.filter-option input[type="checkbox"] {
+  accent-color: #004aad;
+  cursor: pointer;
+}
+
+.filter-option i {
+  color: #004aad;
+}
+
+.cat-name {
+  font-weight: 600;
+  color: #333;
+}
+
+/* =========================
+   DESCRIPTION
+========================= */
+.cat-desc {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* =========================
+   FILTER BUTTON
+========================= */
+.btn-filter {
+  margin-top: 12px;
+  align-self: center;
+  padding: 10px 22px;
+  background-color: white;
+  color: #004aad;
+  border: 1px solid #004aad;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-filter:hover {
+  background-color: #004aad;
+  color: white;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 1024px) {
+  .side-banner {
+    display: none;
+  }
+
+  .main-container {
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .filter-item {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-option {
+    width: 100%;
+  }
+}

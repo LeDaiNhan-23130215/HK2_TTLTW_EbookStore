@@ -1,0 +1,149 @@
+/* ===================== MODE SELECT ===================== */
+.mode-select {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.mode-option {
+    flex: 1;
+    padding: 12px 15px;
+    border-radius: 10px;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #374151;
+    transition: all 0.25s ease;
+    position: relative;
+}
+
+.mode-option input {
+    display: none;
+}
+
+.mode-option i {
+    font-size: 1.1rem;
+}
+
+/* Active */
+.mode-option:has(input:checked) {
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
+    box-shadow: 0 6px 15px rgba(37,99,235,0.25);
+}
+
+/* Hover */
+.mode-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* ===================== FORM SECTION ===================== */
+#manualForm,
+#importForm {
+    margin-top: 10px;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px dashed #d1d5db;
+    background: #f9fafb;
+    animation: fadeIn 0.3s ease;
+    margin-bottom: 15px;
+}
+
+#importForm {
+    border-style: solid;
+    background: #f0f9ff;
+    border-color: #93c5fd;
+}
+
+/* ===================== FILE INPUT ===================== */
+#importForm input[type="file"] {
+    padding: 10px;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+}
+
+#importForm small {
+    display: block;
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #475569;
+}
+
+.form-actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.image-input {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.image-input input {
+    grid-column: 1 / 2;
+}
+
+.image-input img {
+    grid-column: 1 / 2;
+    max-width: 160px;
+    max-height: 220px;
+    object-fit: cover;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.image-input button {
+    grid-column: 2 / 3;
+}
+
+/* ===================== ANIMATION ===================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===================== DARK MODE ===================== */
+body.dark .mode-option {
+    background: #1e293b;
+    border-color: #334155;
+    color: #cbd5e1;
+}
+
+body.dark .mode-option:has(input:checked) {
+    background: #3b82f6;
+    border-color: #3b82f6;
+    color: #fff;
+}
+
+body.dark #manualForm {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+body.dark #importForm {
+    background: #0f172a;
+    border-color: #2563eb;
+}
+
+body.dark #importForm small {
+    color: #cbd5e1;
+}

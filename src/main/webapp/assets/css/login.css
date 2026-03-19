@@ -1,0 +1,170 @@
+*{
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+form{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 400px;
+    height: auto;
+    gap: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.container .header{
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #0396c7;
+    margin-top: 25px;
+}
+.container .input{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.container .input .input-div input{
+    border: none;
+    outline: none;
+    width: 300px;
+    height: 50px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    border-radius: 10px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+}
+.container .input-div .error-msg {
+    color: hsl(0, 100%, 70%);
+    font-size: 0.7rem;
+    margin-top: 4px;
+    display: block;
+    height: 14px;
+}
+.container .input .input-div input::placeholder{
+    color: #0396c7;
+    font-weight: bold;
+}
+.container .input .input-div input:hover{
+    transform: translateY(-10px);
+    cursor: pointer;
+}
+.container .input button{
+    width: 300px;
+    height: 50px;
+    border-radius: 20px;
+    color: #fff;
+    font-weight: 500;
+    font-size: 0.9rem;
+    background-color: rgb(3, 150, 199);
+    border: none;
+}
+.container .input button:hover{
+    background-color: hsl(195, 98%, 50%);
+    cursor: pointer;
+}
+.container a {
+    text-decoration: none;
+}
+.container .forgetPassword{
+    font-size: 0.9rem;
+    color: rgb(185 185 185);
+}
+.container .forgetPassword:hover{
+    color: #0396c7
+}
+.container .anotherOption{
+    font-size: 0.75rem;
+    color: rgb(185 185 185);
+}
+.container .logoContainer .logoList{
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    gap: 15px;
+}
+.container .logoContainer .logoList li{
+    background-color: rgb(254 254 254);
+    padding: 10px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+.container .logoContainer .logoList li:hover{
+    transform: translateY(-5px);
+    cursor: pointer;
+}
+.container .signUp{
+    color: hsl(195, 97%, 30%);
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-top: auto; 
+    margin-bottom: 20px;
+}
+.container .signUp:hover{
+    color: #0396c7;
+    cursor: pointer;
+}
+/* ---------- Màn hình ≤ 900px ---------- */
+@media (max-width: 900px) {
+    .container {
+        width: 90%;
+        padding: 15px;
+        gap: 15px;
+        margin: 10px;
+    }
+
+    .container .header {
+        font-size: 1.3rem;
+        text-align: center;
+    }
+
+    .container .input .input-div input,
+    .container .input button {
+        width: 100%;
+        height: 45px;
+        font-size: 0.9rem;
+    }
+
+    .container .forgetPassword,
+    .container .anotherOption,
+    .container .signUp {
+        font-size: 0.8rem;
+        text-align: center;
+    }
+
+    .container .logoContainer .logoList li {
+        padding: 8px;
+    }
+}
+
+/* Hiệu ứng hover giữ nguyên */
+@media (hover: hover) {
+    .container .input .input-div input:hover {
+        transform: translateY(-5px);
+    }
+    .container .input button:hover {
+        background-color: hsl(195, 98%, 50%);
+    }
+    .container .logoContainer .logoList li:hover {
+        transform: translateY(-3px);
+    }
+    .container .forgetPassword:hover,
+    .container .signUp:hover {
+        color: #0396c7;
+    }
+}

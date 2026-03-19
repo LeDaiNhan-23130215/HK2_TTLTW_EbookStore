@@ -1,0 +1,162 @@
+/* Thiết lập cơ bản */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+
+/* container */
+.addressMainContent {
+    display: flex;
+    max-width: 90vw; 
+    height: 85vh; /* Chiều cao tổng thể */
+    margin: 2.5vh auto; 
+    padding: 0 20px;
+    gap: 15px; 
+}
+
+/* thông tin liên hệ */
+.contactInfoContainer {
+    flex: 1 1 40%; 
+    display: flex;
+    flex-direction: column;
+    gap: 15px; 
+    height: 100%; /* Buộc cột này kéo dài bằng Bản đồ */
+}
+
+/* Thẻ Thông tin Nhà Sách  */
+.infoCard--primary {
+    /* Thêm các dòng dưới đây để đồng bộ */
+    border-radius: 8px;
+    overflow: hidden; /* Cắt góc vuông của thẻ h2 màu xanh bên trong */
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1); /* Đồng bộ đổ bóng */
+    background-color: #fff; /* Đảm bảo nền trắng giống thẻ dưới */
+}
+
+/* Thẻ liên hệ */
+.contactFormCard {
+    /* Quan trọng: Cho phép thẻ Form kéo dài để lấp đầy khoảng trống còn lại */
+    /* Đổi flex-grow từ 1 thành 0 để nó không tự động giãn ra */
+    flex-grow: 0; 
+    
+    /* Các thuộc tính khác giữ nguyên */
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    background-color: #fff;
+    
+    /* Tùy chọn: Thêm chiều cao tự động */
+    height: auto;
+}
+
+
+/* bản đồ google map */
+.mapContainer {
+    flex: 1 1 60%; 
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+    height: 100%; 
+}
+
+.mapContainer iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* --- kích thước nội dung form --- */
+
+/* Header Form */
+.contactFormCard h3 {
+    background-color: #0396c7;
+    padding: 8px 12px; 
+    font-size: 1.1rem; 
+    flex-shrink: 0; /* Không cho header co lại */
+    color: #fff;
+}
+
+.contactDescription {
+    padding: 10px 12px 5px; 
+    font-size: 0.9rem; 
+    flex-shrink: 0; /* Không cho mô tả co lại */
+}
+
+.contactForm {
+    /* Cho form chiếm hết phần còn lại */
+    flex-grow: 1; 
+    padding: 10px 12px 12px; 
+    display: flex;
+    flex-direction: column;
+    gap: 8px; 
+    /* Bỏ height: 100% ở đây, để nó tự co giãn theo flex-grow */
+}
+
+/* Quan trọng: Cho textarea kéo dài */
+.contactForm textarea {
+    /* Cho textarea kéo dài để lấp đầy khoảng trống lớn nhất */
+    flex-grow: 1; 
+    min-height: 70px; /* Chiều cao tối thiểu */
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    resize: none; /* Khóa resize để form không bị lỗi */
+}
+
+.submitButton {
+    padding: 6px 12px; 
+    font-size: 0.95rem; 
+    align-self: flex-start;
+    flex-shrink: 0; /* Không cho nút co lại */
+}
+
+/* --- định dạng phần còn lại --- */
+
+.infoCard--primary h2 {
+    background-color: #0396c7;
+    padding: 8px 12px; 
+    font-size: 1.2rem; 
+    color: #fff;
+}
+
+.infoDetail {
+    padding: 12px; 
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 15px; 
+}
+/* Thêm vào address.css */
+.contactDescription a {
+    color: inherit; /* Hoặc color: #000; để lấy màu đen */
+    text-decoration: none; /* Bỏ gạch chân */
+}
+
+/* (Tùy chọn) Đổi màu khi di chuột vào để người dùng biết là bấm được */
+.contactDescription a:hover {
+    color: #0396c7; 
+    text-decoration: underline;
+}
+
+/* Media Query (Vẫn đảm bảo responsive) */
+@media (max-width: 992px) {
+    .addressMainContent {
+        flex-direction: column;
+        height: auto; 
+    }
+    .contactInfoContainer, .contactFormCard {
+        height: auto; 
+    }
+    .contactForm {
+        flex-grow: 0; /* Bỏ kéo dài trên mobile */
+    }
+    .contactForm textarea {
+        flex-grow: 0;
+        height: 100px; /* Cố định chiều cao trên mobile */
+    }
+    .mapContainer {
+        height: 350px; 
+    }
+}

@@ -1,0 +1,92 @@
+.faq-container {
+    max-width: 800px;
+    margin: 60px auto;
+    padding: 40px 20px;
+    font-family: Arial, sans-serif;
+}
+
+/* Banner */
+.faq-banner {
+    text-align: center;
+    background-color: #4a90e2;
+    color: #fff;
+    padding: 60px 20px;
+    border-radius: 10px;
+    margin-bottom: 40px;
+}
+
+.faq-banner h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.faq-banner p {
+    font-size: 1.1rem;
+}
+
+.faq-section h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* FAQ Item */
+.faq-item {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ccc;
+}
+
+.faq-question {
+    width: 100%;
+    text-align: left;
+    background: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    font-size: 1rem;
+    cursor: pointer;
+    outline: none;
+    transition: background 0.3s ease;
+}
+
+.faq-question:hover {
+    background-color: white;
+    color: #004aad;
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.4s ease;
+    padding: 0 15px;
+}
+
+.faq-answer p {
+    margin: 10px 0;
+}
+
+/* Khi active (JS thêm class) */
+.faq-item.active .faq-answer {
+    max-height: 500px; /* đủ cao để chứa nội dung */
+    padding: 10px 15px;
+}
+
+
+.faq-not-found {
+    color: #004aad;
+    background-color: white;
+    border: 1px solid #004aad;
+    text-align: center;
+    margin: 60px auto;
+    font-size: 1.2rem;
+    width: 50%;
+    padding: 10px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.faq-not-found:hover {
+    color: white;
+    background-color: #004aad;
+}
