@@ -26,6 +26,7 @@ public class  HomeController extends HttpServlet {
     public void init() throws ServletException {
         ebookService = new EbookService();
         wishlistService = new WishlistService();
+        System.out.println("HOME CONTROLLER LOADED");
     }
 
     @Override
@@ -79,4 +80,6 @@ public class  HomeController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
     }
+
+
 }
