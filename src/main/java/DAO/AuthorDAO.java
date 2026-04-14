@@ -11,11 +11,10 @@ public class AuthorDAO {
 
     /* ================= INSERT ================= */
     public int insertAndReturnId(Author author) {
-        String sql = """
-            INSERT INTO author
-            (authorName, authorDetail)
-            VALUES (?, ?)
-        """;
+        String sql =
+            "INSERT INTO author"+
+            "(authorName, authorDetail)"
+            +"VALUES (?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
