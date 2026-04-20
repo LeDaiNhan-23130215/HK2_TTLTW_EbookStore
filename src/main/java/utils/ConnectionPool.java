@@ -16,14 +16,10 @@ public class ConnectionPool {
     private final List<Connection> availables = new ArrayList<>();
     private final List<Connection> inUses = new ArrayList<>();
 
-    private final String URL = "jdbc:mysql://localhost:3306/ebookstore"
-            + "?useSSL=false"
-            + "&useUnicode=true"
-            + "&characterEncoding=UTF-8"
-            + "&serverTimezone=Asia/Ho_Chi_Minh";
+    private final String URL = "jdbc:mysql://localhost:3306/ebookstore?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
 
     private final String USER = "root";
-    private final String PASS = "";
+    private final String PASS = "LeDaiNhan05012005!";
 
     private volatile boolean closed = false;
 
