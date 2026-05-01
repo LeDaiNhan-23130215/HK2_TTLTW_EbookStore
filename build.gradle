@@ -1,5 +1,5 @@
 plugins {
-    id 'java-library'
+    id 'java'
     id 'maven-publish'
     id 'war'
     id 'org.hidetake.ssh' version '2.11.2'
@@ -92,7 +92,8 @@ dependencies {
     implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl:3.0.1'
     compileOnly 'jakarta.servlet:jakarta.servlet-api:6.0.0'
     implementation libs.org.jdbi.jdbi3.core
-    implementation 'com.mysql:mysql-connector-j:8.3.0'
+// Source: https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
+    implementation 'com.mysql:mysql-connector-j:9.7.0'
     implementation libs.at.favre.lib.bcrypt
     implementation libs.com.sun.mail.jakarta.mail
     implementation libs.commons.fileupload.commons.fileupload
@@ -105,4 +106,7 @@ dependencies {
     implementation libs.com.google.code.gson.gson
     testImplementation libs.org.junit.jupiter.junit.jupiter.api
     testRuntimeOnly libs.org.junit.jupiter.junit.jupiter.engine
+
+    // Source: https://mvnrepository.com/artifact/com.zaxxer/HikariCP
+    implementation 'com.zaxxer:HikariCP:7.0.2'
 }
