@@ -6,83 +6,58 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
 public class ConnectionPool {
 
     private static ConnectionPool instance;
 
-    private static final int INITIAL_POOL_SIZE = 2;
-    private static final int MAX_POOL_SIZE = 5;
-
-    private final List<Connection> availables = new ArrayList<>();
-    private final List<Connection> inUses = new ArrayList<>();
-
     private final String URL = "jdbc:mysql://localhost:3306/ebookstore?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
-
     private final String USER = "root";
     private final String PASS = "LeDaiNhan05012005!";
 
-    private volatile boolean closed = false;
+    private HikariDataSource ds;
 
-    private ConnectionPool() throws SQLException {
-        for (int i = 0; i < INITIAL_POOL_SIZE; i++) {
-            availables.add(createConnection());
-        }
+    private ConnectionPool() {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(URL);
+        config.setUsername(USER);
+        config.setPassword(PASS);
+
+        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+
+        config.setMaximumPoolSize(5);
+        config.setMinimumIdle(2);
+
+        config.setIdleTimeout(30000);
+        config.setMaxLifetime(1800000);
+        config.setConnectionTimeout(3000);
+
+        ds = new HikariDataSource(config);
     }
 
-    public static synchronized ConnectionPool getInstance() throws SQLException {
+    public static synchronized ConnectionPool getInstance() {
         if (instance == null) {
             instance = new ConnectionPool();
         }
         return instance;
     }
 
-    private Connection createConnection() throws SQLException {
+    public Connection getConnection() throws SQLException {
+        return ds.getConnection();
+    }
+
+    public void shutdown() throws SQLException {
+        ds.close();
+    }
+
+    public static void main(String[] args) {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
+            System.out.println("Driver OK");
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
-        return DriverManager.getConnection(URL, USER, PASS);
     }
-
-    public synchronized Connection getConnection() throws SQLException {
-        if (availables.isEmpty()) {
-            if (inUses.size() < MAX_POOL_SIZE) {
-                availables.add(createConnection());
-            } else {
-                throw new SQLException("Connection Pool Exhausted");
-            }
-        }
-
-        Connection conn = availables.remove(availables.size() - 1);
-        inUses.add(conn);
-        return new PooledConnection(conn, this);
-    }
-
-    protected synchronized void release(Connection conn) {
-        System.out.println("Release: " + conn);
-        inUses.remove(conn);
-        availables.add(conn);
-    }
-
-    public boolean isClosed() {
-        return this.closed;
-    }
-
-    public synchronized void shutdown() {
-        closed = true;
-
-        System.out.println("Close pool");
-
-        for(Connection conn : availables) {
-            try {conn.close();} catch (Exception ignored){}
-        }
-        for(Connection conn : inUses) {
-            try {conn.close();} catch (Exception ignored){}
-        }
-
-        availables.clear();
-        inUses.clear();
-    }
-
 }
