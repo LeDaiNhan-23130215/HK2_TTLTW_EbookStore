@@ -12,9 +12,11 @@ import utils.DBConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EbookDAO {
-
+    public static final Logger LOGGER = LoggerFactory.getLogger(EbookDAO.class);
     public Ebook getEbookById(int id) {
         String sql = "SELECT * FROM ebook WHERE id = ?";
         ImageDAO imageDAO = new ImageDAO();
@@ -40,13 +42,11 @@ public class EbookDAO {
                         rs.getString("status")
                 );
 
-                // ===== LOAD IMAGES =====
-                List<Image> images = new ArrayList<>();
+                   List<Image> images = new ArrayList<>();
                 for (int imgId : ebookImageDAO.getImageIdsByEbook(id)) {
                     images.add(imageDAO.getImageById(imgId));
                 }
 
-                // ===== LOAD AUTHORS =====
                 List<Author> authors = new ArrayList<>();
                 for (int authorId : ebookAuthorDAO.getAuthorIdsByEbook(id)) {
                     authors.add(authorDAO.getById(authorId));
@@ -79,6 +79,7 @@ public class EbookDAO {
     }
 
     public List<Ebook> getNewBook() {
+        LOGGER.info("Lấy dữ liệu sách mới");
         List<Ebook> ebooks = new ArrayList<>();
         String sql = "SELECT id, ebookCode, title, price, description, categoryID, fileID, status " +
                 "FROM ebook " +
@@ -87,7 +88,6 @@ public class EbookDAO {
                 "LIMIT 15";
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement stm = connection.prepareStatement(sql)) {
-
             ResultSet rs = stm.executeQuery();
             while (rs.next()) {
                 ebooks.add(new Ebook(
@@ -100,9 +100,10 @@ public class EbookDAO {
                         rs.getInt("fileID"),
                         rs.getString("status")
                 ));
+                LOGGER.debug("Query: {}", sql);
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            LOGGER.error("Không truy xuất được sách mới");
         }
         return ebooks;
     }
