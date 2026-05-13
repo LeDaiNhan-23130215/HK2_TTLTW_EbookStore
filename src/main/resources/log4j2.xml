@@ -11,11 +11,10 @@
         <Root level="debug">
             <AppenderRef ref="Console"/>
         </Root>
+
+        <Logger name="com.zaxxer.hikari" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
     </Loggers>
 
-    <Logger name="com.zaxxer.hikari" level="debug" additivity="false">
-        <AppenderRef ref="Console"/>
-    </Logger>
-
 </Configuration>
-

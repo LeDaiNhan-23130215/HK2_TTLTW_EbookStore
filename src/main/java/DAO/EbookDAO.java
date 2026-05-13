@@ -262,7 +262,7 @@ public class EbookDAO {
         applyFilter(sql, params, filter);
 
         try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql.toString())) {
+             PreparedStatement ps = con.prepareStatement(String.valueOf(sql))) {
             bindParams(ps, params);
             ResultSet rs = ps.executeQuery();
             int count = rs.next() ? rs.getInt(1) : 0;
@@ -480,7 +480,7 @@ public class EbookDAO {
         }
         if (f.getCategoryId() != null && !f.getCategoryId().isEmpty()) {
             sql.append(" AND e.categoryID IN (");
-            sql.append("?,".repeat(f.getCategoryId().size() - 1)).append("?)");
+            sql.repeat("?,", f.getCategoryId().size() - 1).append("?)");
             params.addAll(f.getCategoryId());
         }
         if (f.getFormats() != null && !f.getFormats().isEmpty()) {
@@ -499,7 +499,67 @@ public class EbookDAO {
         }
     }
 
-    public static void main(String[] args) {
-        logger.info("{} Application started via EbookDAO Main test", LOG_PREFIX);
+    public List<Ebook> getAdminEbooks(int page, int size) {
+
+        List<Ebook> list = new ArrayList<>();
+
+
+
+        String sql = """
+
+SELECT id, title, price, status, eBookCode, categoryID
+
+FROM ebook
+
+ORDER BY id DESC
+
+LIMIT ? OFFSET ?
+
+""";
+
+
+
+        try (Connection conn = DBConnection.getConnection();
+
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+
+
+            ps.setInt(1, size);
+
+            ps.setInt(2, (page - 1) * size);
+
+
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                int id = Integer.parseInt(rs.getString("id"));
+
+                Ebook e = new Ebook(id);
+
+                e.setTitle(rs.getString("title"));
+
+                e.setPrice(rs.getDouble("price"));
+
+                e.setStatus(rs.getString("status"));
+
+                e.setBookCode(rs.getString("eBookCode"));
+
+                e.setCategoryID(rs.getInt("categoryID"));
+
+                list.add(e);
+
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+        return list;
+
     }
 }
