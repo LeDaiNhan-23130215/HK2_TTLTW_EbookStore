@@ -27,24 +27,26 @@
         <p class="header">Quên mật khẩu</p>
 
         <!-- ===== HIỂN THỊ LỖI ===== -->
-        <c:if test="${not empty param.error}">
-            <p class="error-msg">
-                <c:choose>
-                    <c:when test="${param.error == 'emailNotFound'}">
-                        Email không tồn tại trong hệ thống.
-                    </c:when>
-                    <c:when test="${param.error == 'invalidCode'}">
-                        Mã xác nhận không hợp lệ hoặc đã hết hạn.
-                    </c:when>
-                    <c:when test="${param.error == 'passwordMismatch'}">
-                        Mật khẩu xác nhận không khớp.
-                    </c:when>
-                    <c:otherwise>
-                        Có lỗi xảy ra, vui lòng thử lại.
-                    </c:otherwise>
-                </c:choose>
-            </p>
-        </c:if>
+        <div style="min-height:28px;">
+            <c:if test="${not empty param.error}">
+                <p style="color:#c0392b;font-size:13px;background:#fdf0f0;
+                  border-left:4px solid #e74c3c;padding:8px 12px;border-radius:4px;">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <c:choose>
+                        <c:when test="${param.error == 'emailNotFound'}">
+                            Email không tồn tại hoặc không chính xác trong hệ thống.
+                        </c:when>
+                        <c:when test="${param.error == 'invalidCode'}">
+                            Mã OTP không hợp lệ hoặc đã hết hạn. Vui lòng kiểm tra lại email.
+                        </c:when>
+                        <c:when test="${param.error == 'passwordMismatch'}">
+                            Mật khẩu xác nhận không khớp. Vui lòng nhập lại.
+                        </c:when>
+                        <c:otherwise>Có lỗi xảy ra, vui lòng thử lại.</c:otherwise>
+                    </c:choose>
+                </p>
+            </c:if>
+        </div>
 
         <div class="input">
 
