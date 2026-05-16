@@ -29,13 +29,8 @@ public class ContactInformationController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession();
-        User user = (User) session.getAttribute("user");
-
-        if (user == null) {
-            resp.sendRedirect("login");
-            return;
-        }
-
+        User user =
+                (User) session.getAttribute("user");
         int userId = user.getId();
 
         Cart cart = cartService.getCartByUserID(userId);

@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import models.Checkout;
+import models.User;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,13 +22,11 @@ public class YourOrderController extends HttpServlet {
 
         HttpSession session = req.getSession(false);
 
-        // 1. Check login
-        if (session == null || session.getAttribute("userID") == null) {
-            resp.sendRedirect("login");
-            return;
-        }
 
-        int userID = (int) session.getAttribute("userID");
+        User user =
+                (User) session.getAttribute("user");
+
+        int userID = user.getId();
 
         // 2. Lấy đơn hàng theo user
         CheckoutDAO checkoutDAO = new CheckoutDAO();
