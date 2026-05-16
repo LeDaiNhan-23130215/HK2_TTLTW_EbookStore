@@ -87,7 +87,10 @@ public class ForgotPasswordController extends HttpServlet {
         resp.sendRedirect(req.getContextPath() + "/forgot-password?step=verify");
     }
 
-    private void verifyCode(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    private void verifyCode(HttpServletRequest req,
+                            HttpServletResponse resp)
+            throws IOException {
+
         String code =
                 req.getParameter("confirmCode");
 
@@ -100,6 +103,7 @@ public class ForgotPasswordController extends HttpServlet {
 
             return;
         }
+
         String tokenHash =
                 HashUtil.sha256(code.trim());
 
@@ -109,8 +113,10 @@ public class ForgotPasswordController extends HttpServlet {
         if (opt.isEmpty()) {
 
             resp.sendRedirect(
-                    req.getContextPath() + "/forgot-password?step=verify&error=invalidCode"
+                    req.getContextPath()
+                            + "/forgot-password?step=verify&error=invalidCode"
             );
+
             return;
         }
 
