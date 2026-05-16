@@ -4,6 +4,7 @@ import models.PasswordReset;
 import utils.DBConnection;
 
 import java.sql.*;
+import java.time.Instant;
 import java.util.Optional;
 
 public class PasswordResetDAO {
@@ -28,11 +29,10 @@ public class PasswordResetDAO {
 
     public Optional<PasswordReset> findValidToken(String tokenHash) {
         String sql = """
-            SELECT * FROM passwordreset
-            WHERE tokenHash = ?
-              AND isUsed = 0
-              AND expiresAt > CURRENT_TIMESTAMP
-        """;
+        SELECT * FROM passwordreset
+        WHERE tokenHash = ?
+          AND isUsed = 0
+    """;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -41,12 +41,16 @@ public class PasswordResetDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
+                Timestamp expiresAt = rs.getTimestamp("expiresAt");
+                if (expiresAt.toInstant().isBefore(Instant.now())) {
+                    return Optional.empty(); // Đã hết hạn
+                }
                 int id = rs.getInt("id");
                 PasswordReset pr = new PasswordReset(id);
                 pr.setUserID(rs.getInt("userID"));
                 pr.setTokenHash(rs.getString("tokenHash"));
                 pr.setCreatedAt(rs.getTimestamp("createdAt"));
-                pr.setExpiresAt(rs.getTimestamp("expiresAt"));
+                pr.setExpiresAt(expiresAt);
                 pr.setUsed(rs.getBoolean("isUsed"));
                 return Optional.of(pr);
             }
