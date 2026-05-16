@@ -88,20 +88,49 @@ public class ForgotPasswordController extends HttpServlet {
     }
 
     private void verifyCode(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String code = req.getParameter("confirmCode");
-        String tokenHash = HashUtil.sha256(code);
+        String code =
+                req.getParameter("confirmCode");
 
-        Optional<PasswordReset> opt = passwordResetDAO.findValidToken(tokenHash);
+        if (code == null || code.isBlank()) {
+
+            resp.sendRedirect(
+                    req.getContextPath()
+                            + "/forgot-password?step=verify&error=invalidCode"
+            );
+
+            return;
+        }
+        String tokenHash =
+                HashUtil.sha256(code.trim());
+
+        Optional<PasswordReset> opt =
+                passwordResetDAO.findValidToken(tokenHash);
+
         if (opt.isEmpty()) {
-            resp.sendRedirect(req.getContextPath() + "/forgot-password?error=invalidCode");
+
+            resp.sendRedirect(
+                    req.getContextPath() + "/forgot-password?step=verify&error=invalidCode"
+            );
             return;
         }
 
-        HttpSession session = req.getSession();
-        session.setAttribute("resetTokenID", opt.get().getId());
-        session.setAttribute("resetUserID", opt.get().getUserID());
+        HttpSession session =
+                req.getSession();
 
-        resp.sendRedirect(req.getContextPath() + "/forgot-password?step=reset");
+        session.setAttribute(
+                "resetTokenID",
+                opt.get().getId()
+        );
+
+        session.setAttribute(
+                "resetUserID",
+                opt.get().getUserID()
+        );
+
+        resp.sendRedirect(
+                req.getContextPath()
+                        + "/forgot-password?step=reset"
+        );
     }
 
     private void resetPassword(HttpServletRequest req, HttpServletResponse resp) throws IOException {
