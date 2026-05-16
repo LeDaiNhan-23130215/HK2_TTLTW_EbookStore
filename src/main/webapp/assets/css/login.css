@@ -168,3 +168,18 @@ form{
         color: #0396c7;
     }
 }
+/* Cố định container không bị dãn khi lỗi */
+form .container {
+    min-height: 480px;      /* chiều cao cố định tối thiểu */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* Thông báo lỗi không chiếm thêm chỗ, dùng min-height */
+.error-server {
+    min-height: 24px;
+    color: red;
+    font-size: 13px;
+    margin-bottom: 8px;
+}

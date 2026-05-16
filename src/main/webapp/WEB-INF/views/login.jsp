@@ -25,9 +25,9 @@
     <form action="${pageContext.request.contextPath}/login" method="post">
       <div class="container">
         <p class="header">Đăng nhập</p>
-          <c:if test="${not empty error_msg}">
-              <p style="color:red; margin-bottom: 10px">${error_msg}</p>
-          </c:if>
+        <div class="error-server">
+          <c:if test="${not empty error_msg}">${error_msg}</c:if>
+        </div>
         <div class="input">
           <div class="input-div">
             <input
