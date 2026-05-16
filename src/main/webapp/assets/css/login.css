@@ -58,8 +58,7 @@ form{
     font-weight: bold;
 }
 .container .input .input-div input:hover{
-    transform: translateY(-10px);
-    cursor: pointer;
+    cursor: text;
 }
 .container .input button{
     width: 300px;
@@ -151,11 +150,15 @@ form{
         padding: 8px;
     }
 }
+.container .input .input-div input:focus{
+    border: 2px solid #0396c7;
+    box-shadow: 0 0 6px rgba(3,150,199,0.3);
+}
 
 /* Hiệu ứng hover giữ nguyên */
 @media (hover: hover) {
     .container .input .input-div input:hover {
-        transform: translateY(-5px);
+        transform: none;
     }
     .container .input button:hover {
         background-color: hsl(195, 98%, 50%);
