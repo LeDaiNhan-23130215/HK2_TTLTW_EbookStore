@@ -65,7 +65,7 @@ public class LoginController extends HttpServlet {
         User user = userDAO.login(input, password);
 
         if (user == null) {
-            req.setAttribute("error_msg", "Tên đăng nhập hoặc mật khẩu không đúng. Ví dụ email: abc@gmail.com");
+            req.setAttribute("error_msg", "Tên đăng nhập hoặc mật khẩu không đúng.");
             req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
             return;
         }
