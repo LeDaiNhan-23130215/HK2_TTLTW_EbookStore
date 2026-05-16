@@ -33,7 +33,7 @@ public class LoginController extends HttpServlet {
         if (input == null || input.isEmpty() ||
                 password == null || password.isEmpty()) {
 
-            req.setAttribute("error_msg", "Please enter username and password");
+            req.setAttribute("error_msg", "Vui lòng nhập thông tin đăng nhập !");
             req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
             return;
         }
@@ -60,8 +60,26 @@ public class LoginController extends HttpServlet {
             totalCartDetails = cartService.getTotalCartDetails(cart.getId());
         }
         session.setAttribute("totalCartDetails", totalCartDetails);
+        session.setAttribute(
+                "toastSuccess",
+                "Đăng nhập thành công!"
+        );
 
+        String redirectUrl =
+                (String) session.getAttribute("redirectAfterLogin");
 
-        resp.sendRedirect(req.getContextPath() + "/home");
+        if (redirectUrl != null &&
+                !redirectUrl.isEmpty()) {
+
+            session.removeAttribute("redirectAfterLogin");
+
+            resp.sendRedirect(redirectUrl);
+
+        } else {
+
+            resp.sendRedirect(
+                    req.getContextPath() + "/home"
+            );
+        }
     }
 }

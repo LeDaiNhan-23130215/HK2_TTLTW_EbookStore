@@ -26,11 +26,6 @@ public class CartController extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
 
-        if (user == null) {
-            response.sendRedirect("login");
-            return;
-        }
-
         int userId = user.getId();
 
         Cart cart = cartService.getCartByUserID(userId);
@@ -58,10 +53,6 @@ public class CartController extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
 
-        if (user == null) {
-            response.sendRedirect("login");
-            return;
-        }
 
         String action = request.getParameter("action");
         int userId = user.getId();

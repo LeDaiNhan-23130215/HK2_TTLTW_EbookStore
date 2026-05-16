@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="assets/css/base.css" />
     <link rel="stylesheet" href="assets/css/login.css" />
     <link rel="stylesheet" href="assets/css/components.css" />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
@@ -36,14 +38,15 @@
             />
               <span class="error-msg"></span>
           </div>
-          <div class="input-div">
-            <input
-              type="password"
-              name="password"
-              id="password"
-              placeholder="Mật khẩu"
-            />
-              <span class="error-msg"></span>
+          <div class="input-div" style="position:relative;">
+            <input type="password" name="password" id="password"
+                   placeholder="Mật khẩu" value="${param.password}" />
+            <span onclick="togglePw('password','eyeLogin')"
+                  style="position:absolute;right:12px;top:50%;transform:translateY(-50%);
+                 cursor:pointer;color:#888;">
+        <i class="fa-regular fa-eye" id="eyeLogin"></i>
+    </span>
+            <span class="error-msg"></span>
           </div>
           <button type="submit" class="signIn-btn">Đăng nhập</button>
         </div>

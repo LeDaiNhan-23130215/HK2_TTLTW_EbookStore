@@ -5,8 +5,10 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import models.Ebook;
 import models.Image;
+import models.User;
 import services.BookshelfService;
 import services.ImageServices;
 
@@ -29,13 +31,10 @@ public class BookShelfController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        var session = req.getSession(false);
-        if (session == null || session.getAttribute("userID") == null) {
-            resp.sendRedirect(req.getContextPath() + "/login");
-            return;
-        }
-
-        int userId = (Integer) session.getAttribute("userID");
+        HttpSession session = req.getSession();
+        User user =
+                (User) session.getAttribute("user");
+        int userId = user.getId();
 
         List<Ebook> books = bookshelfService.getBooksOfUserWithDetails(userId);
 

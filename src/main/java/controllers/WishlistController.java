@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import models.Ebook;
+import models.User;
 import services.WishlistService;
 
 import java.io.IOException;
@@ -27,10 +28,6 @@ public class WishlistController extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = req.getSession(false);
-        if (session == null || session.getAttribute("userID") == null) {
-            resp.sendRedirect(req.getContextPath() + "/login");
-            return;
-        }
 
         int userID = (Integer) session.getAttribute("userID");
 
@@ -53,12 +50,10 @@ public class WishlistController extends HttpServlet {
             throws IOException {
 
         HttpSession session = req.getSession(false);
-        if (session == null || session.getAttribute("userID") == null) {
-            resp.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
 
-        int userID = (Integer) session.getAttribute("userID");
+        User user =
+                (User) session.getAttribute("user");
+        int userID = user.getId();
         String action = req.getParameter("action");
         int ebookId = Integer.parseInt(req.getParameter("ebookId"));
 

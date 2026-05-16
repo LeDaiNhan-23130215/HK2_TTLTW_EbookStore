@@ -5,6 +5,13 @@ const passwordRegex =
 function showError(input, message) {
     input.parentElement.querySelector('.error-msg').textContent = message;
 }
+function togglePw(inputId, eyeId) {
+    const el = document.getElementById(inputId);
+    const ey = document.getElementById(eyeId);
+    el.type = el.type === 'password' ? 'text' : 'password';
+    ey.classList.toggle('fa-eye');
+    ey.classList.toggle('fa-eye-slash');
+}
 
 function clearError(input) {
     input.parentElement.querySelector('.error-msg').textContent = "";

@@ -35,10 +35,6 @@ public class CheckoutController extends HttpServlet {
         HttpSession session = req.getSession();
         User user = (User) session.getAttribute("user");
 
-        if (user == null) {
-            resp.sendRedirect("login");
-            return;
-        }
 
         int userId = user.getId();
 
@@ -65,15 +61,13 @@ public class CheckoutController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         HttpSession session = req.getSession();
-        User user = (User) session.getAttribute("user");
+        User user =
+                (User) session.getAttribute("user");
 
-        if (user == null) {
-            resp.sendRedirect("login");
-            return;
-        }
+        int userId = user.getId();
+
 
         int paymentMethodID = checkoutService.getPMIDByName(req.getParameter("paymentMethod"));
-        int userId = user.getId();
         Cart cart = cartService.getCartByUserID(userId);
         if (cart == null) {
             cartService.createCart(userId);
