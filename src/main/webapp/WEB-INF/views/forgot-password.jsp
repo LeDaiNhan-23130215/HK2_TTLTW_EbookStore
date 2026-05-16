@@ -101,5 +101,6 @@
 <jsp:include page="/WEB-INF/views/footer.jsp"/>
 
 <script src="${pageContext.request.contextPath}/assets/js/component.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/forgot-password.js" defer></script>
 </body>
 </html>
