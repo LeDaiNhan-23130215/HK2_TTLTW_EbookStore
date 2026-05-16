@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -48,6 +49,7 @@
     </span>
             <span class="error-msg"></span>
           </div>
+          <div class="g-recaptcha" data-sitekey="6LfYFe0sAAAAAEgQiE3PmUlBnov4MPz_aQIEcZZi"></div>
           <button type="submit" class="signIn-btn">Đăng nhập</button>
         </div>
         <a href="${pageContext.request.contextPath}/forgot-password"><p class="forgetPassword">Quên mật khẩu</p></a>
