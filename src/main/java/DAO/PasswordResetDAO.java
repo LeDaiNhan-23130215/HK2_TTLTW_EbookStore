@@ -10,8 +10,8 @@ import java.util.Optional;
 public class PasswordResetDAO {
     public void createToken(int userID, String tokenHash, Timestamp expiresAt) {
         String sql = """
-            INSERT INTO passwordreset (userID, tokenHash, expiresAt, isUsed)
-            VALUES (?, ?, ?, FALSE)
+            INSERT INTO passwordreset (userID, token, expiresAt)
+            VALUES (?, ?, ?)
         """;
 
         try (Connection conn = DBConnection.getConnection();
@@ -30,8 +30,7 @@ public class PasswordResetDAO {
     public Optional<PasswordReset> findValidToken(String tokenHash) {
         String sql = """
         SELECT * FROM passwordreset
-        WHERE tokenHash = ?
-          AND isUsed = 0
+        WHERE token = ?
     """;
 
         try (Connection conn = DBConnection.getConnection();
@@ -48,10 +47,9 @@ public class PasswordResetDAO {
                 int id = rs.getInt("id");
                 PasswordReset pr = new PasswordReset(id);
                 pr.setUserID(rs.getInt("userID"));
-                pr.setTokenHash(rs.getString("tokenHash"));
+                pr.setTokenHash(rs.getString("token"));
                 pr.setCreatedAt(rs.getTimestamp("createdAt"));
                 pr.setExpiresAt(expiresAt);
-                pr.setUsed(rs.getBoolean("isUsed"));
                 return Optional.of(pr);
             }
 
@@ -63,7 +61,9 @@ public class PasswordResetDAO {
     }
 
     public void markTokenUsed(int id) {
-        String sql = "UPDATE passwordreset SET isUsed = TRUE WHERE id = ?";
+
+        String sql =
+                "DELETE FROM passwordreset WHERE id = ?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
