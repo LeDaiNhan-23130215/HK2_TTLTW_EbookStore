@@ -28,7 +28,6 @@
 
             <%-- ===== STEP 1: NHẬP EMAIL ===== --%>
             <c:if test="${empty param.step}">
-                <%-- Lỗi nằm TRÊN ô email --%>
                 <c:if test="${not empty param.error}">
                     <p style="color:#c0392b;font-size:13px;background:#fdf0f0;
                               border-left:4px solid #e74c3c;padding:8px 12px;
@@ -43,8 +42,7 @@
                     </p>
                 </c:if>
                 <div class="email-input">
-                    <input type="text"
-                           name="email"
+                    <input type="text" name="email"
                            placeholder="Vui lòng nhập email của bạn"/>
                     <button type="submit" name="action" value="sendCode" class="code-btn">
                         Gửi mã
@@ -54,22 +52,17 @@
 
             <%-- ===== STEP 2: NHẬP OTP ===== --%>
             <c:if test="${param.step == 'verify'}">
-                <%-- Lỗi nằm TRÊN ô OTP — đồng bộ với step 1 --%>
                 <c:if test="${not empty param.error}">
                     <p style="color:#c0392b;font-size:13px;background:#fdf0f0;
                               border-left:4px solid #e74c3c;padding:8px 12px;
                               border-radius:4px;width:330px;box-sizing:border-box;">
                         <i class="fa-solid fa-circle-exclamation"></i>
-                        <c:choose>
-                            <c:when test="${param.error == 'invalidCode'}">
-                                Mã OTP không hợp lệ hoặc đã hết hạn. Vui lòng kiểm tra lại email.
-                            </c:when>
-                            <c:otherwise>Có lỗi xảy ra, vui lòng thử lại.</c:otherwise>
-                        </c:choose>
+                        Mã OTP không hợp lệ hoặc đã hết hạn. Vui lòng kiểm tra lại email.
                     </p>
                 </c:if>
-                <p style="color:#555;margin-bottom:8px;">
-                    Mã OTP đã gửi đến: <strong>${sessionScope.resetEmail}</strong>
+                <%-- Chữ nhỏ hơn: font-size 13px, font-weight normal --%>
+                <p style="color:#555;font-size:13px;font-weight:normal;margin-bottom:8px;">
+                    Mã OTP đã gửi đến: <strong style="font-size:13px;">${sessionScope.resetEmail}</strong>
                 </p>
                 <div class="code-input">
                     <input type="text" name="confirmCode"
