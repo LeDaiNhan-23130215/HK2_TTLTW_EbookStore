@@ -65,14 +65,22 @@
 
             <!-- ===== STEP 2: NHẬP MÃ ===== -->
             <c:if test="${param.step == 'verify'}">
+                <p style="color:#555;margin-bottom:12px;">
+                    Mã OTP đã gửi đến: <strong>${sessionScope.resetEmail}</strong>
+                </p>
                 <div class="code-input">
-                    <input type="text"
-                           name="confirmCode"
-                           placeholder="Nhập mã xác nhận"
-                           required/>
+                    <input type="text" name="confirmCode"
+                           placeholder="Nhập mã OTP 6 chữ số" required maxlength="6"/>
                     <button type="submit" name="action" value="verifyCode" class="code-btn">
                         Xác nhận
                     </button>
+                </div>
+                <%-- Nút quay lại bước nhập email --%>
+                <div style="margin-top:12px;">
+                    <a href="${pageContext.request.contextPath}/forgot-password"
+                       style="color:#666;font-size:13px;">
+                        ← Quay lại nhập email khác
+                    </a>
                 </div>
             </c:if>
 
