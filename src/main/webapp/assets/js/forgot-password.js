@@ -1,5 +1,28 @@
   // --- Lấy các phần tử ---
-  const emailInput = document.querySelector(".email-input");
+  const EMAIL_REGEX =
+      /^[a-zA-Z0-9]([a-zA-Z0-9._%+\-]*[a-zA-Z0-9])?@[a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?(\.[a-zA-Z]{2,})+$/;
+
+  function validateForgotEmail(emailInput, errorEl) {
+    const v = emailInput.value.trim();
+    if (!v) { errorEl.textContent = "Vui lòng nhập email."; return false; }
+    if (!EMAIL_REGEX.test(v)) {
+      errorEl.textContent = "Email không đúng định dạng. Ví dụ: abc@gmail.com";
+      return false;
+    }
+    errorEl.textContent = "";
+    return true;
+  }
+
+  const emailInput = document.querySelector('input[name="email"]');
+  if (emailInput) {
+    const errEl = document.createElement('span');
+    errEl.style.cssText = 'color:red;font-size:12px;display:block;margin-top:4px';
+    emailInput.parentElement.appendChild(errEl);
+    emailInput.addEventListener('blur', () => validateForgotEmail(emailInput, errEl));
+    emailInput.closest('form').addEventListener('submit', e => {
+      if (!validateForgotEmail(emailInput, errEl)) e.preventDefault();
+    });
+  }
   const codeInput = document.querySelector(".code-input");
   const passwordInput = document.querySelector(".password-input");
 
@@ -11,6 +34,53 @@
   const codeField = document.getElementById("confirmCode");
   const newPasswordField = document.getElementById("newPassword");
   const confirmPasswordField = document.getElementById("confirmPassword");
+
+  // --- Thanh độ mạnh mật khẩu ---
+  const bar = document.createElement("div");
+  bar.style.cssText =
+      "height:6px;border-radius:3px;background:#eee;margin-top:6px;width:0%;transition:all .3s";
+
+  const txt = document.createElement("small");
+  txt.style.color = "#888";
+
+  newPasswordField.parentElement.append(bar, txt);
+
+  newPasswordField.addEventListener("input", function () {
+
+    const pw = this.value;
+
+    let score = [
+      pw.length >= 8,
+      /[A-Z]/.test(pw),
+      /[a-z]/.test(pw),
+      /\d/.test(pw),
+      /[^A-Za-z0-9]/.test(pw)
+    ].filter(Boolean).length;
+
+    const colors = [
+      '',
+      '#e74c3c',
+      '#e67e22',
+      '#f1c40f',
+      '#2ecc71',
+      '#27ae60'
+    ];
+
+    const labels = [
+      '',
+      'Rất yếu',
+      'Yếu',
+      'Trung bình',
+      'Mạnh',
+      'Rất mạnh'
+    ];
+
+    bar.style.width = (score * 20) + '%';
+    bar.style.background = colors[score];
+
+    txt.textContent = labels[score];
+    txt.style.color = colors[score];
+  });
 
   // --- Ẩn các bước 2 và 3 ban đầu ---
   codeInput.style.display = "none";
@@ -29,9 +99,8 @@
     }
 
     // Kiểm tra email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      alert("Email không hợp lệ!");
+    if (!EMAIL_REGEX.test(email)) {
+      alert("Email không đúng định dạng!");
       return;
     }
 
@@ -83,7 +152,7 @@
       return;
     }
 
-    alert("Đổi mật khẩu thành công (demo) 🎉");
+    alert("Đổi mật khẩu thành công 🎉");
     window.location.href = "../pages/login.html"
     // Reset form
     emailField.value = "";
