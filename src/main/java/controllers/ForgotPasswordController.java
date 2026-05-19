@@ -139,28 +139,54 @@ public class ForgotPasswordController extends HttpServlet {
         );
     }
 
-    private void resetPassword(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    private void resetPassword(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("resetUserID") == null) {
             resp.sendRedirect(req.getContextPath() + "/forgot-password");
             return;
         }
 
-        String newPassword = req.getParameter("newPassword");
+        String newPassword     = req.getParameter("newPassword");
         String confirmPassword = req.getParameter("confirmPassword");
 
-        if (!newPassword.equals(confirmPassword)) {
-            resp.sendRedirect(req.getContextPath() + "/forgot-password?error=passwordMismatch");
+        // Chưa nhập mật khẩu
+        if (newPassword == null || newPassword.isBlank()) {
+            resp.sendRedirect(req.getContextPath()
+                    + "/forgot-password?step=reset&error=passwordEmpty");
             return;
         }
 
-        int userID = (Integer) session.getAttribute("resetUserID");
+        // Không khớp
+        if (!newPassword.equals(confirmPassword)) {
+            resp.sendRedirect(req.getContextPath()
+                    + "/forgot-password?step=reset&error=passwordMismatch");
+            return;
+        }
+
+        // Không đủ mạnh — bắt buộc: >=12 ký tự, A-Z, a-z, 0-9, ký tự đặc biệt
+        if (!isStrongPassword(newPassword)) {
+            resp.sendRedirect(req.getContextPath()
+                    + "/forgot-password?step=reset&error=weakPassword");
+            return;
+        }
+
+        int userID  = (Integer) session.getAttribute("resetUserID");
         int tokenId = (Integer) session.getAttribute("resetTokenID");
 
         userDAO.updatePassword(userID, newPassword);
         passwordResetDAO.markTokenUsed(tokenId);
         session.invalidate();
-        resp.sendRedirect(req.getContextPath() + "/login?reset=success");
+
+        resp.sendRedirect(req.getContextPath() + "/login?msg=reset_success");
+    }
+
+    private boolean isStrongPassword(String pw) {
+        return pw.length() >= 10
+                && pw.matches(".*[A-Z].*")
+                && pw.matches(".*[a-z].*")
+                && pw.matches(".*[0-9].*")
+                && pw.matches(".*[^A-Za-z0-9].*");
     }
 
     private String generateOtp() {
