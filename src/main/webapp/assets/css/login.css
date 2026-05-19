@@ -1,14 +1,20 @@
-*{
-    margin: 0;
-    padding: 0;
-    font-family: Arial, Helvetica, sans-serif;
-}
-form{
+* { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
+
+form {
     display: flex;
     align-items: center;
     justify-content: center;
 }
-.container{
+
+/* Cố định container không bị dãn khi lỗi */
+form .container {
+    min-height: 480px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.container {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -18,34 +24,71 @@ form{
     gap: 20px;
     background-color: #fff;
     border-radius: 5px;
-    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 1px 1px 5px rgba(0,0,0,.1);
     margin-top: 20px;
     margin-bottom: 20px;
 }
-.container .header{
+
+.container .header {
     font-size: 1.5rem;
     font-weight: bold;
     color: #0396c7;
     margin-top: 25px;
 }
-.container .input{
+
+.container .input {
     display: flex;
     justify-content: center;
     flex-direction: column;
     align-items: center;
     gap: 10px;
 }
-.container .input .input-div input{
+
+/* ===== INPUT-DIV: wrapper cho từng ô nhập ===== */
+.container .input .input-div {
+    position: relative;   /* để icon eye absolute bên trong */
+    width: 300px;
+}
+
+.container .input .input-div input {
     border: none;
     outline: none;
-    width: 300px;
+    width: 100%;
     height: 50px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 10px;
+    padding: 10px 44px 10px 10px; /* padding-right chừa chỗ icon eye */
+    box-sizing: border-box;
     border-radius: 10px;
-    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 1px 1px 5px rgba(0,0,0,.1);
 }
+
+.container .input .input-div input::placeholder {
+    color: #0396c7;
+    font-weight: bold;
+}
+
+.container .input .input-div input:focus {
+    border: 2px solid #0396c7;
+    box-shadow: 0 0 6px rgba(3,150,199,.3);
+}
+
+/* ===== ICON EYE — dùng chung class fp-eye từ forgot-password ===== */
+/* (fp-eye đã định nghĩa trong forgot-password.css,
+    nhưng login.css cũng định nghĩa lại để tự đứng độc lập) */
+.container .input .input-div .fp-eye {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #0396c7;
+    font-size: 16px;
+    line-height: 1;
+    /* Đẩy lên trên error-msg — error-msg nằm dưới input không ảnh hưởng */
+    bottom: auto;
+}
+.container .input .input-div .fp-eye:hover { color: #027aa3; }
+
+/* Error-msg nằm dưới ô nhập, không liên quan icon */
 .container .input-div .error-msg {
     color: hsl(0, 100%, 70%);
     font-size: 0.7rem;
@@ -53,136 +96,98 @@ form{
     display: block;
     height: 14px;
 }
-.container .input .input-div input::placeholder{
-    color: #0396c7;
-    font-weight: bold;
-}
-.container .input .input-div input:hover{
-    cursor: text;
-}
-.container .input button{
-    width: 300px;
-    height: 50px;
-    border-radius: 20px;
-    color: #fff;
-    font-weight: 500;
-    font-size: 0.9rem;
-    background-color: rgb(3, 150, 199);
-    border: none;
-}
-.container .input button:hover{
-    background-color: hsl(195, 98%, 50%);
-    cursor: pointer;
-}
-.container a {
-    text-decoration: none;
-}
-.container .forgetPassword{
-    font-size: 0.9rem;
-    color: rgb(185 185 185);
-}
-.container .forgetPassword:hover{
-    color: #0396c7
-}
-.container .anotherOption{
-    font-size: 0.75rem;
-    color: rgb(185 185 185);
-}
-.container .logoContainer .logoList{
-    list-style: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: row;
-    gap: 15px;
-}
-.container .logoContainer .logoList li{
-    background-color: rgb(254 254 254);
-    padding: 10px;
-    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
-    border-radius: 50%;
-    margin-bottom: 10px;
-}
-.container .logoContainer .logoList li:hover{
-    transform: translateY(-5px);
-    cursor: pointer;
-}
-.container .signUp{
-    color: hsl(195, 97%, 30%);
-    font-size: 0.9rem;
-    font-weight: bold;
-    margin-top: auto; 
-    margin-bottom: 20px;
-}
-.container .signUp:hover{
-    color: #0396c7;
-    cursor: pointer;
-}
-/* ---------- Màn hình ≤ 900px ---------- */
-@media (max-width: 900px) {
-    .container {
-        width: 90%;
-        padding: 15px;
-        gap: 15px;
-        margin: 10px;
-    }
 
-    .container .header {
-        font-size: 1.3rem;
-        text-align: center;
-    }
-
-    .container .input .input-div input,
-    .container .input button {
-        width: 100%;
-        height: 45px;
-        font-size: 0.9rem;
-    }
-
-    .container .forgetPassword,
-    .container .anotherOption,
-    .container .signUp {
-        font-size: 0.8rem;
-        text-align: center;
-    }
-
-    .container .logoContainer .logoList li {
-        padding: 8px;
-    }
-}
-.container .input .input-div input:focus{
-    border: 2px solid #0396c7;
-    box-shadow: 0 0 6px rgba(3,150,199,0.3);
-}
-
-/* Hiệu ứng hover giữ nguyên */
-@media (hover: hover) {
-    .container .input .input-div input:hover {
-        transform: none;
-    }
-    .container .input button:hover {
-        background-color: hsl(195, 98%, 50%);
-    }
-    .container .logoContainer .logoList li:hover {
-        transform: translateY(-3px);
-    }
-    .container .forgetPassword:hover,
-    .container .signUp:hover {
-        color: #0396c7;
-    }
-}
-/* Cố định container không bị dãn khi lỗi */
-form .container {
-    min-height: 480px;      /* chiều cao cố định tối thiểu */
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-}
-
-/* Thông báo lỗi không chiếm thêm chỗ, dùng min-height */
+/* Thông báo lỗi server */
 .error-server {
     min-height: 24px;
     color: red;
     font-size: 13px;
     margin-bottom: 8px;
 }
+
+.container .input button {
+    width: 300px;
+    height: 50px;
+    border-radius: 20px;
+    color: #fff;
+    font-weight: 500;
+    font-size: 0.9rem;
+    background-color: rgb(3,150,199);
+    border: none;
+}
+.container .input button:hover {
+    background-color: hsl(195, 98%, 50%);
+    cursor: pointer;
+}
+
+.container a { text-decoration: none; }
+
+.container .forgetPassword { font-size: .9rem; color: rgb(185,185,185); }
+.container .forgetPassword:hover { color: #0396c7; }
+
+.container .anotherOption { font-size: .75rem; color: rgb(185,185,185); }
+
+.container .logoContainer .logoList {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+.container .logoContainer .logoList li {
+    background-color: #fefefe;
+    padding: 10px;
+    box-shadow: 1px 1px 5px rgba(0,0,0,.1);
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+.container .logoContainer .logoList li:hover { transform: translateY(-3px); cursor: pointer; }
+
+.container .signUp {
+    color: hsl(195, 97%, 30%);
+    font-size: .9rem;
+    font-weight: bold;
+    margin-top: auto;
+    margin-bottom: 20px;
+}
+.container .signUp:hover { color: #0396c7; cursor: pointer; }
+
+/* ===== Responsive ≤ 900px ===== */
+@media (max-width: 900px) {
+    .container { width: 90%; padding: 15px; gap: 15px; margin: 10px; }
+    .container .header { font-size: 1.3rem; text-align: center; }
+    .container .input .input-div,
+    .container .input button { width: 100%; }
+    .container .input .input-div input,
+    .container .input button { height: 45px; font-size: .9rem; }
+    .container .forgetPassword,
+    .container .anotherOption,
+    .container .signUp { font-size: .8rem; text-align: center; }
+    .container .logoContainer .logoList li { padding: 8px; }
+}
+/* ===== Ô mật khẩu + icon eye (login riêng, không dùng fp-pw-wrap) ===== */
+.login-pw-wrap {
+    position: relative;
+    width: 300px;               /* khớp đúng với login, không bị ghi đè */
+    box-sizing: border-box;
+}
+
+.login-pw-wrap input {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding-right: 44px !important; /* chừa chỗ icon eye */
+}
+
+.login-eye {
+    position: absolute;
+    right: 14px;
+    top: 26px;                  /* căn giữa trong ô height 50px: (50-16)/2 ≈ 17, +9 margin-top error */
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #0396c7;
+    font-size: 16px;
+    line-height: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+.login-eye:hover { color: #027aa3; }
