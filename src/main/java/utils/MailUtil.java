@@ -67,4 +67,59 @@ public class MailUtil {
             e.printStackTrace();
         }
     }
+
+    public static void sendAccountActivity(String toEmail, String username,
+                                           ActivityType activityType) {
+        final String fromEmail   = props.getProperty("mail.username");
+        final String appPassword = props.getProperty("mail.app.password");
+
+        Properties mailProps = new Properties();
+        mailProps.put("mail.smtp.auth",            "true");
+        mailProps.put("mail.smtp.starttls.enable", "true");
+        mailProps.put("mail.smtp.host", props.getProperty("mail.smtp.host"));
+        mailProps.put("mail.smtp.port", props.getProperty("mail.smtp.port"));
+
+        Session session = Session.getInstance(mailProps,
+                new Authenticator() {
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(fromEmail, appPassword);
+                    }
+                });
+
+        try {
+            java.time.ZonedDateTime now = java.time.ZonedDateTime
+                    .now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
+            String timeStr = now.format(
+                    java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy"));
+
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(fromEmail, "EbookStore"));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            message.setSubject("[EbookStore] " + activityType.getSubject());
+            message.setText(
+                    "Xin chào " + username + ",\n\n"
+                            + "─────────────────────────────────────\n"
+                            + "  THÔNG BÁO HOẠT ĐỘNG TÀI KHOẢN\n"
+                            + "─────────────────────────────────────\n\n"
+                            + "Hoạt động : " + activityType.getActivityLabel() + "\n"
+                            + "Tài khoản : " + username + "\n"
+                            + "Email     : " + toEmail + "\n"
+                            + "Thời gian : " + timeStr + "\n\n"
+                            + "─────────────────────────────────────\n\n"
+                            + "Nếu BẠN KHÔNG thực hiện thao tác này,\n"
+                            + "    vui lòng liên hệ hỗ trợ ngay để bảo vệ tài khoản:\n\n"
+                            + "  • Email  : 23130023@st.hcmuaf.edu.vn\n"
+                            + "  • Hotline: 0332.53.63.86\n\n"
+                            + "─────────────────────────────────────\n\n"
+                            + "Trân trọng,\n"
+                            + "Đội ngũ EbookStore\n\n"
+                            + "Email này được gửi tự động, vui lòng không trả lời.\n"
+            );
+
+            Transport.send(message);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
