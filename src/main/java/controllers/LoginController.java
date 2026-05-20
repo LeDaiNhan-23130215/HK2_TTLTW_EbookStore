@@ -6,6 +6,8 @@ import jakarta.servlet.annotation.*;
 import models.Cart;
 import models.User;
 import services.CartService;
+import utils.ActivityType;
+import utils.MailUtil;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -84,6 +86,13 @@ public class LoginController extends HttpServlet {
             totalCartDetails = cartService.getTotalCartDetails(cart.getId());
         }
         session.setAttribute("totalCartDetails", totalCartDetails);
+
+        MailUtil.sendAccountActivity(
+                user.getEmail(),
+                user.getUsername(),
+                ActivityType.LOGIN
+        );
+
         session.setAttribute(
                 "toastSuccess",
                 "✅Đăng nhập thành công!"
