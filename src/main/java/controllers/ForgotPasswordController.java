@@ -7,6 +7,7 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import models.PasswordReset;
 import models.User;
+import utils.ActivityType;
 import utils.HashUtil;
 import utils.MailUtil;
 
@@ -174,9 +175,20 @@ public class ForgotPasswordController extends HttpServlet {
         int userID  = (Integer) session.getAttribute("resetUserID");
         int tokenId = (Integer) session.getAttribute("resetTokenID");
 
+        User user = userDAO.getUserByID(userID);
+
         userDAO.updatePassword(userID, newPassword);
         passwordResetDAO.markTokenUsed(tokenId);
         session.invalidate();
+
+
+        if (user != null) {
+            MailUtil.sendAccountActivity(
+                    user.getEmail(),
+                    user.getUsername(),
+                    ActivityType.RESET_PASSWORD
+            );
+        }
 
         resp.sendRedirect(req.getContextPath() + "/login?msg=reset_success");
     }
