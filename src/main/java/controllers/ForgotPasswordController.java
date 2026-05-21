@@ -92,52 +92,107 @@ public class ForgotPasswordController extends HttpServlet {
                             HttpServletResponse resp)
             throws IOException {
 
-        String code =
-                req.getParameter("confirmCode");
+        String code  = req.getParameter("confirmCode");
+        String email = (String) req.getSession().getAttribute("resetEmail");
+
+        if (email == null) {
+            resp.sendRedirect(req.getContextPath() + "/forgot-password");
+            return;
+        }
+
+        User user = userDAO.findUserByEmail(email);
+        if (user == null) {
+            resp.sendRedirect(req.getContextPath() + "/forgot-password");
+            return;
+        }
+
+        // Kiểm tra đang bị khoá
+        if (passwordResetDAO.isLocked(user.getId())) {
+            String remaining = passwordResetDAO.getLockRemainingTime(user.getId());
+            resp.sendRedirect(req.getContextPath()
+                    + "/forgot-password?step=verify&error=locked&remaining="
+                    + remaining);
+            return;
+        }
 
         if (code == null || code.isBlank()) {
-
-            resp.sendRedirect(
-                    req.getContextPath()
-                            + "/forgot-password?step=verify&error=invalidCode"
-            );
-
+            resp.sendRedirect(req.getContextPath()
+                    + "/forgot-password?step=verify&error=invalidCode");
             return;
         }
 
-        String tokenHash =
-                HashUtil.sha256(code.trim());
-
-        Optional<PasswordReset> opt =
-                passwordResetDAO.findValidToken(tokenHash);
+        String tokenHash = HashUtil.sha256(code.trim());
+        Optional<PasswordReset> opt = passwordResetDAO.findValidToken(tokenHash);
 
         if (opt.isEmpty()) {
+            // Tăng số lần sai — nếu đủ 5 lần thì khoá 12 giờ trong DB
+            passwordResetDAO.incrementAttempts(user.getId());
 
-            resp.sendRedirect(
-                    req.getContextPath()
-                            + "/forgot-password?step=verify&error=invalidCode"
-            );
-
+            boolean expired = passwordResetDAO.isTokenExpired(tokenHash);
+            resp.sendRedirect(req.getContextPath()
+                    + "/forgot-password?step=verify&error="
+                    + (expired ? "expiredCode" : "invalidCode"));
             return;
         }
 
-        HttpSession session =
-                req.getSession();
+        passwordResetDAO.resetAttempts(user.getId());
+        HttpSession session = req.getSession();
+        session.setAttribute("resetTokenID", opt.get().getId());
+        session.setAttribute("resetUserID",  opt.get().getUserID());
+        resp.sendRedirect(req.getContextPath() + "/forgot-password?step=reset");
+    }
 
-        session.setAttribute(
-                "resetTokenID",
-                opt.get().getId()
-        );
+    private void resendCode(HttpServletRequest req, HttpServletResponse resp)
+            throws IOException {
+        HttpSession session = req.getSession(false);
+        String email = session != null
+                ? (String) session.getAttribute("resetEmail") : null;
 
-        session.setAttribute(
-                "resetUserID",
-                opt.get().getUserID()
-        );
+        if (email == null) {
+            resp.sendRedirect(req.getContextPath() + "/forgot-password");
+            return;
+        }
 
-        resp.sendRedirect(
-                req.getContextPath()
-                        + "/forgot-password?step=reset"
-        );
+        User user = userDAO.findUserByEmail(email);
+        if (user == null) {
+            resp.sendRedirect(req.getContextPath() + "/forgot-password");
+            return;
+        }
+
+        // Kiểm tra đang bị khoá —> không cho gửi lại khi bị khoá
+        if (passwordResetDAO.isLocked(user.getId())) {
+            String remaining = passwordResetDAO.getLockRemainingTime(user.getId());
+            resp.sendRedirect(req.getContextPath()
+                    + "/forgot-password?step=verify&error=locked&remaining="
+                    + remaining);
+            return;
+        }
+
+        // Cooldown 30 giây
+        Long lastResend = (Long) session.getAttribute("lastResendTime");
+        if (lastResend != null &&
+                System.currentTimeMillis() - lastResend < 30_000) {
+            long remaining =
+                    30 - (System.currentTimeMillis() - lastResend) / 1000;
+            resp.sendRedirect(req.getContextPath()
+                    + "/forgot-password?step=verify&resendCooldown=" + remaining);
+            return;
+        }
+
+        passwordResetDAO.deleteByUser(user.getId());
+
+        String    otp       = generateOtp();
+        String    otpHash   = HashUtil.sha256(otp);
+        Timestamp expiresAt = Timestamp.from(
+                Instant.now().plus(15, ChronoUnit.MINUTES));
+
+        passwordResetDAO.createToken(user.getId(), otpHash, expiresAt);
+        MailUtil.sendOtp(email, otp);
+
+        session.setAttribute("lastResendTime", System.currentTimeMillis());
+
+        resp.sendRedirect(req.getContextPath()
+                + "/forgot-password?step=verify&resent=true");
     }
 
     private void resetPassword(HttpServletRequest req, HttpServletResponse resp)
