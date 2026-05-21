@@ -10,7 +10,7 @@ import java.io.IOException;
         "/cart",
         "/checkout",
         "/wishlist",
-        "/user-information",
+        "/userInformation",
         "/your-order",
         "/book-shelf",
         "/change-password",
