@@ -58,7 +58,7 @@ public class MailUtil {
             );
             message.setSubject("Xác thực đăng ký");
             message.setText(
-                    "Mã OTP của bạn là: " + otp + "\nCó hiệu lực trong 2 phút."
+                    "Mã OTP của bạn là: " + otp + "\nCó hiệu lực trong 15 phút."
             );
 
             Transport.send(message);
