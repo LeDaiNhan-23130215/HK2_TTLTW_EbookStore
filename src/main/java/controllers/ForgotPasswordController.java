@@ -30,6 +30,18 @@ public class ForgotPasswordController extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if ("verify".equals(req.getParameter("step"))) {
+            HttpSession session = req.getSession(false);
+            if (session != null) {
+                Long createdAt = (Long) session.getAttribute("otpCreatedAt");
+                if (createdAt != null) {
+                    long elapsed   = (System.currentTimeMillis() - createdAt) / 1000;
+                    long remaining = Math.max(0, 300 - elapsed);
+                    req.setAttribute("otpSecondsRemaining", remaining);
+                }
+            }
+        }
+
         req.getRequestDispatcher("/WEB-INF/views/forgot-password.jsp").forward(req, resp);
     }
 
@@ -74,21 +86,31 @@ public class ForgotPasswordController extends HttpServlet {
         String otpHash = HashUtil.sha256(otp);
 
         Timestamp expiresAt =
-                Timestamp.from(Instant.now().plus(15, java.time.temporal.ChronoUnit.MINUTES));
+                Timestamp.from(Instant.now().plus(5, java.time.temporal.ChronoUnit.MINUTES));
 
         passwordResetDAO.createToken(user.getId(), otpHash, expiresAt);
 
-        MailUtil.sendOtp(email, otp);
+        MailUtil.sendOtp(email, otp, "Xác thực email - Quên mật khẩu");
 
         HttpSession session = req.getSession();
         session.setAttribute("resetEmail", email);
+        session.setAttribute("lastResendTime", System.currentTimeMillis());
+        session.setAttribute("otpCreatedAt", System.currentTimeMillis());
 
-        resp.sendRedirect(req.getContextPath()
-                + "/forgot-password?step=verify");
+        resp.sendRedirect(req.getContextPath() + "/forgot-password?step=verify");
+
     }
 
     private void verifyCode(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
+
+        HttpSession existingSession = req.getSession(false);
+        if (existingSession != null
+                && Boolean.TRUE.equals(existingSession.getAttribute("otpVerified"))) {
+            resp.sendRedirect(req.getContextPath()
+                    + "/forgot-password?step=verify&error=alreadyUsed&t=0");
+            return;
+        }
 
         String code  = req.getParameter("confirmCode");
         String email = (String) req.getSession().getAttribute("resetEmail");
@@ -150,11 +172,13 @@ public class ForgotPasswordController extends HttpServlet {
             return;
         }
 
-        // Đúng mã → reset attempts, tiếp tục
+        // Đúng mã → reset attempts, XÓA token ngay để chặn back button dùng lại
         passwordResetDAO.resetAttempts(user.getId());
+        passwordResetDAO.deleteByUser(user.getId());
         HttpSession session = req.getSession();
         session.setAttribute("resetTokenID", opt.get().getId());
         session.setAttribute("resetUserID",  opt.get().getUserID());
+        session.setAttribute("otpVerified",   true);
         resp.sendRedirect(req.getContextPath() + "/forgot-password?step=reset");
     }
 
@@ -194,14 +218,15 @@ public class ForgotPasswordController extends HttpServlet {
 
         passwordResetDAO.deleteByUser(user.getId());
 
-        String    otp       = generateOtp();
-        String    otpHash   = HashUtil.sha256(otp);
-        Timestamp expiresAt = Timestamp.from(Instant.now().plus(15, java.time.temporal.ChronoUnit.MINUTES));
+        String otp = generateOtp();
+        String otpHash = HashUtil.sha256(otp);
+        Timestamp expiresAt = Timestamp.from(Instant.now().plus(5, java.time.temporal.ChronoUnit.MINUTES));
 
         passwordResetDAO.createToken(user.getId(), otpHash, expiresAt);
-        MailUtil.sendOtp(email, otp);
+        MailUtil.sendOtp(email, otp, "Xác thực email - Quên mật khẩu");
 
         session.setAttribute("lastResendTime", System.currentTimeMillis());
+        session.setAttribute("otpCreatedAt", System.currentTimeMillis());
         resp.sendRedirect(req.getContextPath() + "/forgot-password?step=verify&resent=true");
     }
 
@@ -233,7 +258,6 @@ public class ForgotPasswordController extends HttpServlet {
         User user   = userDAO.getUserByID(userID);
 
         userDAO.updatePassword(userID, newPassword);
-        passwordResetDAO.markTokenUsed(tokenId);
         session.invalidate();
 
         if (user != null) {
