@@ -93,7 +93,7 @@ public class SignUpController extends HttpServlet {
         session.setAttribute("otp", otp);
         session.setAttribute("otp_expire", System.currentTimeMillis() + 120000);
 
-        MailUtil.sendOtp(email, otp);
+        MailUtil.sendOtp(email, otp, "Xác thực email - Đăng ký tài khoản");
 
         resp.sendRedirect(req.getContextPath() + "/verify-otp");
     }
