@@ -1,6 +1,19 @@
 // ===== VALIDATE EMAIL (Step 1) =====
 const EMAIL_REGEX = /^[a-zA-Z0-9]([a-zA-Z0-9._%+\-]*[a-zA-Z0-9])?@[a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?(\.[a-zA-Z]{2,})+$/;
 
+// ===== XỬ LÝ SESSIONSTORAGE THEO TRẠNG THÁI URL =====
+(function () {
+  var params = new URL(window.location.href).searchParams;
+
+  // Gửi lại thành công → xóa hết storage otp để tạo deadline mới
+  if (params.get('resent') === 'true') {
+    Object.keys(sessionStorage).forEach(function (k) {
+      if (k.startsWith('otp_')) sessionStorage.removeItem(k);
+    });
+  }
+})();
+
+// ===== VALIDATE EMAIL =====
 const emailInput = document.getElementById('fpEmailInput');
 if (emailInput) {
   const errBox = document.getElementById('fpEmailErr');
@@ -13,13 +26,9 @@ if (emailInput) {
 
   emailInput.addEventListener('blur', function () {
     const v = emailInput.value.trim();
-    if (!v) {
-      showEmailErr('Vui lòng nhập email.');
-    } else if (!EMAIL_REGEX.test(v)) {
-      showEmailErr('Email không đúng định dạng.<br>Ví dụ: abc@gmail.com');
-    } else {
-      showEmailErr('');
-    }
+    if (!v)                        showEmailErr('Vui lòng nhập email.');
+    else if (!EMAIL_REGEX.test(v)) showEmailErr('Email không đúng định dạng.<br>Ví dụ: abc@gmail.com');
+    else                           showEmailErr('');
   });
 
   emailInput.addEventListener('input', function () { showEmailErr(''); });
@@ -36,56 +45,119 @@ if (emailInput) {
   });
 }
 
-// ===== STEP 2: Đếm ngược OTP + cooldown nút gửi lại =====
+// ===== STEP 2: ĐẾM NGƯỢC OTP + COOLDOWN NÚT GỬI LẠI =====
 document.addEventListener('DOMContentLoaded', function () {
-  var wrap      = document.getElementById('fpCountdownWrap');
-  var otpDisplay = document.getElementById('fpCountdown');
-  var resendBtn  = document.getElementById('fpResendBtn');
+  var params = new URL(window.location.href).searchParams;
+
+  var wrap          = document.getElementById('fpCountdownWrap');
+  var otpDisplay    = document.getElementById('fpCountdown');
+  var submitBtn     = document.getElementById('fpSubmitBtn');
+  var resendBtn     = document.getElementById('fpResendBtn');
   var resendDisplay = document.getElementById('fpResendCooldown');
-  var submitBtn  = document.getElementById('fpSubmitBtn');
   if (!otpDisplay) return;
 
-  // Đọc giây còn lại từ server (tránh reset về 15:00 khi nhập sai)
-  var otpTotal = wrap ? parseInt(wrap.dataset.seconds, 10) : 900;
-  if (isNaN(otpTotal) || otpTotal < 0) otpTotal = 0;
+  var email      = wrap ? (wrap.dataset.email || 'default') : 'default';
+  var otpKey     = 'otp_deadline_' + email;
+  var coolKey    = 'otp_cooldown_' + email;
+  var secondsRaw = wrap ? parseInt(wrap.dataset.seconds, 10) : 300;
+  if (isNaN(secondsRaw) || secondsRaw < 0) secondsRaw = 0;
 
-  // Hiển thị ngay lập tức thay vì chờ 1 giây đầu
-  (function updateDisplay() {
-    var m = Math.floor(otpTotal / 60);
-    var s = otpTotal % 60;
-    otpDisplay.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
-  })();
+  // ===== OTP COUNTDOWN =====
+  var otpDeadline;
+  var skipExpiredMsg = params.get('error') === 'alreadyUsed';
 
-  if (otpTotal <= 0) {
-    otpDisplay.textContent = '00:00';
-    otpDisplay.style.color = '#e74c3c';
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.style.opacity = '0.5'; }
+  if (params.get('error') === 'alreadyUsed') {
+    // Xóa storage cũ
+    Object.keys(sessionStorage).forEach(function (k) {
+      if (k.startsWith('otp_deadline_')) sessionStorage.removeItem(k);
+      if (k.startsWith('otp_cooldown_')) sessionStorage.removeItem(k);
+    });
+    sessionStorage.setItem('otp_cooldown_skip_init', '1');
+
+    // Set deadline = now → remaining = 0 → timer 00:00 ngay
+    otpDeadline = Date.now();
+
   } else {
-    var otpInterval = setInterval(function () {
-      otpTotal--;
-      var m = Math.floor(otpTotal / 60);
-      var s = otpTotal % 60;
-      otpDisplay.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
-      if (otpTotal <= 0) {
-        clearInterval(otpInterval);
-        otpDisplay.textContent = '00:00';
-        otpDisplay.style.color = '#e74c3c';
-        if (submitBtn) { submitBtn.disabled = true; submitBtn.style.opacity = '0.5'; }
+    var storedOtp = sessionStorage.getItem(otpKey);
+    if (storedOtp) {
+      // F5: dùng lại deadline cũ
+      otpDeadline = parseInt(storedOtp, 10);
+    } else {
+      // Lần đầu vào trang: tạo deadline mới từ server
+      otpDeadline = Date.now() + secondsRaw * 1000;
+      if (secondsRaw > 0) {
+        sessionStorage.setItem(otpKey, otpDeadline.toString());
       }
-    }, 1000);
+    }
   }
 
-  // Cooldown nút gửi lại 30 giây
-  var cooldown = 30;
-  var coolInterval = setInterval(function () {
-    cooldown--;
-    resendDisplay.textContent = '(' + cooldown + 's)';
-    if (cooldown <= 0) {
-      clearInterval(coolInterval);
-      resendBtn.disabled = false;
-      resendDisplay.textContent = '';
+  function otpTick() {
+    var remaining = Math.max(0, Math.floor((otpDeadline - Date.now()) / 1000));
+    var m = Math.floor(remaining / 60);
+    var s = remaining % 60;
+    otpDisplay.textContent =
+        (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+
+    if (remaining <= 0) {
+      otpDisplay.style.color = '#e74c3c';
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.style.opacity = '0.5'; }
+
+      // Chỉ hiện thông báo khi KHÔNG phải trường hợp alreadyUsed
+      if (!skipExpiredMsg && !document.getElementById('fpOtpExpiredMsg')) {
+        var msg = document.createElement('p');
+        msg.id = 'fpOtpExpiredMsg';
+        msg.className = 'fp-error-box';
+        msg.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i>'
+            + '<span>Mã OTP đã hết hạn. Vui lòng nhấn gửi lại để nhận mã mới.</span>';
+        var sentTo = document.querySelector('.fp-sent-to');
+        if (sentTo) sentTo.parentNode.insertBefore(msg, sentTo);
+      }
+      return;
     }
-  }, 1000);
+    setTimeout(otpTick, 500);
+  }
+
+  otpTick();
+
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) otpTick();
+  });
+
+  // ===== COOLDOWN NÚT GỬI LẠI =====
+  var skipInit   = sessionStorage.getItem('otp_cooldown_skip_init');
+  var coolDeadline;
+  var storedCool = sessionStorage.getItem(coolKey);
+
+  if (skipInit) {
+    // alreadyUsed → mở nút gửi lại ngay
+    sessionStorage.removeItem('otp_cooldown_skip_init');
+    coolDeadline = Date.now();
+  } else if (storedCool && parseInt(storedCool, 10) > Date.now()) {
+    // Còn cooldown: dùng lại
+    coolDeadline = parseInt(storedCool, 10);
+  } else if (!storedCool) {
+    // Chưa có → tạo cooldown 30s lần đầu
+    coolDeadline = Date.now() + 30_000;
+    sessionStorage.setItem(coolKey, coolDeadline.toString());
+  } else {
+    // Đã hết hạn trong storage → mở ngay
+    coolDeadline = Date.now();
+  }
+
+  function coolTick() {
+    var remaining = Math.max(0, Math.floor((coolDeadline - Date.now()) / 1000));
+    if (resendDisplay) {
+      resendDisplay.textContent = remaining > 0 ? '(' + remaining + 's)' : '';
+    }
+    if (remaining <= 0) {
+      if (resendBtn) resendBtn.disabled = false;
+      sessionStorage.removeItem(coolKey);
+      return;
+    }
+    setTimeout(coolTick, 500);
+  }
+
+  coolTick();
 });
 
 // ===== TOGGLE EYE (Step 3) =====
@@ -118,7 +190,7 @@ if (newPwInput) {
       var li = document.getElementById(rule.id);
       if (!li) return;
       if (rule.test(pw)) { li.classList.add('ok'); score++; }
-      else { li.classList.remove('ok'); }
+      else               { li.classList.remove('ok'); }
     });
     var bar = document.getElementById('fpStrengthBar');
     var txt = document.getElementById('fpStrengthTxt');
@@ -129,14 +201,21 @@ if (newPwInput) {
   var form3 = newPwInput.closest('form');
   if (form3) {
     form3.addEventListener('submit', function (e) {
-      var pw = newPwInput.value;
+      var pw        = newPwInput.value;
       var confirmPw = document.getElementById('fpConfirmPw');
-      if (!pw) { e.preventDefault(); showInlineError('Vui lòng nhập mật khẩu mới.'); return; }
+      if (!pw) {
+        e.preventDefault();
+        showInlineError('Vui lòng nhập mật khẩu mới.');
+        return;
+      }
       if (!rules.every(function (r) { return r.test(pw); })) {
-        e.preventDefault(); showInlineError('Mật khẩu chưa đủ mạnh. Vui lòng kiểm tra các yêu cầu bên dưới.'); return;
+        e.preventDefault();
+        showInlineError('Mật khẩu chưa đủ mạnh. Vui lòng kiểm tra các yêu cầu bên dưới.');
+        return;
       }
       if (confirmPw && pw !== confirmPw.value) {
-        e.preventDefault(); showInlineError('Mật khẩu xác nhận không khớp.');
+        e.preventDefault();
+        showInlineError('Mật khẩu xác nhận không khớp.');
       }
     });
   }
