@@ -2,6 +2,8 @@ package DAO;
 
 import models.Image;
 import utils.DBConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -9,8 +11,10 @@ import java.util.List;
 
 public class ImageDAO {
 
-    /* ================= INSERT IMAGE ================= */
+    private static final Logger logger = LoggerFactory.getLogger(ImageDAO.class);
+
     public int insertAndReturnId(Image image) {
+        logger.info("Executing insertAndReturnId for imgName: {}", image.getImgName());
         String sql = """
             INSERT INTO images (imgName, imgLink, imgStatus)
             VALUES (?, ?, ?)
@@ -27,17 +31,21 @@ public class ImageDAO {
 
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
-                return rs.getInt(1);
+                int generatedId = rs.getInt(1);
+                logger.info("Successfully inserted image, generated ID: {}", generatedId);
+                return generatedId;
             }
+            logger.warn("Image inserted but no ID was generated for imgName: {}", image.getImgName());
 
         } catch (SQLException e) {
+            logger.error("Error in insertAndReturnId for imgName: {}", image.getImgName(), e);
             throw new RuntimeException(e);
         }
         return -1;
     }
 
-    /* ================= GET IMAGE BY ID ================= */
     public Image getImageById(int id) {
+        logger.info("Executing getImageById for id: {}", id);
         String sql = "SELECT * FROM images WHERE id = ?";
 
         try (Connection conn = DBConnection.getConnection();
@@ -47,17 +55,20 @@ public class ImageDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
+                logger.info("Successfully fetched image for id: {}", id);
                 return mapImage(rs);
             }
+            logger.info("No image found for id: {}", id);
 
         } catch (SQLException e) {
+            logger.error("Error in getImageById for id: {}", id, e);
             throw new RuntimeException(e);
         }
         return null;
     }
 
-    /* ================= GET IMAGES BY EBOOK ID ================= */
     public List<Image> getByEbookID(int ebookID) {
+        logger.info("Executing getByEbookID for ebookID: {}", ebookID);
         List<Image> list = new ArrayList<>();
 
         String sql = """
@@ -77,15 +88,17 @@ public class ImageDAO {
             while (rs.next()) {
                 list.add(mapImage(rs));
             }
+            logger.info("Successfully fetched {} active images for ebookID: {}", list.size(), ebookID);
 
         } catch (SQLException e) {
+            logger.error("Error in getByEbookID for ebookID: {}", ebookID, e);
             throw new RuntimeException(e);
         }
         return list;
     }
 
-    /* ================= GET FIRST IMAGE BY EBOOK ================= */
     public Image getFirstImageByEbookID(int ebookID) {
+        logger.info("Executing getFirstImageByEbookID for ebookID: {}", ebookID);
         String sql = """
             SELECT i.*
             FROM ebookimage ei
@@ -103,16 +116,18 @@ public class ImageDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
+                logger.info("Successfully fetched first active image for ebookID: {}", ebookID);
                 return mapImage(rs);
             }
+            logger.info("No active image found for ebookID: {}", ebookID);
 
         } catch (SQLException e) {
+            logger.error("Error in getFirstImageByEbookID for ebookID: {}", ebookID, e);
             throw new RuntimeException(e);
         }
         return null;
     }
 
-    /* ================= HELPER ================= */
     private Image mapImage(ResultSet rs) throws SQLException {
         return new Image(
                 rs.getInt("id"),

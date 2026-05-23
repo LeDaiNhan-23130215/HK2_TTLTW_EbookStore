@@ -2,6 +2,8 @@ package DAO;
 
 import models.File;
 import utils.DBConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,8 +12,10 @@ import java.sql.Statement;
 
 public class FileDAO {
 
-    // ===================== INSERT FILE =====================
+    private static final Logger logger = LoggerFactory.getLogger(FileDAO.class);
+
     public int insertAndReturnId(File file) {
+        logger.info("Executing insertAndReturnId for fileName: {}, format: {}", file.getFileName(), file.getFileFormat());
         String sql = """
             INSERT INTO files (fileName, fileFormat, fileSize, fileLink, fileStatus)
             VALUES (?, ?, ?, ?, ?)
@@ -30,16 +34,20 @@ public class FileDAO {
 
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
-                return rs.getInt(1);
+                int generatedId = rs.getInt(1);
+                logger.info("Successfully inserted file, generated ID: {}", generatedId);
+                return generatedId;
             }
+            logger.info("File inserted but no ID was generated");
         } catch (Exception e) {
+            logger.error("Error in insertAndReturnId for fileName: {}", file.getFileName(), e);
             e.printStackTrace();
         }
         return -1;
     }
 
-    // ===================== GET PDF PATH =====================
     public String getPdfPathByEbookId(int ebookId) {
+        logger.info("Executing getPdfPathByEbookId for ebookId: {}", ebookId);
         String sql = "SELECT pdf_path FROM ebook_files WHERE ebook_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -48,14 +56,16 @@ public class FileDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                return rs.getString("pdf_path");
+                String path = rs.getString("pdf_path");
+                logger.info("Successfully fetched PDF path for ebookId: {}", ebookId);
+                return path;
             }
+            logger.info("No PDF path found for ebookId: {}", ebookId);
 
         } catch (Exception e) {
+            logger.error("Error in getPdfPathByEbookId for ebookId: {}", ebookId, e);
             e.printStackTrace();
         }
         return null;
     }
 }
-
-

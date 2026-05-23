@@ -2,6 +2,8 @@ package DAO;
 
 import models.CheckoutDetail;
 import utils.DBConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,8 +14,10 @@ import java.util.List;
 
 public class CheckoutDetailDAO {
 
-    // 1. Thêm 1 dòng checkout detail
+    private static final Logger logger = LoggerFactory.getLogger(CheckoutDetailDAO.class);
+
     public boolean addCheckoutDetail(Connection con, CheckoutDetail detail) throws SQLException {
+        logger.info("Executing addCheckoutDetail for checkoutID: {}, bookID: {}", detail.getCheckoutID(), detail.getBookID());
         String sql =
                 "INSERT INTO checkoutdetail (checkoutID, bookID, price) VALUES (?, ?, ?)";
 
@@ -25,9 +29,8 @@ public class CheckoutDetailDAO {
         }
     }
 
-
-    // 2. Lấy danh sách chi tiết theo checkoutID
     public List<CheckoutDetail> getDetailsByCheckoutID(int checkoutID) {
+        logger.info("Executing getDetailsByCheckoutID for checkoutID: {}", checkoutID);
         List<CheckoutDetail> list = new ArrayList<>();
         String sql = "SELECT * FROM checkoutdetail WHERE checkoutID = ?";
 
@@ -46,14 +49,17 @@ public class CheckoutDetailDAO {
                 );
                 list.add(cd);
             }
+            logger.info("Successfully fetched {} details for checkoutID: {}", list.size(), checkoutID);
 
         } catch (Exception e) {
+            logger.error("Error in getDetailsByCheckoutID for checkoutID: {}", checkoutID, e);
             e.printStackTrace();
         }
         return list;
     }
 
     public List<Integer> getEbookIdsTopSale() {
+        logger.info("Executing getEbookIdsTopSale");
         List<Integer> list = new ArrayList<>();
         String sql = """
                 SELECT
@@ -73,8 +79,10 @@ public class CheckoutDetailDAO {
                 int id = rs.getInt("bookID");
                 list.add(id);
             }
+            logger.info("Successfully fetched {} top sale ebook IDs", list.size());
 
         } catch (Exception e) {
+            logger.error("Error in getEbookIdsTopSale", e);
             e.printStackTrace();
         }
         return list;
