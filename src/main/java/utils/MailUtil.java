@@ -31,13 +31,12 @@ public class MailUtil {
         }
     }
 
-    public static void sendOtp(String toEmail, String otp) {
-
-        final String fromEmail = props.getProperty("mail.username");
+    public static void sendOtp(String toEmail, String otp, String subject) {
+        final String fromEmail   = props.getProperty("mail.username");
         final String appPassword = props.getProperty("mail.app.password");
 
         Properties mailProps = new Properties();
-        mailProps.put("mail.smtp.auth", "true");
+        mailProps.put("mail.smtp.auth",            "true");
         mailProps.put("mail.smtp.starttls.enable", "true");
         mailProps.put("mail.smtp.host", props.getProperty("mail.smtp.host"));
         mailProps.put("mail.smtp.port", props.getProperty("mail.smtp.port"));
@@ -51,18 +50,18 @@ public class MailUtil {
 
         try {
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(fromEmail));
-            message.setRecipients(
-                    Message.RecipientType.TO,
-                    InternetAddress.parse(toEmail)
-            );
-            message.setSubject("Xác thực đăng ký");
+            message.setFrom(new InternetAddress(fromEmail, "EbookStore"));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            message.setSubject("[EbookStore] " + subject);
             message.setText(
-                    "Mã OTP của bạn là: " + otp + "\nCó hiệu lực trong 15 phút."
+                    "Mã xác thực của bạn là: " + otp + "\n"
+                            + "Mã có hiệu lực trong 5 phút.\n\n"
+                            + "Vui lòng không chia sẻ mã này với bất kỳ ai.\n"
+                            + "Nếu bạn không yêu cầu mã này, hãy bỏ qua email này.\n\n"
+                            + "Trân trọng,\n"
+                            + "Đội ngũ EbookStore"
             );
-
             Transport.send(message);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -115,9 +114,7 @@ public class MailUtil {
                             + "Email này được gửi tự động từ hệ thống EbookStore.\n"
                             + "Vui lòng không trả lời email này.\n"
             );
-
             Transport.send(message);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
