@@ -91,6 +91,9 @@
                                 <c:when test="${param.error == 'tooManyAttempts'}">
                                     Bạn đã nhập sai quá 5 lần. Vui lòng gửi lại mã mới.
                                 </c:when>
+                                <c:when test="${param.error == 'alreadyUsed'}">
+                                    Mã OTP này đã được sử dụng. Vui lòng gửi lại để nhận mã mới.
+                                </c:when>
                                 <c:otherwise>
                                     Có lỗi xảy ra, vui lòng thử lại.
                                 </c:otherwise>
@@ -114,7 +117,7 @@
                 <c:if test="${param.resent == 'true'}">
                     <p class="fp-success-box">
                         <i class="fa-solid fa-circle-check"></i>
-                        <span>Đã gửi lại mã OTP mới. Hiệu lực 15 phút.</span>
+                        <span>Đã gửi lại mã OTP mới. Hiệu lực 5 phút.</span>
                     </p>
                 </c:if>
 
@@ -132,9 +135,11 @@
                     </button>
                 </div>
 
+                <%-- ✅ SỬA BUG 2: dùng otpSecondsRemaining từ server, fallback param.t, cuối cùng mới dùng 300 (5 phút) --%>
                 <div class="fp-countdown" id="fpCountdownWrap"
-                     data-seconds="${not empty param.t ? param.t : 900}">
-                    Mã hết hạn sau: <span id="fpCountdown">15:00</span>
+                     data-seconds="${not empty otpSecondsRemaining ? otpSecondsRemaining : (not empty param.t ? param.t : 300)}"
+                     data-email="${sessionScope.resetEmail}">
+                    Mã hết hạn sau: <span id="fpCountdown">05:00</span>
                 </div>
 
                 <div class="fp-resend">
