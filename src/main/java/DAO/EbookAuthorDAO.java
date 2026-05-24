@@ -47,8 +47,7 @@ public class EbookAuthorDAO {
 
         } catch (Exception e) {
             logger.error("Error in getAuthorIdsByEbook for ebookId: {}", ebookId, e);
-            e.printStackTrace();
-        }
+                   }
         return list;
     }
 
@@ -79,8 +78,7 @@ public class EbookAuthorDAO {
             logger.info("Successfully fetched {} authors for ebookID: {}", authors.size(), ebookID);
         } catch (Exception e) {
             logger.error("Error in getAuthorsByEbookID for ebookID: {}", ebookID, e);
-            e.printStackTrace();
-        }
+                   }
         return authors;
     }
 

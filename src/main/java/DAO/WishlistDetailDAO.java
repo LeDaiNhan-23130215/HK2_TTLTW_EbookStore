@@ -12,9 +12,10 @@ import java.util.List;
 public class WishlistDetailDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(WishlistDetailDAO.class);
+    private static final String LOG_PREFIX = "[WISHLIST_DETAIL_DAO]";
 
     public boolean exists(int wishlistId, int bookId) {
-        logger.info("Executing exists check for wishlistId: {}, bookId: {}", wishlistId, bookId);
+        logger.info("{} Executing exists check for wishlistId: {}, bookId: {}", LOG_PREFIX, wishlistId, bookId);
         String sql = "SELECT 1 FROM wishlistdetail WHERE wishlistID=? AND bookID=?";
 
         try (Connection con = DBConnection.getConnection();
@@ -23,18 +24,17 @@ public class WishlistDetailDAO {
             ps.setInt(1, wishlistId);
             ps.setInt(2, bookId);
             boolean hasNext = ps.executeQuery().next();
-            logger.info("Wishlist item existence for wishlistId {} and bookId {}: {}", wishlistId, bookId, hasNext);
+            logger.info("{} Wishlist item existence for wishlistId {} and bookId {}: {}", LOG_PREFIX, wishlistId, bookId, hasNext);
             return hasNext;
 
         } catch (Exception e) {
-            logger.error("Error in exists for wishlistId: {}, bookId: {}", wishlistId, bookId, e);
-            e.printStackTrace();
+            logger.error("{} Error in exists for wishlistId: {}, bookId: {}", LOG_PREFIX, wishlistId, bookId, e);
         }
         return false;
     }
 
     public boolean addBookToWishlist(int wishlistId, int bookId) {
-        logger.info("Executing addBookToWishlist for wishlistId: {}, bookId: {}", wishlistId, bookId);
+        logger.info("{} Executing addBookToWishlist for wishlistId: {}, bookId: {}", LOG_PREFIX, wishlistId, bookId);
         String sql = "INSERT INTO wishlistdetail(wishlistID, bookID, addedAt) VALUES (?, ?, CURRENT_TIMESTAMP)";
 
         try (Connection con = DBConnection.getConnection();
@@ -43,18 +43,17 @@ public class WishlistDetailDAO {
             ps.setInt(1, wishlistId);
             ps.setInt(2, bookId);
             boolean result = ps.executeUpdate() > 0;
-            logger.info("Add book to wishlist status for wishlistId {} and bookId {}: {}", wishlistId, bookId, result);
+            logger.info("{} Add book to wishlist status for wishlistId {} and bookId {}: {}", LOG_PREFIX, wishlistId, bookId, result);
             return result;
 
         } catch (Exception e) {
-            logger.error("Error in addBookToWishlist for wishlistId: {}, bookId: {}", wishlistId, bookId, e);
-            e.printStackTrace();
+            logger.error("{} Error in addBookToWishlist for wishlistId: {}, bookId: {}", LOG_PREFIX, wishlistId, bookId, e);
         }
         return false;
     }
 
     public boolean removeBookInWishlist(int wishlistId, int bookId) {
-        logger.info("Executing removeBookInWishlist for wishlistId: {}, bookId: {}", wishlistId, bookId);
+        logger.info("{} Executing removeBookInWishlist for wishlistId: {}, bookId: {}", LOG_PREFIX, wishlistId, bookId);
         String sql = "DELETE FROM wishlistdetail WHERE wishlistID=? AND bookID=?";
 
         try (Connection con = DBConnection.getConnection();
@@ -63,18 +62,17 @@ public class WishlistDetailDAO {
             ps.setInt(1, wishlistId);
             ps.setInt(2, bookId);
             boolean result = ps.executeUpdate() > 0;
-            logger.info("Remove book from wishlist status for wishlistId {} and bookId {}: {}", wishlistId, bookId, result);
+            logger.info("{} Remove book from wishlist status for wishlistId {} and bookId {}: {}", LOG_PREFIX, wishlistId, bookId, result);
             return result;
 
         } catch (Exception e) {
-            logger.error("Error in removeBookInWishlist for wishlistId: {}, bookId: {}", wishlistId, bookId, e);
-            e.printStackTrace();
+            logger.error("{} Error in removeBookInWishlist for wishlistId: {}, bookId: {}", LOG_PREFIX, wishlistId, bookId, e);
         }
         return false;
     }
 
     public List<Ebook> getBooksByUser(int userId) {
-        logger.info("Executing getBooksByUser for userId: {}", userId);
+        logger.info("{} Executing getBooksByUser for userId: {}", LOG_PREFIX, userId);
         List<Ebook> list = new ArrayList<>();
 
         String sql = """
@@ -98,16 +96,15 @@ public class WishlistDetailDAO {
                 e.setPrice(rs.getDouble("price"));
                 list.add(e);
             }
-            logger.info("Successfully fetched {} books from wishlist for userId: {}", list.size(), userId);
+            logger.info("{} Successfully fetched {} books from wishlist for userId: {}", LOG_PREFIX, list.size(), userId);
         } catch (Exception e) {
-            logger.error("Error in getBooksByUser for userId: {}", userId, e);
-            e.printStackTrace();
+            logger.error("{} Error in getBooksByUser for userId: {}", LOG_PREFIX, userId, e);
         }
         return list;
     }
 
     public List<Ebook> getBooksByWishlistId(int wishlistId) {
-        logger.info("Executing getBooksByWishlistId for wishlistId: {}", wishlistId);
+        logger.info("{} Executing getBooksByWishlistId for wishlistId: {}", LOG_PREFIX, wishlistId);
         List<Ebook> list = new ArrayList<>();
         String sql = """
             SELECT e.*
@@ -128,10 +125,9 @@ public class WishlistDetailDAO {
                 e.setBookCode(rs.getString("eBookCode"));
                 list.add(e);
             }
-            logger.info("Successfully fetched {} books for wishlistId: {}", list.size(), wishlistId);
+            logger.info("{} Successfully fetched {} books for wishlistId: {}", LOG_PREFIX, list.size(), wishlistId);
         } catch (Exception e) {
-            logger.error("Error in getBooksByWishlistId for wishlistId: {}", wishlistId, e);
-            e.printStackTrace();
+            logger.error("{} Error in getBooksByWishlistId for wishlistId: {}", LOG_PREFIX, wishlistId, e);
         }
         return list;
     }

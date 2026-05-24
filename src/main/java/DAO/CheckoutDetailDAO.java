@@ -15,9 +15,9 @@ import java.util.List;
 public class CheckoutDetailDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(CheckoutDetailDAO.class);
-
+    private static final String LOG_PREFIX = "[CHECKOUT_DETAIL_DAO]";
     public boolean addCheckoutDetail(Connection con, CheckoutDetail detail) throws SQLException {
-        logger.info("Executing addCheckoutDetail for checkoutID: {}, bookID: {}", detail.getCheckoutID(), detail.getBookID());
+        logger.info("{} Executing addCheckoutDetail for checkoutID: {}, bookID: {}", LOG_PREFIX, detail.getCheckoutID(), detail.getBookID());
         String sql =
                 "INSERT INTO checkoutdetail (checkoutID, bookID, price) VALUES (?, ?, ?)";
 
@@ -30,7 +30,7 @@ public class CheckoutDetailDAO {
     }
 
     public List<CheckoutDetail> getDetailsByCheckoutID(int checkoutID) {
-        logger.info("Executing getDetailsByCheckoutID for checkoutID: {}", checkoutID);
+        logger.info("{} Executing getDetailsByCheckoutID for checkoutID: {}", LOG_PREFIX, checkoutID);
         List<CheckoutDetail> list = new ArrayList<>();
         String sql = "SELECT * FROM checkoutdetail WHERE checkoutID = ?";
 
@@ -49,17 +49,16 @@ public class CheckoutDetailDAO {
                 );
                 list.add(cd);
             }
-            logger.info("Successfully fetched {} details for checkoutID: {}", list.size(), checkoutID);
+            logger.info("{} Successfully fetched {} details for checkoutID: {}",LOG_PREFIX, list.size(), checkoutID);
 
         } catch (Exception e) {
-            logger.error("Error in getDetailsByCheckoutID for checkoutID: {}", checkoutID, e);
-            e.printStackTrace();
+            logger.error("{} Error in getDetailsByCheckoutID for checkoutID: {}", LOG_PREFIX, checkoutID, e);
         }
         return list;
     }
 
     public List<Integer> getEbookIdsTopSale() {
-        logger.info("Executing getEbookIdsTopSale");
+        logger.info("{} Executing getEbookIdsTopSale", LOG_PREFIX);
         List<Integer> list = new ArrayList<>();
         String sql = """
                 SELECT
@@ -79,20 +78,11 @@ public class CheckoutDetailDAO {
                 int id = rs.getInt("bookID");
                 list.add(id);
             }
-            logger.info("Successfully fetched {} top sale ebook IDs", list.size());
+            logger.info("{} Successfully fetched {} top sale ebook IDs",LOG_PREFIX, list.size());
 
         } catch (Exception e) {
-            logger.error("Error in getEbookIdsTopSale", e);
-            e.printStackTrace();
+            logger.error("{} Error in getEbookIdsTopSale", LOG_PREFIX ,e);
         }
         return list;
-    }
-
-    public static void main(String[] args) {
-        CheckoutDetailDAO cddao = new CheckoutDetailDAO();
-
-        for (int i : cddao.getEbookIdsTopSale()) {
-            System.out.println(i);
-        }
     }
 }

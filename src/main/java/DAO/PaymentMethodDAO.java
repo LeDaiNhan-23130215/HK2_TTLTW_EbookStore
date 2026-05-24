@@ -16,9 +16,10 @@ import java.util.Map;
 public class PaymentMethodDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(PaymentMethodDAO.class);
+    private static final String LOG_PREFIX = "[PAYMENT_METHOD_DAO]";
 
     public PaymentMethod getPMById(int id) {
-        logger.info("Executing getPMById for id: {}", id);
+        logger.info("{} Executing getPMById for id: {}", LOG_PREFIX, id);
         String sql = "SELECT * FROM paymentmethod WHERE id = ?";
 
         try (Connection con = DBConnection.getConnection();
@@ -28,21 +29,20 @@ public class PaymentMethodDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                logger.info("Successfully fetched payment method for id: {}", id);
+                logger.info("{} Successfully fetched payment method for id: {}", LOG_PREFIX, id);
                 return new PaymentMethod(id, rs.getString("name"), rs.getString("type"), rs.getString("description"), rs.getInt("isActive"));
             }
-            logger.info("No payment method found for id: {}", id);
+            logger.info("{} No payment method found for id: {}", LOG_PREFIX, id);
 
         } catch (Exception e) {
-            logger.error("Error in getPMById for id: {}", id, e);
-            e.printStackTrace();
+            logger.error("{} Error in getPMById for id: {}",LOG_PREFIX, id, e);
         }
 
         return null;
     }
 
     public List<PaymentMethod> getAllPMs() {
-        logger.info("Executing getAllPMs");
+        logger.info("{} Executing getAllPMs", LOG_PREFIX);
         List<PaymentMethod> list = new ArrayList<>();
         String sql = "SELECT * FROM paymentmethod ORDER BY id DESC";
 
@@ -56,18 +56,17 @@ public class PaymentMethodDAO {
                 );
                 list.add(pm);
             }
-            logger.info("Successfully fetched {} payment methods", list.size());
+            logger.info("{} Successfully fetched {} payment methods", LOG_PREFIX, list.size());
 
         } catch (Exception e) {
-            logger.error("Error in getAllPMs", e);
-            e.printStackTrace();
+            logger.error("{} Error in getAllPMs", LOG_PREFIX, e);
         }
 
         return list;
     }
 
     public boolean addPM(PaymentMethod paymentMethod) {
-        logger.info("Executing addPM for name: {}", paymentMethod.getName());
+        logger.info("{} Executing addPM for name: {}", LOG_PREFIX, paymentMethod.getName());
         String sql = "INSERT INTO paymentmethod (name, type, description, isActive)"
                 + "VALUES (?, ?, ?, ?)";
 
@@ -80,19 +79,17 @@ public class PaymentMethodDAO {
             ps.setInt(4, paymentMethod.getIsActive());
 
             boolean result = ps.executeUpdate() > 0;
-            logger.info("Add payment method status for name '{}': {}", paymentMethod.getName(), result);
+            logger.info("{} Add payment method status for name '{}': {}", LOG_PREFIX, paymentMethod.getName(), result);
             return result;
 
         } catch (Exception e) {
-            logger.error("Error in addPM for name: {}", paymentMethod.getName(), e);
-            e.printStackTrace();
+            logger.error("{} Error in addPM for name: {}", LOG_PREFIX, paymentMethod.getName(), e);
         }
-
         return false;
     }
 
     public boolean deletePM(int id) {
-        logger.info("Executing deletePM for id: {}", id);
+        logger.info("{} Executing deletePM for id: {}", LOG_PREFIX, id);
         String sql = "DELETE FROM paymentmethod WHERE id = ?";
 
         try (Connection con = DBConnection.getConnection();
@@ -100,19 +97,17 @@ public class PaymentMethodDAO {
 
             ps.setInt(1, id);
             boolean result = ps.executeUpdate() > 0;
-            logger.info("Delete payment method status for id {}: {}", id, result);
+            logger.info("{} Delete payment method status for id {}: {}", LOG_PREFIX, id, result);
             return result;
 
         } catch (Exception e) {
-            logger.error("Error in deletePM for id: {}", id, e);
-            e.printStackTrace();
+            logger.error("{} Error in deletePM for id: {}", LOG_PREFIX, id, e);
         }
-
         return false;
     }
 
     public boolean updatePM(PaymentMethod paymentMethod) {
-        logger.info("Executing updatePM for id: {}", paymentMethod.getId());
+        logger.info("{} Executing updatePM for id: {}", LOG_PREFIX, paymentMethod.getId());
         String sql = "UPDATE paymentmethod SET name=?, type=?, description=?, isActive=? "
                 + "WHERE id=?";
 
@@ -121,24 +116,25 @@ public class PaymentMethodDAO {
 
             ps.setString(1, paymentMethod.getName());
             ps.setString(2, paymentMethod.getType());
-            ps.setString(3, paymentMethod.getDescription());
+             ps.setString(3, paymentMethod.getDescription());
             ps.setInt(4, paymentMethod.getIsActive());
             ps.setInt(5, paymentMethod.getId());
 
             boolean result = ps.executeUpdate() > 0;
-            logger.info("Update payment method status for id {}: {}", paymentMethod.getId(), result);
+            if (result) {
+                logger.info("{} Update payment method status for id {}: {}", LOG_PREFIX, paymentMethod.getId(), result);
+            }
             return result;
 
         } catch (Exception e) {
-            logger.error("Error in updatePM for id: {}", paymentMethod.getId(), e);
-            e.printStackTrace();
+            logger.error("{} Error in updatePM for id: {}", LOG_PREFIX, paymentMethod.getId(), e);
         }
 
         return false;
     }
 
     public int getPaymentMethodIdByName(String name) {
-        logger.info("Executing getPaymentMethodIdByName for name: {}", name);
+        logger.info("{} Executing getPaymentMethodIdByName for name: {}", LOG_PREFIX, name);
         String sql = "SELECT id FROM paymentmethod WHERE name = ?";
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -146,19 +142,18 @@ public class PaymentMethodDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 int id = rs.getInt("id");
-                logger.info("Successfully found payment method ID {} for name: {}", id, name);
+                logger.info("{} Successfully found payment method ID {} for name: {}", LOG_PREFIX, id, name);
                 return id;
             }
-            logger.info("No payment method found with name: {}", name);
+            logger.info("{} No payment method found with name: {}", LOG_PREFIX, name);
         } catch (Exception e){
-            logger.error("Error in getPaymentMethodIdByName for name: {}", name, e);
-            e.printStackTrace();
+            logger.error("{} Error in getPaymentMethodIdByName for name: {}", LOG_PREFIX, name, e);
         }
         return -1;
     }
 
     public Map<Integer, PaymentMethod> getPMMap() {
-        logger.info("Executing getPMMap");
+        logger.info("{} Executing getPMMap", LOG_PREFIX);
         Map<Integer, PaymentMethod> map = new HashMap<>();
         String sql = "SELECT * FROM paymentmethod";
         try (Connection con = DBConnection.getConnection();
@@ -169,11 +164,10 @@ public class PaymentMethodDAO {
                 PaymentMethod pm = new PaymentMethod(id, rs.getString("name"), rs.getString("type"), rs.getString("description"), rs.getInt("isActive"));
                 map.put(id, pm);
             }
-            logger.info("Successfully built payment method map with {} entries", map.size());
+            logger.info("{} Successfully built payment method map with {} entries", LOG_PREFIX, map.size());
             return map;
         } catch (Exception e){
-            logger.error("Error in getPMMap", e);
-            e.printStackTrace();
+            logger.error("{} Error in getPMMap", LOG_PREFIX, e);
         }
         return null;
     }

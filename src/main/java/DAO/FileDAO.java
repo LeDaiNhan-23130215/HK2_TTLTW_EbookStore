@@ -13,9 +13,10 @@ import java.sql.Statement;
 public class FileDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(FileDAO.class);
+    private static final String LOG_PREFIX = "[FILE_DAO]";
 
     public int insertAndReturnId(File file) {
-        logger.info("Executing insertAndReturnId for fileName: {}, format: {}", file.getFileName(), file.getFileFormat());
+        logger.info("{} Executing insertAndReturnId for fileName: {}, format: {}", LOG_PREFIX, file.getFileName(), file.getFileFormat());
         String sql = """
             INSERT INTO files (fileName, fileFormat, fileSize, fileLink, fileStatus)
             VALUES (?, ?, ?, ?, ?)
@@ -35,19 +36,18 @@ public class FileDAO {
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
                 int generatedId = rs.getInt(1);
-                logger.info("Successfully inserted file, generated ID: {}", generatedId);
+                logger.info("{} Successfully inserted file, generated ID: {}", LOG_PREFIX, generatedId);
                 return generatedId;
             }
-            logger.info("File inserted but no ID was generated");
+            logger.info("{} File inserted but no ID was generated", LOG_PREFIX);
         } catch (Exception e) {
-            logger.error("Error in insertAndReturnId for fileName: {}", file.getFileName(), e);
-            e.printStackTrace();
+            logger.error("{} Error in insertAndReturnId for fileName: {}", LOG_PREFIX, file.getFileName(), e);
         }
         return -1;
     }
 
     public String getPdfPathByEbookId(int ebookId) {
-        logger.info("Executing getPdfPathByEbookId for ebookId: {}", ebookId);
+        logger.info("{} Executing getPdfPathByEbookId for ebookId: {}", LOG_PREFIX, ebookId);
         String sql = "SELECT pdf_path FROM ebook_files WHERE ebook_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -57,14 +57,14 @@ public class FileDAO {
 
             if (rs.next()) {
                 String path = rs.getString("pdf_path");
-                logger.info("Successfully fetched PDF path for ebookId: {}", ebookId);
+                logger.info("{} Successfully fetched PDF path for ebookId: {}", LOG_PREFIX, ebookId);
                 return path;
+            } else {
+                logger.error("{} No PDF path found for ebookId: {}", LOG_PREFIX, ebookId);
             }
-            logger.info("No PDF path found for ebookId: {}", ebookId);
 
         } catch (Exception e) {
-            logger.error("Error in getPdfPathByEbookId for ebookId: {}", ebookId, e);
-            e.printStackTrace();
+            logger.error("{} Error in getPdfPathByEbookId for ebookId: {}", LOG_PREFIX, ebookId, e);
         }
         return null;
     }

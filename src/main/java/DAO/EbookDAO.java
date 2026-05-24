@@ -209,7 +209,6 @@ public class EbookDAO {
         applyFilter(sql, params, filter);
         sql.append(" GROUP BY e.id, e.title, e.price ");
 
-        // Sorting logic
         sql.append(" ORDER BY ");
         String sortBy = (filter.getSortBy() == null || filter.getSortBy().isEmpty()) ? "created_at" : filter.getSortBy();
         String sortDir = (filter.getSortDir() == null || filter.getSortDir().isEmpty()) ? "desc" : filter.getSortDir();
@@ -467,7 +466,6 @@ public class EbookDAO {
         }
     }
 
-    // Các hàm phụ trợ
     public void bindParams(PreparedStatement ps, List<Object> params) throws SQLException {
         for (int i = 0; i < params.size(); i++) {
             ps.setObject(i + 1, params.get(i));
@@ -500,65 +498,31 @@ public class EbookDAO {
     }
 
     public List<Ebook> getAdminEbooks(int page, int size) {
-
         List<Ebook> list = new ArrayList<>();
-
-
-
         String sql = """
-
-SELECT id, title, price, status, eBookCode, categoryID
-
-FROM ebook
-
-ORDER BY id DESC
-
-LIMIT ? OFFSET ?
-
-""";
-
-
-
+            SELECT id, title, price, status, eBookCode, categoryID
+            FROM ebook
+            ORDER BY id DESC
+            LIMIT ? OFFSET ?
+        """;
         try (Connection conn = DBConnection.getConnection();
-
              PreparedStatement ps = conn.prepareStatement(sql)) {
-
-
-
             ps.setInt(1, size);
-
             ps.setInt(2, (page - 1) * size);
-
-
-
             ResultSet rs = ps.executeQuery();
-
             while (rs.next()) {
-
                 int id = Integer.parseInt(rs.getString("id"));
-
                 Ebook e = new Ebook(id);
-
                 e.setTitle(rs.getString("title"));
-
                 e.setPrice(rs.getDouble("price"));
-
                 e.setStatus(rs.getString("status"));
-
                 e.setBookCode(rs.getString("eBookCode"));
-
                 e.setCategoryID(rs.getInt("categoryID"));
-
                 list.add(e);
-
             }
-
         } catch (Exception e) {
-
-            e.printStackTrace();
-
+            logger.error("{} Error fetching admin ebooks", LOG_PREFIX);
         }
-
         return list;
 
     }
