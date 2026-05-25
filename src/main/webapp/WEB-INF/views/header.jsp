@@ -8,7 +8,7 @@
     <title>EBookStore</title>
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/toast.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/header.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/base.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></script>
 </head>
