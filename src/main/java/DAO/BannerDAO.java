@@ -9,16 +9,24 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BannerDAO {
+
+    private static final Logger logger = LoggerFactory.getLogger(BannerDAO.class);
+    private static final String LOG_PREFIX = "[BANNER_DAO]";
+
     public Banner getBannerById(int id) {
+        logger.debug("{} Fetching banner by ID: {}", LOG_PREFIX, id);
         String query = "SELECT * FROM banner WHERE id = ?";
 
         try (Connection connection = DBConnection.getConnection();
-             PreparedStatement ps = connection.prepareStatement(query);) {
+             PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
+                    logger.debug("{} Banner found for ID: {}", LOG_PREFIX, id);
                     return new Banner(rs.getInt("id"),
                             rs.getString("url"),
                             rs.getString("position"),
@@ -27,15 +35,17 @@ public class BannerDAO {
                             rs.getInt("isActive")
                     );
                 }
+                logger.warn("{} No banner found with ID: {}", LOG_PREFIX, id);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("{} Error retrieving banner ID: {}", LOG_PREFIX, id, e);
         }
         return null;
     }
 
     public List<Banner> getAllBanner() {
-        List<Banner> list = new ArrayList<Banner>();
+        logger.info("{} Retrieving all banners", LOG_PREFIX);
+        List<Banner> list = new ArrayList<>();
         String sql = "SELECT * FROM banner";
 
         try (Connection connection = DBConnection.getConnection();
@@ -43,24 +53,23 @@ public class BannerDAO {
              ResultSet rs = stm.executeQuery()) {
 
             while (rs.next()) {
-                Banner b = new Banner(rs.getInt("id"),
+                list.add(new Banner(rs.getInt("id"),
                         rs.getString("url"),
                         rs.getString("position"),
                         rs.getString("startDate"),
                         rs.getString("endDate"),
                         rs.getInt("isActive")
-                );
-                list.add(b);
+                ));
             }
-
+            logger.debug("{} Successfully retrieved {} banners", LOG_PREFIX, list.size());
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("{} Error fetching all banners", LOG_PREFIX, e);
         }
-
         return list;
     }
 
     public boolean addBanner(Banner banner) {
+        logger.info("{} Adding new banner at position: {}", LOG_PREFIX, banner.getPosition());
         String sql = "insert into banner (url, position, startDate, endDate, isActive) values (?, ?, ?, ?, ?)";
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement stm = connection.prepareStatement(sql)) {
@@ -70,28 +79,36 @@ public class BannerDAO {
             stm.setString(4, banner.getEndDate());
             stm.setInt(5, banner.getIsActive());
 
-            int rows = stm.executeUpdate();
-            return rows > 0;
+            boolean success = stm.executeUpdate() > 0;
+            if (success) logger.info("{} Banner added successfully", LOG_PREFIX);
+            return success;
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("{} Error adding banner", LOG_PREFIX, e);
         }
         return false;
     }
 
     public boolean deleteBanner(int id) {
+        logger.warn("{} Attempting to delete banner ID: {}", LOG_PREFIX, id);
         String sql = "delete from banner where id = ?";
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement stm = connection.prepareStatement(sql)) {
             stm.setInt(1, id);
-            int rows = stm.executeUpdate();
-            return rows > 0;
+            boolean success = stm.executeUpdate() > 0;
+            if (success) {
+                logger.info("{} Successfully deleted banner ID: {}", LOG_PREFIX, id);
+            } else {
+                logger.warn("{} Delete failed. No banner found with ID: {}", LOG_PREFIX, id);
+            }
+            return success;
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("{} Error deleting banner ID: {}", LOG_PREFIX, id, e);
         }
         return false;
     }
 
     public boolean updateBanner(Banner banner) {
+        logger.info("{} Updating banner ID: {}", LOG_PREFIX, banner.getId());
         String sql = "update banner set url = ?, position = ?, startDate = ?, endDate = ?, isActive = ? where id = ?";
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement stm = connection.prepareStatement(sql)) {
@@ -101,15 +118,18 @@ public class BannerDAO {
             stm.setString(4, banner.getEndDate());
             stm.setInt(5, banner.getIsActive());
             stm.setInt(6, banner.getId());
-            int rows = stm.executeUpdate();
-            return rows > 0;
+
+            boolean success = stm.executeUpdate() > 0;
+            if (success) logger.info("{} Successfully updated banner ID: {}", LOG_PREFIX, banner.getId());
+            return success;
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("{} Error updating banner ID: {}", LOG_PREFIX, banner.getId(), e);
         }
         return false;
     }
 
     public Banner getBannerByLocation(String pos) {
+        logger.debug("{} Searching for active banner at position: {}", LOG_PREFIX, pos);
         String sql = """
         SELECT *
         FROM banner
@@ -120,7 +140,7 @@ public class BannerDAO {
         ORDER BY createdAt DESC
         LIMIT 1
         """;
-        Banner banner = null;
+
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement stm = connection.prepareStatement(sql)) {
 
@@ -128,18 +148,20 @@ public class BannerDAO {
             ResultSet rs = stm.executeQuery();
 
             if (rs.next()) {
-                int id =rs.getInt("id");
-                String url =rs.getString("url");
-                System.out.print(url);
-                String position =rs.getString("position");
-                String startDate = rs.getString("startDate");
-                String endDate = rs.getString("endDate");
-                int isActive = rs.getInt("isActive");
-                banner = new Banner(id, url, position, startDate, endDate, isActive);
+                logger.info("{} Active banner found for position: {}", LOG_PREFIX, pos);
+                return new Banner(
+                        rs.getInt("id"),
+                        rs.getString("url"),
+                        rs.getString("position"),
+                        rs.getString("startDate"),
+                        rs.getString("endDate"),
+                        rs.getInt("isActive")
+                );
             }
+            logger.debug("{} No active banner available for position: {}", LOG_PREFIX, pos);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("{} Error finding banner by location: {}", LOG_PREFIX, pos, e);
         }
-        return banner;
+        return null;
     }
 }

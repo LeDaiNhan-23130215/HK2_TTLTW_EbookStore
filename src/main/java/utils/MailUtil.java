@@ -7,26 +7,27 @@ import jakarta.mail.Session;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.Properties;
 
 public class MailUtil {
-    public static void send(String to, String subject, String content) {
-        System.out.println("Send mail to: " + to);
-        System.out.println("Content: " + content);
-    }
-
+    private static final Logger logger = LoggerFactory.getLogger(MailUtil.class);
+    private static final String LOG_PREFIX = "[MAIL_UTIL]";
     private static final Properties props = new Properties();
 
     static {
-        try (InputStream in =
-                     MailUtil.class.getClassLoader()
-                             .getResourceAsStream("mail.properties")) {
-
+        try (InputStream in = MailUtil.class.getClassLoader().getResourceAsStream("mail.properties")) {
+            if (in == null) {
+                logger.error("{} Critical Error: Unable to locate 'mail.properties' configuration file in classpath resources.", LOG_PREFIX);
+                throw new RuntimeException("Could not find mail.properties resource file");
+            }
             props.load(in);
-
+            logger.info("{} SMTP configuration parameters loaded successfully from mail.properties.", LOG_PREFIX);
         } catch (Exception e) {
+            logger.error("{} Fatal Application Startup Failure: Configuration loading failed. Trace context: ", LOG_PREFIX, e);
             throw new RuntimeException("Không load được mail.properties", e);
         }
     }
@@ -34,6 +35,8 @@ public class MailUtil {
     public static void sendOtp(String toEmail, String otp, String subject) {
         final String fromEmail   = props.getProperty("mail.username");
         final String appPassword = props.getProperty("mail.app.password");
+
+        logger.info("{} Initializing registration OTP dispatch sequence targeting recipient address: '{}'.", LOG_PREFIX, toEmail);
 
         Properties mailProps = new Properties();
         mailProps.put("mail.smtp.auth",            "true");
@@ -48,6 +51,7 @@ public class MailUtil {
                     }
                 });
 
+        long startTime = System.currentTimeMillis();
         try {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(fromEmail, "EbookStore"));
@@ -61,16 +65,21 @@ public class MailUtil {
                             + "Trân trọng,\n"
                             + "Đội ngũ EbookStore"
             );
+            
             Transport.send(message);
+            long duration = System.currentTimeMillis() - startTime;
+            logger.info("{} OTP mail successfully delivered to '{}'. Dispatch operation duration: {}ms.", LOG_PREFIX, toEmail, duration);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("{} SMTP Transport Transmission Failure: Failed to dispatch OTP token package to recipient '{}': ", LOG_PREFIX, toEmail, e);
         }
     }
 
-    public static void sendAccountActivity(String toEmail, String username,
-                                           ActivityType activityType) {
+    public static void sendAccountActivity(String toEmail, String username, ActivityType activityType) {
         final String fromEmail   = props.getProperty("mail.username");
         final String appPassword = props.getProperty("mail.app.password");
+
+        logger.info("{} Triggering security notification mail dispatch for Activity: '{}', Account: '{}'.", 
+                LOG_PREFIX, activityType.name(), username);
 
         Properties mailProps = new Properties();
         mailProps.put("mail.smtp.auth",            "true");
@@ -85,11 +94,10 @@ public class MailUtil {
                     }
                 });
 
+        long startTime = System.currentTimeMillis();
         try {
-            java.time.ZonedDateTime now = java.time.ZonedDateTime
-                    .now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
-            String timeStr = now.format(
-                    java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy"));
+            java.time.ZonedDateTime now = java.time.ZonedDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
+            String timeStr = now.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy"));
 
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(fromEmail, "EbookStore"));
@@ -114,9 +122,12 @@ public class MailUtil {
                             + "Email này được gửi tự động từ hệ thống EbookStore.\n"
                             + "Vui lòng không trả lời email này.\n"
             );
+            
             Transport.send(message);
+            long duration = System.currentTimeMillis() - startTime;
+            logger.info("{} Security audit notification packet dispatched successfully to '{}'. Execution latency: {}ms.", LOG_PREFIX, toEmail, duration);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("{} SMTP Transport Security Alert Failure: Unable to deliver account activity updates to target destination '{}': ", LOG_PREFIX, toEmail, e);
         }
     }
 }

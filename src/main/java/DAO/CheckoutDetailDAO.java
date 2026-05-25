@@ -2,6 +2,8 @@ package DAO;
 
 import models.CheckoutDetail;
 import utils.DBConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,8 +14,10 @@ import java.util.List;
 
 public class CheckoutDetailDAO {
 
-    // 1. Thêm 1 dòng checkout detail
+    private static final Logger logger = LoggerFactory.getLogger(CheckoutDetailDAO.class);
+    private static final String LOG_PREFIX = "[CHECKOUT_DETAIL_DAO]";
     public boolean addCheckoutDetail(Connection con, CheckoutDetail detail) throws SQLException {
+        logger.info("{} Executing addCheckoutDetail for checkoutID: {}, bookID: {}", LOG_PREFIX, detail.getCheckoutID(), detail.getBookID());
         String sql =
                 "INSERT INTO checkoutdetail (checkoutID, bookID, price) VALUES (?, ?, ?)";
 
@@ -25,9 +29,8 @@ public class CheckoutDetailDAO {
         }
     }
 
-
-    // 2. Lấy danh sách chi tiết theo checkoutID
     public List<CheckoutDetail> getDetailsByCheckoutID(int checkoutID) {
+        logger.info("{} Executing getDetailsByCheckoutID for checkoutID: {}", LOG_PREFIX, checkoutID);
         List<CheckoutDetail> list = new ArrayList<>();
         String sql = "SELECT * FROM checkoutdetail WHERE checkoutID = ?";
 
@@ -46,14 +49,16 @@ public class CheckoutDetailDAO {
                 );
                 list.add(cd);
             }
+            logger.info("{} Successfully fetched {} details for checkoutID: {}",LOG_PREFIX, list.size(), checkoutID);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("{} Error in getDetailsByCheckoutID for checkoutID: {}", LOG_PREFIX, checkoutID, e);
         }
         return list;
     }
 
     public List<Integer> getEbookIdsTopSale() {
+        logger.info("{} Executing getEbookIdsTopSale", LOG_PREFIX);
         List<Integer> list = new ArrayList<>();
         String sql = """
                 SELECT
@@ -73,18 +78,11 @@ public class CheckoutDetailDAO {
                 int id = rs.getInt("bookID");
                 list.add(id);
             }
+            logger.info("{} Successfully fetched {} top sale ebook IDs",LOG_PREFIX, list.size());
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("{} Error in getEbookIdsTopSale", LOG_PREFIX ,e);
         }
         return list;
-    }
-
-    public static void main(String[] args) {
-        CheckoutDetailDAO cddao = new CheckoutDetailDAO();
-
-        for (int i : cddao.getEbookIdsTopSale()) {
-            System.out.println(i);
-        }
     }
 }
