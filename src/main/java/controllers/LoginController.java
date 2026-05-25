@@ -5,6 +5,8 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import models.Cart;
 import models.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.CartService;
 import utils.ActivityType;
 import utils.MailUtil;
@@ -18,6 +20,9 @@ import java.util.Scanner;
 public class LoginController extends HttpServlet {
     private UserDAO userDAO;
     private CartService cartService;
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
+    private static final String LOG_PREFIX = "[LOGIN_CONTROLLER]";
+
 
     @Override
     public void init() throws ServletException {
@@ -36,8 +41,16 @@ public class LoginController extends HttpServlet {
             conn.getOutputStream().write(params.getBytes());
             Scanner sc = new Scanner(conn.getInputStream());
             String response = sc.useDelimiter("\\A").next();
-            return response.contains("\"success\": true");
-        } catch (Exception e) { return false; }
+
+            boolean isSuccess = response.contains("\"success\": true");
+            if(!isSuccess) {
+                logger.warn("{} Recaptcha fail. Response from Google: {}", LOG_PREFIX, response);
+            }
+            return isSuccess;
+        } catch (Exception e) {
+            logger.error("{} Critical error when connecting to Google Recapcha API: ", LOG_PREFIX);
+            return false;
+            }
     }
 
     @Override
@@ -49,6 +62,7 @@ public class LoginController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String recaptchaToken = req.getParameter("g-recaptcha-response");
         if (recaptchaToken == null || !verifyRecaptcha(recaptchaToken)) {
+            logger.warn("{} Login blocked: Missing or invalid reCaptcha token", LOG_PREFIX);
             req.setAttribute("error_msg", "Vui lòng xác nhận bạn không phải robot.");
             req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
             return;
@@ -58,7 +72,7 @@ public class LoginController extends HttpServlet {
 
         if (input == null || input.isEmpty() ||
                 password == null || password.isEmpty()) {
-
+            logger.warn("{} Login failed: Empty username or password field submitted", LOG_PREFIX);
             req.setAttribute("error_msg", "Vui lòng nhập email/tên người dùng và mật khẩu.");
             req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
             return;
@@ -67,6 +81,7 @@ public class LoginController extends HttpServlet {
         User user = userDAO.login(input, password);
 
         if (user == null) {
+            logger.warn("{} Authentification failed for identifier: {}", LOG_PREFIX, input);
             req.setAttribute("error_msg", "Tên đăng nhập hoặc mật khẩu không đúng.");
             req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
             return;
@@ -86,12 +101,16 @@ public class LoginController extends HttpServlet {
             totalCartDetails = cartService.getTotalCartDetails(cart.getId());
         }
         session.setAttribute("totalCartDetails", totalCartDetails);
-
+        try {
         MailUtil.sendAccountActivity(
                 user.getEmail(),
                 user.getUsername(),
                 ActivityType.LOGIN
         );
+        logger.info("{} Activity mail sent successfully to '{}'", LOG_PREFIX, user.getEmail());
+    } catch (Exception e) {
+            logger.error("{} Failed to send login activity mail to '{}' ", LOG_PREFIX, user.getEmail());
+        }
 
         session.setAttribute(
                 "toastSuccess",
@@ -100,16 +119,15 @@ public class LoginController extends HttpServlet {
 
         String redirectUrl =
                 (String) session.getAttribute("redirectAfterLogin");
-
         if (redirectUrl != null &&
                 !redirectUrl.isEmpty()) {
-
             session.removeAttribute("redirectAfterLogin");
-
+            logger.info("{} User '{}' [ID:{}][Role: {}] logged in successfully. Redirect to requested URL: {}",
+                    LOG_PREFIX, user.getUsername(), user.getId(), user.getRole(), redirectUrl);
             resp.sendRedirect(redirectUrl);
-
         } else {
-
+            logger.info("{} User '{}' [ID:{}][Role: {}] logged in successfully. Redirect to home page",
+                    LOG_PREFIX, user.getUsername(), user.getId(), user.getRole());
             resp.sendRedirect(
                     req.getContextPath() + "/home"
             );

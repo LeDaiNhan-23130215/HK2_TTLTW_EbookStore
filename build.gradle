@@ -12,7 +12,7 @@ repositories {
 ext {
     remoteIp = '34.124.194.210'
     remoteUser = 'ledainhan05'
-    identityFile = file('C:/Users/dangb/.ssh/gcp_vinh_vien')
+    identityFile = file('C:/Users/nhan/.ssh/gcp_vinh_vien')
     deployPath = '/usr/deploy'
     targetWarName = 'ROOT.war'
 }

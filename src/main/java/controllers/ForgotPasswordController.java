@@ -7,6 +7,8 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import models.PasswordReset;
 import models.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import utils.ActivityType;
 import utils.HashUtil;
 import utils.MailUtil;
@@ -21,6 +23,8 @@ import java.util.Optional;
 public class ForgotPasswordController extends HttpServlet {
     private UserDAO userDAO;
     private PasswordResetDAO passwordResetDAO;
+    private static final Logger logger = LoggerFactory.getLogger(ForgotPasswordController.class);
+    private static final String LOG_PREFIX = "[FORGOT_PASSWORD_CONTROLLER]";
 
     @Override
     public void init() throws ServletException {
@@ -41,7 +45,6 @@ public class ForgotPasswordController extends HttpServlet {
                 }
             }
         }
-
         req.getRequestDispatcher("/WEB-INF/views/forgot-password.jsp").forward(req, resp);
     }
 
@@ -50,15 +53,20 @@ public class ForgotPasswordController extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         String action = req.getParameter("action");
         if (action == null) {
+            logger.warn("{} Received post request without action parameter.", LOG_PREFIX);
             resp.sendRedirect(req.getContextPath() + "/forgot-password");
             return;
         }
+
+        logger.debug("{} Dispatching workflow for action step: '{}'", LOG_PREFIX, action);
         switch (action) {
             case "sendCode":    sendResetCode(req, resp);  break;
             case "verifyCode":  verifyCode(req, resp);     break;
             case "resendCode":  resendCode(req, resp);     break;
             case "resetPassword": resetPassword(req, resp); break;
-            default: resp.sendRedirect(req.getContextPath() + "/forgot-password");
+            default:
+                logger.warn("{} Unexpected action value parameter: '{}'", LOG_PREFIX, action);
+                resp.sendRedirect(req.getContextPath() + "/forgot-password");
         }
     }
 
@@ -67,16 +75,15 @@ public class ForgotPasswordController extends HttpServlet {
         User user = userDAO.findUserByEmail(email);
 
         if (user == null) {
+            logger.warn("{} Reset code dispatch blocked: Email address '{}' not associated with an existing account.", LOG_PREFIX, email);
             resp.sendRedirect(req.getContextPath() + "/forgot-password?error=emailNotFound");
             return;
         }
 
         if (passwordResetDAO.isLocked(user.getId())) {
-            String remaining = URLEncoder.encode(
-                    passwordResetDAO.getLockRemainingTime(user.getId()), "UTF-8");
-
-            resp.sendRedirect(req.getContextPath()
-                    + "/forgot-password?error=locked&remaining=" + remaining);
+            logger.warn("{} Reset code dispatch blocked: Account associated with User ID {} is currently locked out.", LOG_PREFIX, user.getId());
+            String remaining = URLEncoder.encode(passwordResetDAO.getLockRemainingTime(user.getId()), "UTF-8");
+            resp.sendRedirect(req.getContextPath() + "/forgot-password?error=locked&remaining=" + remaining);
             return;
         }
 
@@ -84,13 +91,16 @@ public class ForgotPasswordController extends HttpServlet {
 
         String otp = generateOtp();
         String otpHash = HashUtil.sha256(otp);
-
-        Timestamp expiresAt =
-                Timestamp.from(Instant.now().plus(5, java.time.temporal.ChronoUnit.MINUTES));
+        Timestamp expiresAt = Timestamp.from(Instant.now().plus(5, java.time.temporal.ChronoUnit.MINUTES));
 
         passwordResetDAO.createToken(user.getId(), otpHash, expiresAt);
 
-        MailUtil.sendOtp(email, otp, "Xác thực email - Quên mật khẩu");
+        try {
+            MailUtil.sendOtp(email, otp, "Xác thực email - Quên mật khẩu");
+            logger.info("{} Password reset OTP generated and dispatched via email to user ID {}.", LOG_PREFIX, user.getId());
+        } catch (Exception e) {
+            logger.error("{} Severe error sending password reset OTP email to user ID {}: ", LOG_PREFIX, user.getId(), e);
+        }
 
         HttpSession session = req.getSession();
         session.setAttribute("resetEmail", email);
@@ -98,17 +108,13 @@ public class ForgotPasswordController extends HttpServlet {
         session.setAttribute("otpCreatedAt", System.currentTimeMillis());
 
         resp.sendRedirect(req.getContextPath() + "/forgot-password?step=verify");
-
     }
 
-    private void verifyCode(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException {
-
+    private void verifyCode(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         HttpSession existingSession = req.getSession(false);
-        if (existingSession != null
-                && Boolean.TRUE.equals(existingSession.getAttribute("otpVerified"))) {
-            resp.sendRedirect(req.getContextPath()
-                    + "/forgot-password?step=verify&error=alreadyUsed&t=0");
+        if (existingSession != null && Boolean.TRUE.equals(existingSession.getAttribute("otpVerified"))) {
+            logger.warn("{} Verification sequence halted: OTP already confirmed within the active session scope.", LOG_PREFIX);
+            resp.sendRedirect(req.getContextPath() + "/forgot-password?step=verify&error=alreadyUsed&t=0");
             return;
         }
 
@@ -116,29 +122,28 @@ public class ForgotPasswordController extends HttpServlet {
         String email = (String) req.getSession().getAttribute("resetEmail");
 
         if (email == null) {
+            logger.warn("{} Verification aborted: Missing active reset session tracking email information.", LOG_PREFIX);
             resp.sendRedirect(req.getContextPath() + "/forgot-password");
             return;
         }
 
         User user = userDAO.findUserByEmail(email);
         if (user == null) {
+            logger.error("{} Verification structural error: Reset email session attribute matches no active platform user account.", LOG_PREFIX);
             resp.sendRedirect(req.getContextPath() + "/forgot-password");
             return;
         }
 
-        // Kiểm tra đang bị khoá trước khi làm gì khác
         if (passwordResetDAO.isLocked(user.getId())) {
-            String remaining = URLEncoder.encode(
-                    passwordResetDAO.getLockRemainingTime(user.getId()), "UTF-8");
-            resp.sendRedirect(req.getContextPath()
-                    + "/forgot-password?step=verify&error=locked&remaining=" + remaining);
+            logger.warn("{} Code verification rejected: Account associated with User ID {} is locked out.", LOG_PREFIX, user.getId());
+            String remaining = URLEncoder.encode(passwordResetDAO.getLockRemainingTime(user.getId()), "UTF-8");
+            resp.sendRedirect(req.getContextPath() + "/forgot-password?step=verify&error=locked&remaining=" + remaining);
             return;
         }
 
-        // Chưa nhập mã
         if (code == null || code.isBlank()) {
-            resp.sendRedirect(req.getContextPath()
-                    + "/forgot-password?step=verify&error=invalidCode");
+            logger.warn("{} Code verification rejected: Empty or white-space confirmation token received.", LOG_PREFIX);
+            resp.sendRedirect(req.getContextPath() + "/forgot-password?step=verify&error=invalidCode");
             return;
         }
 
@@ -146,35 +151,33 @@ public class ForgotPasswordController extends HttpServlet {
         Optional<PasswordReset> opt = passwordResetDAO.findValidToken(tokenHash, user.getId());
 
         if (opt.isEmpty()) {
-            // Phân biệt hết hạn vs sai mã
             boolean expired = passwordResetDAO.isTokenExpired(tokenHash, user.getId());
             if (expired) {
+                logger.info("{} Verification token submitted for User ID {} has expired.", LOG_PREFIX, user.getId());
                 passwordResetDAO.deleteByUser(user.getId());
-                resp.sendRedirect(req.getContextPath()
-                        + "/forgot-password?step=verify&error=expiredCode&t=0");
+                resp.sendRedirect(req.getContextPath() + "/forgot-password?step=verify&error=expiredCode&t=0");
                 return;
             }
 
-            // Sai mã → tăng attempts, trả true nếu lần này vừa đủ 5 → khoá
+            logger.warn("{} Verification failed: Invalid code hash submitted for User ID {}.", LOG_PREFIX, user.getId());
             boolean justLocked = passwordResetDAO.incrementAttempts(user.getId());
             if (justLocked) {
-                String remaining = URLEncoder.encode(
-                        passwordResetDAO.getLockRemainingTime(user.getId()), "UTF-8");
+                logger.warn("{} SECURITY NOTICE: Max confirmation failure thresholds met. User ID {} is now locked out.", LOG_PREFIX, user.getId());
+                String remaining = URLEncoder.encode(passwordResetDAO.getLockRemainingTime(user.getId()), "UTF-8");
                 req.getSession().invalidate();
-                resp.sendRedirect(req.getContextPath()
-                        + "/forgot-password?error=locked&remaining=" + remaining);
+                resp.sendRedirect(req.getContextPath() + "/forgot-password?error=locked&remaining=" + remaining);
                 return;
             }
 
             long t = passwordResetDAO.getSecondsRemaining(user.getId());
-            resp.sendRedirect(req.getContextPath()
-                    + "/forgot-password?step=verify&error=invalidCode&t=" + t);
+            resp.sendRedirect(req.getContextPath() + "/forgot-password?step=verify&error=invalidCode&t=" + t);
             return;
         }
 
-        // Đúng mã → reset attempts, XÓA token ngay để chặn back button dùng lại
+        logger.info("{} Verification success: Token matches and confirmed for User ID {}. Clearing active validation token records.", LOG_PREFIX, user.getId());
         passwordResetDAO.resetAttempts(user.getId());
         passwordResetDAO.deleteByUser(user.getId());
+
         HttpSession session = req.getSession();
         session.setAttribute("resetTokenID", opt.get().getId());
         session.setAttribute("resetUserID",  opt.get().getUserID());
@@ -187,32 +190,31 @@ public class ForgotPasswordController extends HttpServlet {
         String email = session != null ? (String) session.getAttribute("resetEmail") : null;
 
         if (email == null) {
+            logger.warn("{} Resend token processing rejected: No bound contextual active registration session metadata.", LOG_PREFIX);
             resp.sendRedirect(req.getContextPath() + "/forgot-password");
             return;
         }
 
         User user = userDAO.findUserByEmail(email);
         if (user == null) {
+            logger.error("{} Resend token structural error: Registration reset metadata target email addresses no known account.", LOG_PREFIX);
             resp.sendRedirect(req.getContextPath() + "/forgot-password");
             return;
         }
 
-        // Không cho gửi lại khi đang bị khoá
         if (passwordResetDAO.isLocked(user.getId())) {
-            String remaining = URLEncoder.encode(
-                    passwordResetDAO.getLockRemainingTime(user.getId()), "UTF-8");
+            logger.warn("{} Token resend blocked: User ID {} is locked out.", LOG_PREFIX, user.getId());
+            String remaining = URLEncoder.encode(passwordResetDAO.getLockRemainingTime(user.getId()), "UTF-8");
             session.invalidate();
-            resp.sendRedirect(req.getContextPath()
-                    + "/forgot-password?error=locked&remaining=" + remaining);
+            resp.sendRedirect(req.getContextPath() + "/forgot-password?error=locked&remaining=" + remaining);
             return;
         }
 
-        // Cooldown 30 giây
         Long lastResend = (Long) session.getAttribute("lastResendTime");
         if (lastResend != null && System.currentTimeMillis() - lastResend < 30_000) {
             long remaining = 30 - (System.currentTimeMillis() - lastResend) / 1000;
-            resp.sendRedirect(req.getContextPath()
-                    + "/forgot-password?step=verify&resendCooldown=" + remaining);
+            logger.warn("{} Token resend blocked: Cooldown active for User ID {}. Remaining context: {}s", LOG_PREFIX, user.getId(), remaining);
+            resp.sendRedirect(req.getContextPath() + "/forgot-password?step=verify&resendCooldown=" + remaining);
             return;
         }
 
@@ -223,7 +225,13 @@ public class ForgotPasswordController extends HttpServlet {
         Timestamp expiresAt = Timestamp.from(Instant.now().plus(5, java.time.temporal.ChronoUnit.MINUTES));
 
         passwordResetDAO.createToken(user.getId(), otpHash, expiresAt);
-        MailUtil.sendOtp(email, otp, "Xác thực email - Quên mật khẩu");
+
+        try {
+            MailUtil.sendOtp(email, otp, "Xác thực email - Quên mật khẩu");
+            logger.info("{} Replacement confirmation code dispatched to User ID {}.", LOG_PREFIX, user.getId());
+        } catch (Exception e) {
+            logger.error("{} Severe error sending replacement confirmation email code to User ID {}: ", LOG_PREFIX, user.getId(), e);
+        }
 
         session.setAttribute("lastResendTime", System.currentTimeMillis());
         session.setAttribute("otpCreatedAt", System.currentTimeMillis());
@@ -233,6 +241,7 @@ public class ForgotPasswordController extends HttpServlet {
     private void resetPassword(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         HttpSession session = req.getSession(false);
         if (session == null || session.getAttribute("resetUserID") == null) {
+            logger.warn("{} Form completion blocked: State metadata context not authorized for credential replacement.", LOG_PREFIX);
             resp.sendRedirect(req.getContextPath() + "/forgot-password");
             return;
         }
@@ -241,27 +250,35 @@ public class ForgotPasswordController extends HttpServlet {
         String confirmPassword = req.getParameter("confirmPassword");
 
         if (newPassword == null || newPassword.isBlank()) {
+            logger.warn("{} Update cancelled: Received zero length replacement input values.", LOG_PREFIX);
             resp.sendRedirect(req.getContextPath() + "/forgot-password?step=reset&error=passwordEmpty");
             return;
         }
         if (!newPassword.equals(confirmPassword)) {
+            logger.warn("{} Update cancelled: Re-entered password text parameters mismatch.", LOG_PREFIX);
             resp.sendRedirect(req.getContextPath() + "/forgot-password?step=reset&error=passwordMismatch");
             return;
         }
         if (!isStrongPassword(newPassword)) {
+            logger.warn("{} Update cancelled: Replacement text fails to satisfy structural platform policy rules.", LOG_PREFIX);
             resp.sendRedirect(req.getContextPath() + "/forgot-password?step=reset&error=weakPassword");
             return;
         }
 
         int userID  = (Integer) session.getAttribute("resetUserID");
-        int tokenId = (Integer) session.getAttribute("resetTokenID");
         User user   = userDAO.getUserByID(userID);
 
         userDAO.updatePassword(userID, newPassword);
+        logger.info("{} Core authorization modification successful for User ID {}. Inactivating verification reset session scope context.", LOG_PREFIX, userID);
         session.invalidate();
 
         if (user != null) {
-            MailUtil.sendAccountActivity(user.getEmail(), user.getUsername(), ActivityType.RESET_PASSWORD);
+            try {
+                MailUtil.sendAccountActivity(user.getEmail(), user.getUsername(), ActivityType.RESET_PASSWORD);
+                logger.info("{} Transaction activity summary alert dispatched to client tracking address: '{}'.", LOG_PREFIX, user.getEmail());
+            } catch (Exception e) {
+                logger.error("{} Severe operational alert error notifying User ID {} regarding modification: ", LOG_PREFIX, userID, e);
+            }
         }
         resp.sendRedirect(req.getContextPath() + "/login?msg=reset_success");
     }

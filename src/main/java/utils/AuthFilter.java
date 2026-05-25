@@ -3,6 +3,8 @@ package utils;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -17,6 +19,8 @@ import java.io.IOException;
         "/contact-information"
 })
 public class AuthFilter implements Filter {
+    private static final Logger logger = LoggerFactory.getLogger(AuthFilter.class);
+    private static final String LOG_PREFIX = "[AUTH_FILTER]";
 
     @Override
     public void doFilter(ServletRequest request,
@@ -24,27 +28,22 @@ public class AuthFilter implements Filter {
                          FilterChain chain)
             throws IOException, ServletException {
 
-        HttpServletRequest req =
-                (HttpServletRequest) request;
+        HttpServletRequest req = (HttpServletRequest) request;
+        HttpServletResponse resp = (HttpServletResponse) response;
 
-        HttpServletResponse resp =
-                (HttpServletResponse) response;
+        HttpSession session = req.getSession(false);
 
-        HttpSession session =
-                req.getSession(false);
-
-        boolean loggedIn =
-                session != null &&
-                        session.getAttribute("user") != null;
+        boolean loggedIn = session != null && session.getAttribute("user") != null;
+        String requestURI = req.getRequestURI();
 
         if (!loggedIn) {
-
-            String fullURL =
-                    req.getRequestURL().toString();
-
+            String fullURL = req.getRequestURL().toString();
             if (req.getQueryString() != null) {
                 fullURL += "?" + req.getQueryString();
             }
+
+            logger.warn("{} Unauthorized access blocked for path: '{}'. Storing return checkpoint landing target and routing back to login.", 
+                    LOG_PREFIX, requestURI);
 
             req.getSession().setAttribute(
                     "redirectAfterLogin",
@@ -54,8 +53,14 @@ public class AuthFilter implements Filter {
             resp.sendRedirect(
                     req.getContextPath() + "/login"
             );
-
             return;
+        }
+
+        if (logger.isDebugEnabled()) {
+            models.User user = (models.User) session.getAttribute("user");
+            int userId = (user != null) ? user.getId() : -1;
+            logger.debug("{} Authorized pass-through granted for User ID {} to access route: '{}'.", 
+                    LOG_PREFIX, userId, requestURI);
         }
 
         chain.doFilter(request, response);
