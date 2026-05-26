@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
-
 @WebFilter("/*")
 public class LogGlobalFilter implements Filter {
     private static final Logger logger = LogManager.getLogger(LogGlobalFilter.class);
@@ -26,8 +25,8 @@ public class LogGlobalFilter implements Filter {
         } catch (Exception e) {
             logger.error("{} Unhandled exception at URI: {}", LOG_PREFIX, req.getRequestURI(), e);
 
+            request.setAttribute("errorMessage", e.getMessage());
             if (!resp.isCommitted())  {
-                request.setAttribute("errorMessage", "Something went wrong ;-;");
                 RequestDispatcher dispatcher = request.getRequestDispatcher("/error/general-error.jsp");
 
                 dispatcher.forward(request, response);

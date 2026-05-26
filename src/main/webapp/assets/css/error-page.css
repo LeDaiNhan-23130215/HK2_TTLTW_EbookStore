@@ -5,20 +5,32 @@ body{
 }
 
 .box{
-    background:white;
-    height: 30vh;
-    width:500px;
+    display: inline-block;
     margin:auto;
-    padding:40px;
-    border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
 h1{
     color:#d9534f;
 }
 
-a{
+.back-to-home-error{
+    display: inline-block;
     text-decoration:none;
-    color:#0275d8;
+    color: white;
+    background: #0275d8;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px;
+}
+
+.
+
+.message {
+    display: inline-block;
+    border: #4a90e2 2px solid;
+    border-radius: 10px;
+    text-align: justify;
+    font-size: 20px;
+    margin: 5px;
+    padding: 10px;
 }

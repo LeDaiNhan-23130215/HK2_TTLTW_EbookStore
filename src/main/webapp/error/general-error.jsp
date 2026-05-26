@@ -16,12 +16,16 @@
           href="${pageContext.request.contextPath}/assets/css/error-page.css">
     <link rel="stylesheet"
           href="${pageContext.request.contextPath}/assets/css/components.css">
+    <link rel="icon"
+          href="${pageContext.request.contextPath}/assets/img/ebook-logo2.png"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
 </head>
 <body>
-<jsp:include page="/WEB-INF/views/header.jsp"/>
-<div class="container">
+<div class = "box">
     <h1>Oops!</h1>
-    <h2>Something went wrong</h2>
+    <h2>Something went wrong :(</h2>
     <p>
         Hệ thống đã gặp lỗi trong quá trình xử lý.
     </p>
@@ -35,11 +39,10 @@
             </c:otherwise>
         </c:choose>
     </div>
-    <a href="${pageContext.request.contextPath}/home">
+    <a href="${pageContext.request.contextPath}/home" class="back-to-home-error">
         Quay về trang chủ
     </a>
 
 </div>
-<jsp:include page="/WEB-INF/views/footer.jsp"/>
 </body>
 </html>
