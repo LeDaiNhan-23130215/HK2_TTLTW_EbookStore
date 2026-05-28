@@ -191,3 +191,78 @@ form .container {
     z-index: 1;
 }
 .login-eye:hover { color: #027aa3; }
+/* ===== Nút Google OAuth - thiết kế mới ===== */
+.logoContainer .logoList li {
+    background: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(66,133,244,.18);
+    transition: box-shadow .2s, border-color .2s, transform .2s;
+    text-decoration: none;
+}
+
+.google-btn:hover {
+    box-shadow: 0 4px 16px rgba(66,133,244,.35);
+    border-color: #4285F4;
+    transform: translateY(-3px);
+}
+
+.google-icon {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
+/* ===== Nút Google OAuth - thiết kế mới ===== */
+.logoContainer .logoList li:has(.google-btn) {
+    background: none;
+    box-shadow: none;
+    padding: 0;
+    border-radius: 0;
+}
+
+.google-btn:hover {
+    box-shadow: 0 4px 16px rgba(66,133,244,.35);
+    border-color: #4285F4;
+    transform: translateY(-3px);
+}
+
+.google-icon {
+    width: 22px;
+    height: 22px;
+    display: block;
+    flex-shrink: 0;
+}
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(66,133,244,.18);
+    transition: box-shadow .2s, border-color .2s, transform .2s;
+    text-decoration: none;
+}
+.google-btn:hover {
+    box-shadow: 0 4px 16px rgba(66,133,244,.35);
+    border-color: #4285F4;
+    transform: translateY(-3px);
+}
+.google-icon {
+    width: 22px;
+    height: 22px;
+    display: block;
+}
