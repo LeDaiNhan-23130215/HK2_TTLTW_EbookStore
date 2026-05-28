@@ -11,7 +11,7 @@
  Target Server Version : 100432 (10.4.32-MariaDB)
  File Encoding         : 65001
 
- Date: 21/05/2026 15:59:57
+ Date: 28/05/2026 11:13:55
 */
 
 SET NAMES utf8mb4;
@@ -332,7 +332,7 @@ CREATE TABLE `bookshelfdetail`  (
   INDEX `eBookID`(`eBookID` ASC) USING BTREE,
   CONSTRAINT `bookshelfdetail_ibfk_1` FOREIGN KEY (`bsID`) REFERENCES `bookshelf` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `bookshelfdetail_ibfk_2` FOREIGN KEY (`eBookID`) REFERENCES `ebook` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 45 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 49 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of bookshelfdetail
@@ -367,6 +367,10 @@ INSERT INTO `bookshelfdetail` VALUES (41, 2, 30, '2026-03-31 10:02:53');
 INSERT INTO `bookshelfdetail` VALUES (42, 2, 112, '2026-03-31 13:06:29');
 INSERT INTO `bookshelfdetail` VALUES (43, 2, 283, '2026-03-31 13:09:44');
 INSERT INTO `bookshelfdetail` VALUES (44, 2, 285, '2026-03-31 13:15:55');
+INSERT INTO `bookshelfdetail` VALUES (45, 2, 209, '2026-05-27 20:07:16');
+INSERT INTO `bookshelfdetail` VALUES (46, 2, 290, '2026-05-27 20:12:28');
+INSERT INTO `bookshelfdetail` VALUES (47, 2, 8, '2026-05-27 20:12:54');
+INSERT INTO `bookshelfdetail` VALUES (48, 2, 288, '2026-05-27 20:18:08');
 
 -- ----------------------------
 -- Table structure for cart
@@ -400,7 +404,7 @@ CREATE TABLE `cartdetail`  (
   INDEX `bookID`(`bookID` ASC) USING BTREE,
   CONSTRAINT `cartdetail_ibfk_1` FOREIGN KEY (`cartID`) REFERENCES `cart` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `cartdetail_ibfk_2` FOREIGN KEY (`bookID`) REFERENCES `ebook` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 63 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 67 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of cartdetail
@@ -448,7 +452,7 @@ CREATE TABLE `checkout`  (
   INDEX `pmID`(`pmID` ASC) USING BTREE,
   CONSTRAINT `checkout_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `checkout_ibfk_2` FOREIGN KEY (`pmID`) REFERENCES `paymentmethod` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 2821 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 2825 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of checkout
@@ -3263,6 +3267,10 @@ INSERT INTO `checkout` VALUES (2817, 2, 1, 300000.00, '2026-12-21 15:23:00', 'su
 INSERT INTO `checkout` VALUES (2818, 2, 1, 300000.00, '2026-12-11 18:42:00', 'success');
 INSERT INTO `checkout` VALUES (2819, 2, 1, 300000.00, '2026-12-08 10:07:00', 'success');
 INSERT INTO `checkout` VALUES (2820, 2, 1, 300000.00, '2026-12-02 20:24:00', 'success');
+INSERT INTO `checkout` VALUES (2821, 2, 1, 50.00, '2026-05-27 20:07:15', 'success');
+INSERT INTO `checkout` VALUES (2822, 2, 1, 69.00, '2026-05-27 20:12:28', 'success');
+INSERT INTO `checkout` VALUES (2823, 2, 1, 970.00, '2026-05-27 20:12:54', 'success');
+INSERT INTO `checkout` VALUES (2824, 2, 1, 66.00, '2026-05-27 20:18:08', 'success');
 
 -- ----------------------------
 -- Table structure for checkoutdetail
@@ -3278,7 +3286,7 @@ CREATE TABLE `checkoutdetail`  (
   INDEX `bookID`(`bookID` ASC) USING BTREE,
   CONSTRAINT `checkoutdetail_ibfk_1` FOREIGN KEY (`checkoutID`) REFERENCES `checkout` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `checkoutdetail_ibfk_2` FOREIGN KEY (`bookID`) REFERENCES `ebook` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 2834 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 2838 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of checkoutdetail
@@ -6111,6 +6119,10 @@ INSERT INTO `checkoutdetail` VALUES (2830, 2817, 8, 300000.00);
 INSERT INTO `checkoutdetail` VALUES (2831, 2818, 8, 300000.00);
 INSERT INTO `checkoutdetail` VALUES (2832, 2819, 8, 300000.00);
 INSERT INTO `checkoutdetail` VALUES (2833, 2820, 8, 300000.00);
+INSERT INTO `checkoutdetail` VALUES (2834, 2821, 209, 50.00);
+INSERT INTO `checkoutdetail` VALUES (2835, 2822, 290, 69.00);
+INSERT INTO `checkoutdetail` VALUES (2836, 2823, 8, 970.00);
+INSERT INTO `checkoutdetail` VALUES (2837, 2824, 288, 66.00);
 
 -- ----------------------------
 -- Table structure for discount
@@ -7769,13 +7781,12 @@ CREATE TABLE `passwordreset`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `userID`(`userID` ASC) USING BTREE,
   CONSTRAINT `passwordreset_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 20 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 63 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of passwordreset
 -- ----------------------------
-INSERT INTO `passwordreset` VALUES (8, 3, '33afcd5a059cbdbe7db018f3f53f256c0cb365fa5fc9c164640566bedcf0dfa2', '2026-05-19 17:05:14', '2026-05-19 10:20:14', 0, NULL);
-INSERT INTO `passwordreset` VALUES (19, 2, '80f45f1912996eadba91c42912201b5062084e4083b98603e525a0cace464f77', '2026-05-21 15:18:24', '2026-05-21 08:33:24', 0, NULL);
+INSERT INTO `passwordreset` VALUES (62, 3, 'f29b1a71fabd1d96de1d4304dbdfd190159f4617ef517df7b1d9385fb68fc1d4', '2026-05-23 19:43:07', '2026-05-23 12:48:07', 0, NULL);
 
 -- ----------------------------
 -- Table structure for paymentmethod
@@ -7830,6 +7841,8 @@ CREATE TABLE `users`  (
   `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `role` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT 'learner',
   `createdAt` datetime NULL DEFAULT current_timestamp(),
+  `provider` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `provider_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `userName`(`userName` ASC) USING BTREE,
   UNIQUE INDEX `email`(`email` ASC) USING BTREE
@@ -7838,9 +7851,9 @@ CREATE TABLE `users`  (
 -- ----------------------------
 -- Records of users
 -- ----------------------------
-INSERT INTO `users` VALUES (1, 'Mulessin', 'ledainhan05@gmail.com', '0354300906', '$2a$10$e2OS92pMEo3vGDlSswuKGuGU.v78H4nOLZx767nIbM9uSGKeCSNJe', 'user', '2026-01-26 22:48:04');
-INSERT INTO `users` VALUES (2, 'osamabinladen', 'nakroth1504@gmail.com', '0332536386', '$2a$10$Nbyu.p/IfGmhNLParcsRau21kS3mSI70Vb7qPcvAM.oQTSONyB1d.', 'user', '2026-03-20 18:16:55');
-INSERT INTO `users` VALUES (3, 'osamabilade', '23130023@st.hcmuaf.edu.vn', '0332536386', '$2a$10$Vm0EsL0OHdwwqjFDaOoTfuT/9wN9opn2oxmFutg2yIdcENtvamkLO', 'user', '2026-03-30 22:42:45');
+INSERT INTO `users` VALUES (1, 'Mulessin', 'ledainhan05@gmail.com', '0354300906', '$2a$10$e2OS92pMEo3vGDlSswuKGuGU.v78H4nOLZx767nIbM9uSGKeCSNJe', 'user', '2026-01-26 22:48:04', NULL, NULL);
+INSERT INTO `users` VALUES (2, 'osamabinladen', 'nakroth1504@gmail.com', '0332536386', '$2a$10$Nbyu.p/IfGmhNLParcsRau21kS3mSI70Vb7qPcvAM.oQTSONyB1d.', 'user', '2026-03-20 18:16:55', NULL, NULL);
+INSERT INTO `users` VALUES (3, 'osamabilade', '23130023@st.hcmuaf.edu.vn', '0332536386', '$2a$10$Vm0EsL0OHdwwqjFDaOoTfuT/9wN9opn2oxmFutg2yIdcENtvamkLO', 'user', '2026-03-30 22:42:45', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for wishlist
@@ -7875,7 +7888,7 @@ CREATE TABLE `wishlistdetail`  (
   INDEX `bookID`(`bookID` ASC) USING BTREE,
   CONSTRAINT `wishlistdetail_ibfk_1` FOREIGN KEY (`wishlistID`) REFERENCES `wishlist` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `wishlistdetail_ibfk_2` FOREIGN KEY (`bookID`) REFERENCES `ebook` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 26 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 58 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of wishlistdetail
@@ -7889,6 +7902,12 @@ INSERT INTO `wishlistdetail` VALUES (17, 2, 283, '2026-03-22 14:03:32');
 INSERT INTO `wishlistdetail` VALUES (18, 2, 287, '2026-03-22 14:03:35');
 INSERT INTO `wishlistdetail` VALUES (19, 2, 285, '2026-03-22 14:03:37');
 INSERT INTO `wishlistdetail` VALUES (24, 2, 189, '2026-03-31 13:17:17');
-INSERT INTO `wishlistdetail` VALUES (25, 2, 288, '2026-03-31 13:21:36');
+INSERT INTO `wishlistdetail` VALUES (39, 2, 144, '2026-05-27 20:05:16');
+INSERT INTO `wishlistdetail` VALUES (40, 2, 125, '2026-05-27 20:05:30');
+INSERT INTO `wishlistdetail` VALUES (42, 2, 286, '2026-05-27 20:06:02');
+INSERT INTO `wishlistdetail` VALUES (48, 2, 282, '2026-05-27 20:07:54');
+INSERT INTO `wishlistdetail` VALUES (49, 2, 284, '2026-05-27 20:08:41');
+INSERT INTO `wishlistdetail` VALUES (50, 2, 274, '2026-05-27 20:08:56');
+INSERT INTO `wishlistdetail` VALUES (51, 2, 270, '2026-05-27 20:09:01');
 
 SET FOREIGN_KEY_CHECKS = 1;
