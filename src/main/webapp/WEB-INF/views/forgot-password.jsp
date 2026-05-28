@@ -135,7 +135,6 @@
                     </button>
                 </div>
 
-                <%-- ✅ SỬA BUG 2: dùng otpSecondsRemaining từ server, fallback param.t, cuối cùng mới dùng 300 (5 phút) --%>
                 <div class="fp-countdown" id="fpCountdownWrap"
                      data-seconds="${not empty otpSecondsRemaining ? otpSecondsRemaining : (not empty param.t ? param.t : 300)}"
                      data-email="${sessionScope.resetEmail}">
