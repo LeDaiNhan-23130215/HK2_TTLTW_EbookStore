@@ -5,11 +5,21 @@ const EMAIL_REGEX = /^[a-zA-Z0-9]([a-zA-Z0-9._%+\-]*[a-zA-Z0-9])?@[a-zA-Z0-9]([a
 (function () {
   var params = new URL(window.location.href).searchParams;
 
-  // Gửi lại thành công → xóa hết storage otp để tạo deadline mới
   if (params.get('resent') === 'true') {
+    // Xóa storage cũ
     Object.keys(sessionStorage).forEach(function (k) {
       if (k.startsWith('otp_')) sessionStorage.removeItem(k);
     });
+    // Đặt flag để coolTick mở nút gửi lại ngay sau khi gửi lại thành công
+    sessionStorage.setItem('otp_cooldown_skip_init', '1');
+  }
+
+  if (params.get('error') === 'alreadyUsed') {
+    Object.keys(sessionStorage).forEach(function (k) {
+      if (k.startsWith('otp_deadline_')) sessionStorage.removeItem(k);
+      if (k.startsWith('otp_cooldown_')) sessionStorage.removeItem(k);
+    });
+    sessionStorage.setItem('otp_cooldown_skip_init', '1');
   }
 })();
 

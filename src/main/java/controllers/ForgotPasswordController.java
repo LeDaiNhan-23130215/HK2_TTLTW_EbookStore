@@ -169,6 +169,11 @@ public class ForgotPasswordController extends HttpServlet {
                 return;
             }
 
+            HttpSession verifySession = req.getSession(false);
+            if (verifySession != null) {
+                verifySession.removeAttribute("lastResendTime");
+            }
+
             long t = passwordResetDAO.getSecondsRemaining(user.getId());
             resp.sendRedirect(req.getContextPath() + "/forgot-password?step=verify&error=invalidCode&t=" + t);
             return;
@@ -235,6 +240,7 @@ public class ForgotPasswordController extends HttpServlet {
 
         session.setAttribute("lastResendTime", System.currentTimeMillis());
         session.setAttribute("otpCreatedAt", System.currentTimeMillis());
+        session.removeAttribute("otpVerified");
         resp.sendRedirect(req.getContextPath() + "/forgot-password?step=verify&resent=true");
     }
 
