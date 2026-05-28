@@ -25,6 +25,10 @@ public enum ActivityType {
     CHANGE_PHONE(
             "Số điện thoại của bạn vừa được cập nhật",
             "Đổi số điện thoại thành công"
+    ),
+    LINK_GOOGLE(
+            "Tài khoản Google vừa được liên kết",
+            "Liên kết tài khoản Google thành công"
     );
 
     private final String subject;
