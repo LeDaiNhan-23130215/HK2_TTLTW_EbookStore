@@ -1,0 +1,73 @@
+.link-confirm-wrap {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+}
+
+.link-confirm-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, .10);
+    padding: 40px 36px 32px;
+    max-width: 440px;
+    width: 100%;
+    text-align: center;
+}
+
+.link-confirm-card .title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #0396c7;
+    margin-bottom: 14px;
+}
+
+.link-confirm-card .desc {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 28px;
+}
+
+.link-confirm-card .desc strong {
+    color: #222;
+}
+
+.link-confirm-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-confirm {
+    flex: 1;
+    height: 46px;
+    border-radius: 10px;
+    background: #0396c7;
+    color: #fff;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+}
+
+.btn-confirm:hover {
+    background: #027aaa;
+}
+
+.btn-cancel {
+    flex: 1;
+    height: 46px;
+    border-radius: 10px;
+    background: #eee;
+    color: #555;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background .2s;
+}
+
+.btn-cancel:hover {
+    background: #ddd;
+}

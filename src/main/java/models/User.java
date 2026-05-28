@@ -6,14 +6,19 @@ public class User extends Base {
     private String phoneNum;
     private String password;
     private String role;
+    private String provider;
+    private String providerId;
 
-    public User(int id, String username, String email, String phoneNum, String password, String role) {
+    public User(int id, String username, String email, String phoneNum,
+                String password, String role, String provider, String providerId) {
         super(id);
-        this.username = username;
-        this.email = email;
-        this.phoneNum = phoneNum;
-        this.password = password;
-        this.role = role;
+        this.username   = username;
+        this.email      = email;
+        this.phoneNum   = phoneNum;
+        this.password   = password;
+        this.role       = role;
+        this.provider   = provider;
+        this.providerId = providerId;
     }
 
     public User(int id) {
@@ -78,4 +83,11 @@ public class User extends Base {
     public void setPassword(String password) {
         this.password = password;
     }
+    public String getProvider()   { return provider; }
+
+    public void setProvider(String p) { this.provider = p; }
+
+    public String getProviderId() { return providerId; }
+
+    public void setProviderId(String p) { this.providerId = p; }
 }

@@ -16,7 +16,6 @@ import java.io.IOException;
         "/your-order",
         "/book-shelf",
         "/change-password",
-        "/contact-information"
 })
 public class AuthFilter implements Filter {
     private static final Logger logger = LoggerFactory.getLogger(AuthFilter.class);
@@ -42,13 +41,12 @@ public class AuthFilter implements Filter {
                 fullURL += "?" + req.getQueryString();
             }
 
-            logger.warn("{} Unauthorized access blocked for path: '{}'. Storing return checkpoint landing target and routing back to login.", 
+            logger.warn("{} Unauthorized access blocked for path: '{}'. Storing return checkpoint landing target and routing back to login.",
                     LOG_PREFIX, requestURI);
 
-            req.getSession().setAttribute(
-                    "redirectAfterLogin",
-                    fullURL
-            );
+            HttpSession newSession = req.getSession();
+            newSession.setAttribute("redirectAfterLogin", fullURL);
+            newSession.setAttribute("toastWarning", "⚠️ Vui lòng đăng nhập để sử dụng chức năng này.");
 
             resp.sendRedirect(
                     req.getContextPath() + "/login"
@@ -59,7 +57,7 @@ public class AuthFilter implements Filter {
         if (logger.isDebugEnabled()) {
             models.User user = (models.User) session.getAttribute("user");
             int userId = (user != null) ? user.getId() : -1;
-            logger.debug("{} Authorized pass-through granted for User ID {} to access route: '{}'.", 
+            logger.debug("{} Authorized pass-through granted for User ID {} to access route: '{}'.",
                     LOG_PREFIX, userId, requestURI);
         }
 
