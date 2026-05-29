@@ -10,6 +10,10 @@ public enum ActivityType {
             "Mật khẩu của bạn vừa được đặt lại",
             "Đặt lại mật khẩu thành công"
     ),
+    CREATE_PASSWORD(
+            "Mật khẩu tài khoản vừa được tạo",
+            "Tạo mật khẩu thành công"
+    ),
     CHANGE_PASSWORD(
             "Mật khẩu của bạn vừa được thay đổi",
             "Đổi mật khẩu thành công"
