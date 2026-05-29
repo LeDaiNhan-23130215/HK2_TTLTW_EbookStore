@@ -8,7 +8,7 @@ form {
 
 /* Cố định container không bị dãn khi lỗi */
 form .container {
-    min-height: 480px;
+    min-height: 520px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -110,10 +110,36 @@ form .container {
 }
 
 .error-server {
-    min-height: 24px;
-    color: red;
+    width: var(--lw);
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: #c0392b;
     font-size: 13px;
-    margin-bottom: 8px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border-left: 4px solid #e74c3c;
+    background: #fff5f5;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.error-server i {
+    flex-shrink: 0;
+    margin-top: 2px;
+    font-size: 14px;
+}
+
+.error-server.oauth-hint {
+    color: #1a56db;
+    border-left-color: #4285F4;
+    background: #eff6ff;
+}
+
+.error-server.oauth-hint i {
+    font-size: 16px;
+    color: #4285F4;
 }
 
 /* ===== RECAPTCHA — ép đúng width ===== */
@@ -227,7 +253,8 @@ form .container {
     }
     .container .header { font-size: 1.3rem; text-align: center; }
     .container .input .input-div,
-    .login-pw-wrap { width: 100%; }
+    .login-pw-wrap,
+    .error-server { width: 100%; }
     .container .input .input-div input,
     .container .input button { height: 45px; font-size: .9rem; }
     .container .forgetPassword,
