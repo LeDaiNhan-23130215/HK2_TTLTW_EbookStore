@@ -116,7 +116,9 @@ public class ChangePasswordController extends HttpServlet {
         passwordResetDAO.createToken(user.getId(), otpHash, expiresAt);
 
         try {
-            MailUtil.sendOtp(user.getEmail(), otp, "Xác nhận đổi mật khẩu");
+            boolean isOAuthOnly = (user.getPassword() == null || user.getPassword().isBlank());
+            String otpSubject = isOAuthOnly ? "Xác nhận tạo mật khẩu" : "Xác nhận đổi mật khẩu";
+            MailUtil.sendOtp(user.getEmail(), otp, otpSubject);
             logger.info("{} OTP dispatched to userId={} email={}", LOG_PREFIX, user.getId(), user.getEmail());
         } catch (Exception e) {
             logger.error("{} Failed to send OTP to userId={}: ", LOG_PREFIX, user.getId(), e);
@@ -160,7 +162,10 @@ public class ChangePasswordController extends HttpServlet {
         passwordResetDAO.createToken(user.getId(), otpHash, expiresAt);
 
         try {
-            MailUtil.sendOtp(user.getEmail(), otp, "Xác nhận đổi mật khẩu");
+            boolean isOAuthOnlyResend = (user.getPassword() == null || user.getPassword().isBlank());
+            String resendSubject = isOAuthOnlyResend ? "Xác nhận tạo mật khẩu" : "Xác nhận đổi mật khẩu";
+            MailUtil.sendOtp(user.getEmail(), otp, resendSubject);
+
             logger.info("{} OTP resent to userId={}", LOG_PREFIX, user.getId());
         } catch (Exception e) {
             logger.error("{} Failed to resend OTP to userId={}: ", LOG_PREFIX, user.getId(), e);
@@ -249,7 +254,7 @@ public class ChangePasswordController extends HttpServlet {
 
         String newPassword     = req.getParameter("newPassword");
         String confirmPassword = req.getParameter("confirmPassword");
-        String oldPassword     = req.getParameter("oldPassword"); // null/empty nếu OAuth
+        String oldPassword     = req.getParameter("oldPassword");
 
         if (newPassword == null || newPassword.isBlank()) {
             resp.sendRedirect(req.getContextPath() + "/change-password?step=reset&error=passwordEmpty");
@@ -287,14 +292,28 @@ public class ChangePasswordController extends HttpServlet {
         logger.info("{} Password changed successfully for userId={}", LOG_PREFIX, user.getId());
 
         try {
-            MailUtil.sendAccountActivity(user.getEmail(), user.getUsername(), ActivityType.CHANGE_PASSWORD);
+            ActivityType actType = isOAuthOnly ? ActivityType.CREATE_PASSWORD : ActivityType.CHANGE_PASSWORD;
+            MailUtil.sendAccountActivity(user.getEmail(), user.getUsername(), actType);
             logger.info("{} Notification email sent to userId={}", LOG_PREFIX, user.getId());
         } catch (Exception e) {
             logger.error("{} Failed to send notification email for userId={}: ", LOG_PREFIX, user.getId(), e);
         }
 
-        session.invalidate();
-        resp.sendRedirect(req.getContextPath() + "/login?msg=password_changed");
+        models.User freshUser = userDAO.getUserByID(user.getId());
+        if (freshUser != null) {
+            session.setAttribute("user", freshUser);
+        }
+
+        session.removeAttribute("cpOtpVerified");
+        session.removeAttribute("cpOtpCreatedAt");
+        session.removeAttribute("cpLastResendTime");
+
+        session.setAttribute("toastSuccess",
+                isOAuthOnly
+                        ? "✅ Tạo mật khẩu thành công! Bạn có thể đăng nhập bằng email và mật khẩu."
+                        : "✅ Đổi mật khẩu thành công!");
+
+        resp.sendRedirect(req.getContextPath() + "/home");
     }
 
     private boolean isStrongPassword(String pw) {
