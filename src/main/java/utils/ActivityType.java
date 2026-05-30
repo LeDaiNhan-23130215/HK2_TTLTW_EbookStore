@@ -2,6 +2,10 @@ package utils;
 
 public enum ActivityType {
 
+    REGISTER(
+            "Chào mừng bạn đến với EbookStore",
+            "Đăng ký tài khoản thành công"
+    ),
     LOGIN(
             "Thông báo đăng nhập tài khoản",
             "Đăng nhập thành công"
