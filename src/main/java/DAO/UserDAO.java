@@ -49,7 +49,6 @@ public class UserDAO {
 
             String hashed = rs.getString("password");
 
-            // OAuth thuần — chưa có password
             if (hashed == null || hashed.isBlank()) {
                 logger.warn("{} Login: OAuth-only account for '{}'", LOG_PREFIX, usernameOrEmail);
                 return LoginOutcome.of(LoginResult.OAUTH_ACCOUNT);
@@ -160,7 +159,6 @@ public class UserDAO {
             logger.info("{} createOAuthUser succeeded: username='{}', email={}", LOG_PREFIX, username, email);
             return findUserByEmail(email);
         } catch (SQLIntegrityConstraintViolationException e) {
-            // Dự phòng: UNIQUE constraint nổ (hiếm sau khi đã generate unique username)
             logger.error("{} UNIQUE constraint violation creating OAuth user for email={}: {}",
                     LOG_PREFIX, email, e.getMessage());
             return null;
@@ -205,7 +203,7 @@ public class UserDAO {
             return ps.executeQuery().next();
         } catch (Exception e) {
             logger.error("{} Error in existsByUsername for '{}': ", LOG_PREFIX, username, e);
-            return false; // conservative: assume available to avoid deadlock on create
+            return false;
         }
     }
 
@@ -254,20 +252,6 @@ public class UserDAO {
         return null;
     }
 
-    public User findUserByEmailOrUsername(String input) {
-        String sql = "SELECT * FROM users WHERE (userName = ? OR email = ?) LIMIT 1";
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, input);
-            ps.setString(2, input);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return mapUser(rs);
-        } catch (Exception e) {
-            logger.error("{} Error in findUserByEmailOrUsername: ", LOG_PREFIX, e);
-        }
-        return null;
-    }
-
     public List<User> getAllUsers() {
         logger.info("{} getAllUsers", LOG_PREFIX);
         String sql = "SELECT * FROM users";
@@ -283,20 +267,6 @@ public class UserDAO {
         return list;
     }
 
-    public String getUserNameByEmail(String userAndEmail) {
-        String query = "SELECT userName FROM users WHERE (email = ? OR userName = ?)";
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement stm = connection.prepareStatement(query)) {
-            stm.setString(1, userAndEmail);
-            stm.setString(2, userAndEmail);
-            ResultSet rs = stm.executeQuery();
-            if (rs.next()) return rs.getString(1);
-        } catch (SQLException e) {
-            logger.error("{} Error in getUserNameByEmail for: {}", LOG_PREFIX, userAndEmail, e);
-        }
-        return "Error";
-    }
-
     public boolean checkAvailableUserNameOrEmail(String userNameOrEmail) {
         String sql = "SELECT 1 FROM users WHERE userName = ? OR email = ? LIMIT 1";
         try (Connection connection = DBConnection.getConnection();
@@ -306,6 +276,18 @@ public class UserDAO {
             return stm.executeQuery().next();
         } catch (SQLException e) {
             logger.error("{} Error in checkAvailableUserNameOrEmail for: {}", LOG_PREFIX, userNameOrEmail, e);
+        }
+        return false;
+    }
+
+    public boolean checkPhoneExists(String phoneNum) {
+        String sql = "SELECT 1 FROM users WHERE phoneNum = ? LIMIT 1";
+        try (Connection connection = DBConnection.getConnection();
+             PreparedStatement stm = connection.prepareStatement(sql)) {
+            stm.setString(1, phoneNum);
+            return stm.executeQuery().next();
+        } catch (SQLException e) {
+            logger.error("{} Error in checkPhoneExists for: {}", LOG_PREFIX, phoneNum, e);
         }
         return false;
     }
