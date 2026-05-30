@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Forgot Password</title>
+    <title>Tạo / Quên mật khẩu</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/base.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/forgot-password.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/components.css"/>
@@ -18,7 +18,16 @@
 
 <form action="${pageContext.request.contextPath}/forgot-password" method="post" id="fpForm">
     <div class="container">
-        <p class="header">Quên mật khẩu</p>
+
+        <%-- ===== TIÊU ĐỀ ĐỘNG: OAuth => "Tạo mật khẩu", còn lại => "Quên mật khẩu" ===== --%>
+        <c:choose>
+            <c:when test="${sessionScope.fpIsOAuthOnly == true}">
+                <p class="header">Tạo mật khẩu</p>
+            </c:when>
+            <c:otherwise>
+                <p class="header">Quên mật khẩu</p>
+            </c:otherwise>
+        </c:choose>
 
         <div class="input">
 
@@ -71,6 +80,17 @@
             <c:if test="${param.step == 'verify'}">
 
                 <input type="hidden" name="step" value="verify"/>
+
+                <%-- Phát hiện tài khoản OAuth ngay ở step 2: hiện banner, KHÔNG chuyển step 3 --%>
+                <c:if test="${sessionScope.fpIsOAuthOnly == true and empty param.error}">
+                    <div class="fp-oauth-banner">
+                        <i class="fa-brands fa-google"></i>
+                        <span>
+                            Tài khoản này hiện chỉ đăng nhập bằng Google.
+                            Nhập mã OTP để xác minh rồi <strong>tạo mật khẩu</strong> mới.
+                        </span>
+                    </div>
+                </c:if>
 
                 <%-- Lỗi OTP --%>
                 <c:if test="${not empty param.error}">
@@ -158,10 +178,19 @@
 
             </c:if>
 
-            <%-- ===== STEP 3: ĐỔI MẬT KHẨU ===== --%>
+            <%-- ===== STEP 3: ĐỔI / TẠO MẬT KHẨU ===== --%>
             <c:if test="${param.step == 'reset'}">
 
-                <%-- Lỗi đổi mật khẩu --%>
+                <c:if test="${sessionScope.fpIsOAuthOnly == true}">
+                    <div class="fp-oauth-banner">
+                        <i class="fa-brands fa-google"></i>
+                        <span>
+                            Tài khoản của bạn hiện chỉ đăng nhập được bằng Google.
+                            Tạo mật khẩu để có thêm phương thức đăng nhập.
+                        </span>
+                    </div>
+                </c:if>
+
                 <c:if test="${not empty param.error}">
                     <p class="fp-error-box">
                         <i class="fa-solid fa-circle-exclamation"></i>
@@ -217,7 +246,7 @@
                     </div>
 
                     <button type="submit" name="action" value="resetPassword" class="confirm-btn">
-                        Đổi mật khẩu
+                            ${sessionScope.fpIsOAuthOnly == true ? 'Tạo mật khẩu' : 'Đổi mật khẩu'}
                     </button>
 
                 </div>

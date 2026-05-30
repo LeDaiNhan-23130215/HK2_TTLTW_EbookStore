@@ -8,11 +8,14 @@ form {
 
 /* Cố định container không bị dãn khi lỗi */
 form .container {
-    min-height: 480px;
+    min-height: 520px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
 }
+
+/* ===== BIẾN WIDTH DÙNG CHUNG — chỉ đổi ở 1 chỗ này ===== */
+.container { --lw: 300px; }
 
 .container {
     display: flex;
@@ -44,10 +47,10 @@ form .container {
     gap: 10px;
 }
 
-/* ===== INPUT-DIV: wrapper cho từng ô nhập ===== */
+/* ===== INPUT-DIV ===== */
 .container .input .input-div {
-    position: relative;   /* để icon eye absolute bên trong */
-    width: 300px;
+    position: relative;
+    width: var(--lw);
 }
 
 .container .input .input-div input {
@@ -55,7 +58,7 @@ form .container {
     outline: none;
     width: 100%;
     height: 50px;
-    padding: 10px 44px 10px 10px; /* padding-right chừa chỗ icon eye */
+    padding: 10px 44px 10px 10px;
     box-sizing: border-box;
     border-radius: 10px;
     box-shadow: 1px 1px 5px rgba(0,0,0,.1);
@@ -71,24 +74,33 @@ form .container {
     box-shadow: 0 0 6px rgba(3,150,199,.3);
 }
 
-/* ===== ICON EYE — dùng chung class fp-eye từ forgot-password ===== */
-/* (fp-eye đã định nghĩa trong forgot-password.css,
-    nhưng login.css cũng định nghĩa lại để tự đứng độc lập) */
-.container .input .input-div .fp-eye {
+/* ===== ICON EYE ===== */
+.login-pw-wrap {
+    position: relative;
+    width: var(--lw);
+    box-sizing: border-box;
+}
+
+.login-pw-wrap input {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding-right: 44px !important;
+}
+
+.login-eye {
     position: absolute;
     right: 14px;
-    top: 50%;
+    top: 26px;
     transform: translateY(-50%);
     cursor: pointer;
     color: #0396c7;
     font-size: 16px;
     line-height: 1;
-    /* Đẩy lên trên error-msg — error-msg nằm dưới input không ảnh hưởng */
-    bottom: auto;
+    z-index: 1;
 }
-.container .input .input-div .fp-eye:hover { color: #027aa3; }
+.login-eye:hover { color: #027aa3; }
 
-/* Error-msg nằm dưới ô nhập, không liên quan icon */
+/* ===== ERROR MSG ===== */
 .container .input-div .error-msg {
     color: hsl(0, 100%, 70%);
     font-size: 0.7rem;
@@ -97,16 +109,49 @@ form .container {
     height: 14px;
 }
 
-/* Thông báo lỗi server */
 .error-server {
-    min-height: 24px;
-    color: red;
+    width: var(--lw);
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: #c0392b;
     font-size: 13px;
-    margin-bottom: 8px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border-left: 4px solid #e74c3c;
+    background: #fff5f5;
+    line-height: 1.5;
+    word-break: break-word;
 }
 
+.error-server i {
+    flex-shrink: 0;
+    margin-top: 2px;
+    font-size: 14px;
+}
+
+.error-server.oauth-hint {
+    color: #1a56db;
+    border-left-color: #4285F4;
+    background: #eff6ff;
+}
+
+.error-server.oauth-hint i {
+    font-size: 16px;
+    color: #4285F4;
+}
+
+/* ===== RECAPTCHA — ép đúng width ===== */
+.container .input .g-recaptcha {
+    width: var(--lw);
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* ===== NÚT ĐĂNG NHẬP ===== */
 .container .input button {
-    width: 300px;
+    width: var(--lw);
     height: 50px;
     border-radius: 20px;
     color: #fff;
@@ -114,10 +159,11 @@ form .container {
     font-size: 0.9rem;
     background-color: rgb(3,150,199);
     border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 .container .input button:hover {
     background-color: hsl(195, 98%, 50%);
-    cursor: pointer;
 }
 
 .container a { text-decoration: none; }
@@ -127,22 +173,66 @@ form .container {
 
 .container .anotherOption { font-size: .75rem; color: rgb(185,185,185); }
 
-.container .logoContainer .logoList {
-    list-style: none;
+/* ===== LOGO CONTAINER ===== */
+.container .logoContainer {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 4px;
+}
+
+/* ===== NÚT GOOGLE PILL — cùng width với input/button ===== */
+.google-btn {
+    display: inline-flex;
+    align-items: center;
+    width: var(--lw);
+    box-sizing: border-box;
+    height: 50px;               /* khớp chiều cao với ô input */
+    border-radius: 10px;        /* khớp border-radius với input */
+    border: 1px solid #dadce0;
+    background: #fff;
+    text-decoration: none;
+    box-shadow: 1px 1px 5px rgba(0,0,0,.1);
+    transition: box-shadow .2s, border-color .2s;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.google-btn:hover {
+    box-shadow: 0 2px 8px rgba(66,133,244,.25);
+    border-color: #4285F4;
+}
+
+/* Vùng icon G bên trái */
+.google-icon-wrap {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 15px;
+    width: 50px;
+    height: 50px;
+    background: #fff;
+    border-right: 1px solid #dadce0;
+    flex-shrink: 0;
 }
-.container .logoContainer .logoList li {
-    background-color: #fefefe;
-    padding: 10px;
-    box-shadow: 1px 1px 5px rgba(0,0,0,.1);
-    border-radius: 50%;
-    margin-bottom: 10px;
-}
-.container .logoContainer .logoList li:hover { transform: translateY(-3px); cursor: pointer; }
 
+.google-icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+
+/* Text "Đăng nhập bằng Google" căn giữa phần còn lại */
+.google-btn-text {
+    flex: 1;
+    text-align: center;
+    font-family: 'Roboto', Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #3c4043;
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+}
+
+/* ===== ĐĂNG KÝ ===== */
 .container .signUp {
     color: hsl(195, 97%, 30%);
     font-size: .9rem;
@@ -154,115 +244,22 @@ form .container {
 
 /* ===== Responsive ≤ 900px ===== */
 @media (max-width: 900px) {
-    .container { width: 90%; padding: 15px; gap: 15px; margin: 10px; }
+    .container {
+        --lw: 100%;
+        width: 90%;
+        padding: 15px;
+        gap: 15px;
+        margin: 10px;
+    }
     .container .header { font-size: 1.3rem; text-align: center; }
     .container .input .input-div,
-    .container .input button { width: 100%; }
+    .login-pw-wrap,
+    .error-server { width: 100%; }
     .container .input .input-div input,
     .container .input button { height: 45px; font-size: .9rem; }
     .container .forgetPassword,
     .container .anotherOption,
     .container .signUp { font-size: .8rem; text-align: center; }
-    .container .logoContainer .logoList li { padding: 8px; }
-}
-/* ===== Ô mật khẩu + icon eye (login riêng, không dùng fp-pw-wrap) ===== */
-.login-pw-wrap {
-    position: relative;
-    width: 300px;               /* khớp đúng với login, không bị ghi đè */
-    box-sizing: border-box;
-}
-
-.login-pw-wrap input {
-    width: 100% !important;
-    box-sizing: border-box !important;
-    padding-right: 44px !important; /* chừa chỗ icon eye */
-}
-
-.login-eye {
-    position: absolute;
-    right: 14px;
-    top: 26px;                  /* căn giữa trong ô height 50px: (50-16)/2 ≈ 17, +9 margin-top error */
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: #0396c7;
-    font-size: 16px;
-    line-height: 1;
-    pointer-events: auto;
-    z-index: 1;
-}
-.login-eye:hover { color: #027aa3; }
-/* ===== Nút Google OAuth - thiết kế mới ===== */
-.logoContainer .logoList li {
-    background: none;
-    box-shadow: none;
-    padding: 0;
-}
-
-.google-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: #fff;
-    border: 2px solid #e0e0e0;
-    box-shadow: 0 2px 8px rgba(66,133,244,.18);
-    transition: box-shadow .2s, border-color .2s, transform .2s;
-    text-decoration: none;
-}
-
-.google-btn:hover {
-    box-shadow: 0 4px 16px rgba(66,133,244,.35);
-    border-color: #4285F4;
-    transform: translateY(-3px);
-}
-
-.google-icon {
-    width: 24px;
-    height: 24px;
-    display: block;
-}
-/* ===== Nút Google OAuth - thiết kế mới ===== */
-.logoContainer .logoList li:has(.google-btn) {
-    background: none;
-    box-shadow: none;
-    padding: 0;
-    border-radius: 0;
-}
-
-.google-btn:hover {
-    box-shadow: 0 4px 16px rgba(66,133,244,.35);
-    border-color: #4285F4;
-    transform: translateY(-3px);
-}
-
-.google-icon {
-    width: 22px;
-    height: 22px;
-    display: block;
-    flex-shrink: 0;
-}
-.google-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: #fff;
-    border: 2px solid #e0e0e0;
-    box-shadow: 0 2px 8px rgba(66,133,244,.18);
-    transition: box-shadow .2s, border-color .2s, transform .2s;
-    text-decoration: none;
-}
-.google-btn:hover {
-    box-shadow: 0 4px 16px rgba(66,133,244,.35);
-    border-color: #4285F4;
-    transform: translateY(-3px);
-}
-.google-icon {
-    width: 22px;
-    height: 22px;
-    display: block;
+    .google-btn { width: 100%; height: 45px; }
+    .google-icon-wrap { height: 45px; }
 }

@@ -80,6 +80,15 @@ public class ForgotPasswordController extends HttpServlet {
             return;
         }
 
+
+        boolean isOAuthOnly = (user.getPassword() == null || user.getPassword().isBlank());
+        if (isOAuthOnly) {
+            logger.info("{} OAuth-only account detected for email='{}'. Will create password instead of reset.", LOG_PREFIX, email);
+            req.getSession().setAttribute("fpIsOAuthOnly", true);
+        } else {
+            req.getSession().removeAttribute("fpIsOAuthOnly");
+        }
+
         if (passwordResetDAO.isLocked(user.getId())) {
             logger.warn("{} Reset code dispatch blocked: Account associated with User ID {} is currently locked out.", LOG_PREFIX, user.getId());
             String remaining = URLEncoder.encode(passwordResetDAO.getLockRemainingTime(user.getId()), "UTF-8");
@@ -96,7 +105,8 @@ public class ForgotPasswordController extends HttpServlet {
         passwordResetDAO.createToken(user.getId(), otpHash, expiresAt);
 
         try {
-            MailUtil.sendOtp(email, otp, "Xác thực email - Quên mật khẩu");
+            String otpSubject = isOAuthOnly ? "Xác thực email - Tạo mật khẩu" : "Xác thực email - Quên mật khẩu";
+            MailUtil.sendOtp(email, otp, otpSubject);
             logger.info("{} Password reset OTP generated and dispatched via email to user ID {}.", LOG_PREFIX, user.getId());
         } catch (Exception e) {
             logger.error("{} Severe error sending password reset OTP email to user ID {}: ", LOG_PREFIX, user.getId(), e);
@@ -232,7 +242,10 @@ public class ForgotPasswordController extends HttpServlet {
         passwordResetDAO.createToken(user.getId(), otpHash, expiresAt);
 
         try {
-            MailUtil.sendOtp(email, otp, "Xác thực email - Quên mật khẩu");
+            boolean isOAuthOnly = Boolean.TRUE.equals(session.getAttribute("fpIsOAuthOnly"));
+            String otpSubject = isOAuthOnly ? "Xác thực email - Tạo mật khẩu" : "Xác thực email - Quên mật khẩu";
+            MailUtil.sendOtp(email, otp, otpSubject);
+
             logger.info("{} Replacement confirmation code dispatched to User ID {}.", LOG_PREFIX, user.getId());
         } catch (Exception e) {
             logger.error("{} Severe error sending replacement confirmation email code to User ID {}: ", LOG_PREFIX, user.getId(), e);
@@ -276,17 +289,19 @@ public class ForgotPasswordController extends HttpServlet {
 
         userDAO.updatePassword(userID, newPassword);
         logger.info("{} Core authorization modification successful for User ID {}. Inactivating verification reset session scope context.", LOG_PREFIX, userID);
+        boolean isOAuthOnly = Boolean.TRUE.equals(session.getAttribute("fpIsOAuthOnly"));
         session.invalidate();
 
         if (user != null) {
             try {
-                MailUtil.sendAccountActivity(user.getEmail(), user.getUsername(), ActivityType.RESET_PASSWORD);
+                ActivityType activityType = isOAuthOnly ? ActivityType.CREATE_PASSWORD : ActivityType.RESET_PASSWORD;
+                MailUtil.sendAccountActivity(user.getEmail(), user.getUsername(), activityType);
                 logger.info("{} Transaction activity summary alert dispatched to client tracking address: '{}'.", LOG_PREFIX, user.getEmail());
             } catch (Exception e) {
                 logger.error("{} Severe operational alert error notifying User ID {} regarding modification: ", LOG_PREFIX, userID, e);
             }
         }
-        resp.sendRedirect(req.getContextPath() + "/login?msg=reset_success");
+        resp.sendRedirect(req.getContextPath() + "/login?msg=reset_success" + (isOAuthOnly ? "&created=true" : ""));
     }
 
     private boolean isStrongPassword(String pw) {

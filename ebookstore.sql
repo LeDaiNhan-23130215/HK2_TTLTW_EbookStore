@@ -11,7 +11,7 @@
  Target Server Version : 100432 (10.4.32-MariaDB)
  File Encoding         : 65001
 
- Date: 28/05/2026 11:13:55
+ Date: 28/05/2026 17:05:19
 */
 
 SET NAMES utf8mb4;
@@ -7781,7 +7781,7 @@ CREATE TABLE `passwordreset`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `userID`(`userID` ASC) USING BTREE,
   CONSTRAINT `passwordreset_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 63 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 101 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of passwordreset
@@ -7837,8 +7837,8 @@ CREATE TABLE `users`  (
   `id` int NOT NULL AUTO_INCREMENT,
   `userName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
-  `phoneNum` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
-  `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phoneNum` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   `role` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT 'learner',
   `createdAt` datetime NULL DEFAULT current_timestamp(),
   `provider` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
@@ -7846,14 +7846,15 @@ CREATE TABLE `users`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `userName`(`userName` ASC) USING BTREE,
   UNIQUE INDEX `email`(`email` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of users
 -- ----------------------------
 INSERT INTO `users` VALUES (1, 'Mulessin', 'ledainhan05@gmail.com', '0354300906', '$2a$10$e2OS92pMEo3vGDlSswuKGuGU.v78H4nOLZx767nIbM9uSGKeCSNJe', 'user', '2026-01-26 22:48:04', NULL, NULL);
-INSERT INTO `users` VALUES (2, 'osamabinladen', 'nakroth1504@gmail.com', '0332536386', '$2a$10$Nbyu.p/IfGmhNLParcsRau21kS3mSI70Vb7qPcvAM.oQTSONyB1d.', 'user', '2026-03-20 18:16:55', NULL, NULL);
-INSERT INTO `users` VALUES (3, 'osamabilade', '23130023@st.hcmuaf.edu.vn', '0332536386', '$2a$10$Vm0EsL0OHdwwqjFDaOoTfuT/9wN9opn2oxmFutg2yIdcENtvamkLO', 'user', '2026-03-30 22:42:45', NULL, NULL);
+INSERT INTO `users` VALUES (2, 'osamabinladen', 'nakroth1504@gmail.com', '0332536386', '$2a$10$gE2jZh8QH3d8uQde/8MxfOxLwZZrUb0osvvtqXRVFAuzYC3mtESJK', 'user', '2026-03-20 18:16:55', 'google', '103579025452917514428');
+INSERT INTO `users` VALUES (3, 'osamabilade', '23130023@st.hcmuaf.edu.vn', '0332536386', '$2a$10$Vm0EsL0OHdwwqjFDaOoTfuT/9wN9opn2oxmFutg2yIdcENtvamkLO', 'user', '2026-03-30 22:42:45', 'google', '105327686192281554397');
+INSERT INTO `users` VALUES (4, 'cris Phan', '15042005rin@gmail.com', NULL, '', 'user', '2026-05-28 17:01:24', 'google', '117167560067558544239');
 
 -- ----------------------------
 -- Table structure for wishlist
@@ -7866,13 +7867,15 @@ CREATE TABLE `wishlist`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `userID`(`userID` ASC) USING BTREE,
   CONSTRAINT `wishlist_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of wishlist
 -- ----------------------------
 INSERT INTO `wishlist` VALUES (1, 1, '2026-01-26 22:48:37');
 INSERT INTO `wishlist` VALUES (2, 2, '2026-03-20 18:16:57');
+INSERT INTO `wishlist` VALUES (3, 3, '2026-05-28 11:29:39');
+INSERT INTO `wishlist` VALUES (4, 4, '2026-05-28 17:01:28');
 
 -- ----------------------------
 -- Table structure for wishlistdetail

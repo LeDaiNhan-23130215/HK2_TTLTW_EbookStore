@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 @WebServlet("/oauth/google/callback")
 public class GoogleOAuthController extends HttpServlet {
 
-    private static final Logger logger = LoggerFactory.getLogger(GoogleOAuthController.class);
+    private static final Logger logger     = LoggerFactory.getLogger(GoogleOAuthController.class);
     private static final String LOG_PREFIX = "[GOOGLE_OAUTH]";
 
     private static final String CLIENT_ID     = "1077978751095-rlg4b4itubfrkejho04nrvn6dtspsu9j.apps.googleusercontent.com";
@@ -59,33 +59,33 @@ public class GoogleOAuthController extends HttpServlet {
             String accessToken = extractJson(tokenJson, "access_token");
 
             if (accessToken == null) {
-                logger.error("{} Failed to get access_token. Google response: {}", LOG_PREFIX, tokenJson);
+                logger.error("{} Failed to get access_token. Response: {}", LOG_PREFIX, tokenJson);
                 resp.sendRedirect(req.getContextPath() + "/login?error=oauth_failed");
                 return;
             }
 
-            String userJson = fetchGoogleUserInfo(accessToken);
-            String googleId = extractJson(userJson, "sub");
-            String email    = extractJson(userJson, "email");
-            String name     = extractJson(userJson, "name");
+            String userJson     = fetchGoogleUserInfo(accessToken);
+            String googleId     = extractJson(userJson, "sub");
+            String email        = extractJson(userJson, "email");
+            String displayName  = extractJson(userJson, "name");   // tên đầy đủ, chỉ dùng để log
 
             if (googleId == null || email == null) {
-                logger.error("{} Failed to get user info. Google response: {}", LOG_PREFIX, userJson);
+                logger.error("{} Failed to get user info. Response: {}", LOG_PREFIX, userJson);
                 resp.sendRedirect(req.getContextPath() + "/login?error=oauth_failed");
                 return;
             }
 
+            // 1) Tìm theo provider_id
             User user = userDAO.findByProvider("google", googleId);
 
             if (user == null) {
+                // 2) Tìm theo email — account đã tồn tại, hỏi có muốn link không
                 user = userDAO.findUserByEmail(email);
 
                 if (user != null) {
-                    HttpSession session = req.getSession();
+                    HttpSession session  = req.getSession();
                     String returnUrl = (String) session.getAttribute("redirectAfterLogin");
-                    if (returnUrl == null || returnUrl.isEmpty()) {
-                        returnUrl = req.getContextPath() + "/home";
-                    }
+                    if (returnUrl == null || returnUrl.isEmpty()) returnUrl = req.getContextPath() + "/home";
                     session.setAttribute("pendingProvider",   "google");
                     session.setAttribute("pendingProviderId", googleId);
                     session.setAttribute("pendingEmail",      email);
@@ -94,20 +94,23 @@ public class GoogleOAuthController extends HttpServlet {
                     return;
                 }
 
-                userDAO.createOAuthUser(name, email, "google", googleId);
-                user = userDAO.findUserByEmail(email);
-            }
+                // 3) Account chưa tồn tại — tạo mới.
+                user = userDAO.createOAuthUser(displayName, email, "google", googleId);
 
-            if (user == null) {
-                logger.error("{} User still null after create, email={}", LOG_PREFIX, email);
-                resp.sendRedirect(req.getContextPath() + "/login?error=oauth_failed");
-                return;
+                if (user == null) {
+                    logger.error("{} createOAuthUser returned null for email={}", LOG_PREFIX, email);
+                    resp.sendRedirect(req.getContextPath() + "/login?error=oauth_failed");
+                    return;
+                }
+
+                logger.info("{} New OAuth user created: id={}, username='{}'",
+                        LOG_PREFIX, user.getId(), user.getUsername());
             }
 
             loginUser(req, resp, user);
 
         } catch (Exception e) {
-            logger.error("{} OAuth error: {}", LOG_PREFIX, e.getMessage(), e);
+            logger.error("{} OAuth error: ", LOG_PREFIX, e);
             resp.sendRedirect(req.getContextPath() + "/login?error=oauth_failed");
         }
     }
@@ -118,18 +121,14 @@ public class GoogleOAuthController extends HttpServlet {
         conn.setRequestMethod("POST");
         conn.setDoOutput(true);
         conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-
-        String body = "code="       + URLEncoder.encode(code,          "UTF-8")
-                + "&client_id="     + URLEncoder.encode(CLIENT_ID,     "UTF-8")
+        String body = "code="          + URLEncoder.encode(code,          "UTF-8")
+                + "&client_id="    + URLEncoder.encode(CLIENT_ID,     "UTF-8")
                 + "&client_secret=" + URLEncoder.encode(CLIENT_SECRET, "UTF-8")
-                + "&redirect_uri="  + URLEncoder.encode(redirectUri,   "UTF-8")
+                + "&redirect_uri=" + URLEncoder.encode(redirectUri,   "UTF-8")
                 + "&grant_type=authorization_code";
-
         conn.getOutputStream().write(body.getBytes(StandardCharsets.UTF_8));
-
         int status = conn.getResponseCode();
-        InputStream stream = (status >= 200 && status < 300)
-                ? conn.getInputStream() : conn.getErrorStream();
+        InputStream stream = (status >= 200 && status < 300) ? conn.getInputStream() : conn.getErrorStream();
         return readStream(stream);
     }
 
@@ -138,15 +137,13 @@ public class GoogleOAuthController extends HttpServlet {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestProperty("Authorization", "Bearer " + accessToken);
         int status = conn.getResponseCode();
-        InputStream stream = (status >= 200 && status < 300)
-                ? conn.getInputStream() : conn.getErrorStream();
+        InputStream stream = (status >= 200 && status < 300) ? conn.getInputStream() : conn.getErrorStream();
         return readStream(stream);
     }
 
     private String readStream(InputStream stream) throws IOException {
         if (stream == null) return "";
-        try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
             StringBuilder sb = new StringBuilder();
             String line;
             while ((line = br.readLine()) != null) sb.append(line);
@@ -158,19 +155,15 @@ public class GoogleOAuthController extends HttpServlet {
         String search = "\"" + key + "\"";
         int idx = json.indexOf(search);
         if (idx == -1) return null;
-
         int colon = json.indexOf(':', idx + search.length());
         if (colon == -1) return null;
-
         int start = colon + 1;
         while (start < json.length() && json.charAt(start) == ' ') start++;
-
         if (start < json.length() && json.charAt(start) == '"') {
             start++;
             int end = json.indexOf('"', start);
             return end == -1 ? null : json.substring(start, end);
         }
-
         return null;
     }
 
@@ -196,7 +189,7 @@ public class GoogleOAuthController extends HttpServlet {
         try {
             MailUtil.sendAccountActivity(user.getEmail(), user.getUsername(), ActivityType.LOGIN);
         } catch (Exception e) {
-            logger.warn("{} Failed to send login activity mail", LOG_PREFIX);
+            logger.warn("{} Failed to send login activity mail for userId={}", LOG_PREFIX, user.getId());
         }
 
         String redirectUrl = (String) session.getAttribute("redirectAfterLogin");

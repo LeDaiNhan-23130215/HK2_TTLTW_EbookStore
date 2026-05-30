@@ -1,5 +1,7 @@
 package controllers;
+
 import DAO.UserDAO;
+import DTO.LoginOutcome;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -18,15 +20,15 @@ import java.util.Scanner;
 
 @WebServlet(name = "LoginController", value = "/login")
 public class LoginController extends HttpServlet {
-    private UserDAO userDAO;
-    private CartService cartService;
-    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
-    private static final String LOG_PREFIX = "[LOGIN_CONTROLLER]";
 
+    private UserDAO     userDAO;
+    private CartService cartService;
+    private static final Logger logger     = LoggerFactory.getLogger(LoginController.class);
+    private static final String LOG_PREFIX = "[LOGIN_CONTROLLER]";
 
     @Override
     public void init() throws ServletException {
-        userDAO = new UserDAO();
+        userDAO     = new UserDAO();
         cartService = new CartService();
     }
 
@@ -39,98 +41,105 @@ public class LoginController extends HttpServlet {
             conn.setDoOutput(true);
             String params = "secret=" + secretKey + "&response=" + token;
             conn.getOutputStream().write(params.getBytes());
-            Scanner sc = new Scanner(conn.getInputStream());
-            String response = sc.useDelimiter("\\A").next();
-
+            Scanner sc       = new Scanner(conn.getInputStream());
+            String response  = sc.useDelimiter("\\A").next();
             boolean isSuccess = response.contains("\"success\": true");
-            if(!isSuccess) {
-                logger.warn("{} Recaptcha fail. Response from Google: {}", LOG_PREFIX, response);
-            }
+            if (!isSuccess) logger.warn("{} reCAPTCHA failed. Google: {}", LOG_PREFIX, response);
             return isSuccess;
         } catch (Exception e) {
-            logger.error("{} Critical error when connecting to Google Recapcha API: ", LOG_PREFIX);
+            logger.error("{} reCAPTCHA API error: ", LOG_PREFIX, e);
             return false;
-            }
+        }
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req,resp);
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
         String recaptchaToken = req.getParameter("g-recaptcha-response");
         if (recaptchaToken == null || !verifyRecaptcha(recaptchaToken)) {
-            logger.warn("{} Login blocked: Missing or invalid reCaptcha token", LOG_PREFIX);
+            logger.warn("{} Login blocked: invalid reCAPTCHA", LOG_PREFIX);
             req.setAttribute("error_msg", "Vui lòng xác nhận bạn không phải robot.");
             req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
             return;
         }
-        String input = req.getParameter("userAndEmail");
+
+        String input    = req.getParameter("userAndEmail");
         String password = req.getParameter("password");
 
-        if (input == null || input.isEmpty() ||
-                password == null || password.isEmpty()) {
-            logger.warn("{} Login failed: Empty username or password field submitted", LOG_PREFIX);
+        if (input == null || input.isEmpty() || password == null || password.isEmpty()) {
+            logger.warn("{} Login failed: empty fields", LOG_PREFIX);
             req.setAttribute("error_msg", "Vui lòng nhập email/tên người dùng và mật khẩu.");
             req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
             return;
         }
 
-        User user = userDAO.login(input, password);
+        LoginOutcome outcome = userDAO.attemptLogin(input, password);
 
-        if (user == null) {
-            logger.warn("{} Authentification failed for identifier: {}", LOG_PREFIX, input);
-            req.setAttribute("error_msg", "Tên đăng nhập hoặc mật khẩu không đúng.");
-            req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
-            return;
+        switch (outcome.getResult()) {
+
+            case SUCCESS:
+                loginSuccess(req, resp, outcome.getUser());
+                return;
+
+            case OAUTH_ACCOUNT:
+                // Phát hiện sớm: account tồn tại nhưng là OAuth — hướng dẫn cụ thể
+                logger.warn("{} OAuth account attempted form-login: '{}'", LOG_PREFIX, input);
+                req.setAttribute("error_msg", "oauth_account");
+                req.setAttribute("oauthInput", input);  // giữ lại email để pre-fill nếu cần
+                req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
+                return;
+
+            case USER_NOT_FOUND:
+            case WRONG_PASSWORD:
+                logger.warn("{} Auth failed ({}) for: '{}'", LOG_PREFIX, outcome.getResult(), input);
+                req.setAttribute("error_msg", "Tên đăng nhập hoặc mật khẩu không đúng.");
+                req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
+                return;
+
+            default:
+                req.setAttribute("error_msg", "Đã xảy ra lỗi, vui lòng thử lại.");
+                req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
         }
+    }
 
+    private void loginSuccess(HttpServletRequest req, HttpServletResponse resp, User user)
+            throws IOException {
         HttpSession session = req.getSession();
-        session.setAttribute("user", user);
-        session.setAttribute("userID", user.getId());
+        session.setAttribute("user",     user);
+        session.setAttribute("userID",   user.getId());
         session.setAttribute("userName", user.getUsername());
-        session.setAttribute("email", user.getEmail());
+        session.setAttribute("email",    user.getEmail());
         session.setAttribute("phoneNum", user.getPhoneNum());
-        session.setAttribute("role", user.getRole());
+        session.setAttribute("role",     user.getRole());
 
         Cart cart = cartService.getCartByUserID(user.getId());
-        int totalCartDetails = 0;
-        if (cart != null) {
-            totalCartDetails = cartService.getTotalCartDetails(cart.getId());
-        }
+        int totalCartDetails = (cart != null) ? cartService.getTotalCartDetails(cart.getId()) : 0;
         session.setAttribute("totalCartDetails", totalCartDetails);
+
         try {
-        MailUtil.sendAccountActivity(
-                user.getEmail(),
-                user.getUsername(),
-                ActivityType.LOGIN
-        );
-        logger.info("{} Activity mail sent successfully to '{}'", LOG_PREFIX, user.getEmail());
-    } catch (Exception e) {
-            logger.error("{} Failed to send login activity mail to '{}' ", LOG_PREFIX, user.getEmail());
+            MailUtil.sendAccountActivity(user.getEmail(), user.getUsername(), ActivityType.LOGIN);
+            logger.info("{} Activity mail sent to '{}'", LOG_PREFIX, user.getEmail());
+        } catch (Exception e) {
+            logger.error("{} Failed to send login activity mail to '{}': ", LOG_PREFIX, user.getEmail(), e);
         }
 
-        session.setAttribute(
-                "toastSuccess",
-                "✅Đăng nhập thành công!"
-        );
+        session.setAttribute("toastSuccess", "✅ Đăng nhập thành công!");
 
-        String redirectUrl =
-                (String) session.getAttribute("redirectAfterLogin");
-        if (redirectUrl != null &&
-                !redirectUrl.isEmpty()) {
+        String redirectUrl = (String) session.getAttribute("redirectAfterLogin");
+        if (redirectUrl != null && !redirectUrl.isEmpty()) {
             session.removeAttribute("redirectAfterLogin");
-            logger.info("{} User '{}' [ID:{}][Role: {}] logged in successfully. Redirect to requested URL: {}",
-                    LOG_PREFIX, user.getUsername(), user.getId(), user.getRole(), redirectUrl);
+            logger.info("{} User '{}' logged in, redirect to: {}", LOG_PREFIX, user.getUsername(), redirectUrl);
             resp.sendRedirect(redirectUrl);
         } else {
-            logger.info("{} User '{}' [ID:{}][Role: {}] logged in successfully. Redirect to home page",
-                    LOG_PREFIX, user.getUsername(), user.getId(), user.getRole());
-            resp.sendRedirect(
-                    req.getContextPath() + "/home"
-            );
+            logger.info("{} User '{}' logged in, redirect to home", LOG_PREFIX, user.getUsername());
+            resp.sendRedirect(req.getContextPath() + "/home");
         }
     }
 }
