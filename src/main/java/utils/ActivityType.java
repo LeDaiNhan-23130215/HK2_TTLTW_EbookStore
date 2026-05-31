@@ -37,6 +37,10 @@ public enum ActivityType {
     LINK_GOOGLE(
             "Tài khoản Google vừa được liên kết",
             "Liên kết tài khoản Google thành công"
+    ),
+    UNLINK_GOOGLE(
+    "Tài khoản Google vừa được huỷ liên kết",
+            "Huỷ liên kết tài khoản Google thành công"
     );
 
     private final String subject;
