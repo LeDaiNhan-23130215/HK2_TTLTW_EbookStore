@@ -97,12 +97,12 @@ public class SignUpController extends HttpServlet {
             return;
         }
 
-        if (userDAO.checkAvailableUserNameOrEmail(username)) {
+        if (userDAO.checkUsernameExists(username)) {
             logger.warn("{} Username '{}' already taken.", LOG_PREFIX, username);
             forwardStep1(req, resp, "Tên người dùng đã được sử dụng.", username, email, phoneNumber);
             return;
         }
-        if (userDAO.checkAvailableUserNameOrEmail(email)) {
+        if (userDAO.checkEmailExists(email)) {
             logger.warn("{} Email '{}' already taken.", LOG_PREFIX, email);
             forwardStep1(req, resp, "Email đã được sử dụng.", username, email, phoneNumber);
             return;
