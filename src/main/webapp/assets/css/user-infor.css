@@ -420,3 +420,599 @@
         grid-template-columns: 1fr; /* Mobile */
     }
 }
+/* =====================================================
+   user-infor.css — phần bổ sung cho trang thông tin
+   ===================================================== */
+
+.ui-toast {
+    position: fixed; top: 20px; right: 20px; z-index: 9999;
+    padding: 14px 22px; border-radius: 8px; font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.25); max-width: 360px;
+}
+.ui-toast--ok  { background: #27ae60; color: #fff; }
+.ui-toast--err { background: #e53e3e; color: #fff; }
+
+.ui-info-row {
+    display: flex; align-items: center; gap: 14px;
+    width: 100%; padding: 14px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+.ui-info-label {
+    width: 180px; font-weight: 600; color: #555; flex-shrink: 0;
+    display: flex; align-items: center; gap: 8px;
+}
+.ui-info-value { flex: 1; color: #222; font-size: 0.95rem; }
+
+.ui-edit-btn {
+    background: none; border: 1px solid #0396c7; color: #0396c7;
+    border-radius: 6px; padding: 5px 12px; font-size: 13px;
+    cursor: pointer; display: flex; align-items: center; gap: 5px;
+    transition: background .15s;
+}
+.ui-edit-btn:hover { background: #e8f6fb; }
+
+.ui-edit-form { width: 100%; padding: 10px 0 16px 194px; }
+.ui-edit-field { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ui-edit-field input {
+    height: 44px; border: none; outline: none; border-radius: 8px;
+    padding: 0 12px; box-shadow: 1px 1px 5px rgba(0,0,0,.1);
+    font-size: 0.9rem; width: 260px;
+}
+.ui-edit-field input:focus { box-shadow: 0 0 0 2px #0396c740; }
+
+.ui-save-btn {
+    height: 44px; padding: 0 20px; border-radius: 8px;
+    background: #0396c7; color: #fff; border: none;
+    font-size: 14px; cursor: pointer; transition: background .15s;
+}
+.ui-save-btn:hover { background: #02b3ee; }
+.ui-cancel-btn {
+    height: 44px; padding: 0 16px; border-radius: 8px;
+    border: 1px solid #ccc; background: #fff; color: #555;
+    font-size: 14px; cursor: pointer; text-decoration: none;
+    display: inline-flex; align-items: center;
+}
+.ui-cancel-btn:hover { background: #f5f5f5; }
+
+.ui-oauth-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #e8f0fe; color: #4285F4; border-radius: 20px;
+    padding: 4px 12px; font-size: 13px; font-weight: 500;
+}
+
+.ui-unlink-btn {
+    background: none; border: 1px solid #e53e3e; color: #e53e3e;
+    border-radius: 6px; padding: 5px 12px; font-size: 13px; cursor: pointer;
+    display: flex; align-items: center; gap: 5px; transition: background .15s;
+}
+.ui-unlink-btn:hover { background: #fff5f5; }
+.ui-oauth-row { background: #fafafa; border-radius: 8px; padding: 10px 14px; }
+
+.ui-step-header {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 1rem; font-weight: 600; color: #0396c7;
+    margin-bottom: 20px;
+}
+.ui-step-form {
+    display: flex; flex-direction: column; gap: 12px; max-width: 420px;
+}
+.ui-step-form input[type=text],
+.ui-step-form input[type=password],
+.ui-step-form input[type=email] {
+    height: 48px; border: none; outline: none; border-radius: 10px;
+    padding: 0 44px 0 14px; box-shadow: 1px 1px 5px rgba(0,0,0,.1);
+    font-size: 0.9rem; width: 100%;
+}
+.ui-step-form input:focus { box-shadow: 0 0 0 2px #0396c740; }
+.ui-step-actions { display: flex; align-items: center; gap: 12px; }
+
+.ui-pw-wrap { position: relative; width: 100%; }
+.ue-eye {
+    position: absolute; right: 14px; top: 15px;
+    color: #0396c7;
+    cursor: pointer; font-size: 16px;
+}
+.ue-eye:hover { color: #027aa3; }
+
+.ui-otp-row { display: flex; gap: 10px; align-items: center; }
+.ui-otp-row input { width: 200px; }
+
+.ui-sent-to { font-size: 14px; color: #555; margin-bottom: 8px; }
+
+.ui-error-box {
+    background: #fff5f5; border: 1px solid #feb2b2;
+    border-radius: 6px; padding: 10px 14px; font-size: 13px;
+    color: #c53030; display: flex; align-items: center; gap: 8px;
+}
+.ui-success-box {
+    background: #f0fff4; border: 1px solid #9ae6b4;
+    border-radius: 6px; padding: 10px 14px; font-size: 13px;
+    color: #276749; display: flex; align-items: center; gap: 8px;
+}
+
+.ui-confirm-box {
+    background: #f0f9ff; border: 1px solid #bae6fd;
+    border-radius: 8px; padding: 16px 20px; font-size: 14px;
+    color: #0c4a6e; display: flex; flex-direction: column; gap: 8px;
+    margin-bottom: 16px;
+}
+
+.ui-back-link {
+    font-size: 13px; color: #0396c7; text-decoration: none; margin-top: 10px;
+    display: inline-block;
+}
+.ui-back-link:hover { text-decoration: underline; }
+
+.fp-countdown { font-size: 13px; color: #888; margin-top: 8px; }
+/* =====================================================
+   ue-steps — thanh tiến trình đổi email
+   (đồng bộ phong cách với change-password / forgot-password)
+   ===================================================== */
+
+.ue-steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    max-width: 520px;
+    margin-bottom: 24px;
+    margin-top: 4px;
+}
+
+.ue-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.ue-step span {
+    font-size: 11px;
+    color: #aaa;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    transition: color 0.25s;
+}
+
+.ue-step-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #e9ecef;
+    color: #aaa;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.25s, color 0.25s, box-shadow 0.25s;
+    flex-shrink: 0;
+}
+
+/* Bước đang active */
+.ue-step.active .ue-step-circle {
+    background: #0396c7;
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(3, 150, 199, 0.18);
+}
+.ue-step.active span {
+    color: #0396c7;
+    font-weight: 600;
+}
+
+/* Bước đã hoàn thành */
+.ue-step.done .ue-step-circle {
+    background: #27ae60;
+    color: #fff;
+}
+.ue-step.done span {
+    color: #27ae60;
+}
+
+/* Đường nối giữa các bước */
+.ue-step-line {
+    flex: 1;
+    height: 2px;
+    background: #e9ecef;
+    margin-bottom: 18px;
+    transition: background 0.25s;
+    min-width: 16px;
+}
+.ue-step-line.active {
+    background: #27ae60;
+}
+
+/* Đồng bộ fp-countdown countdown color */
+#ueCountdown {
+    font-weight: 700;
+    color: #e74c3c;
+}
+
+/* Responsive steps */
+@media (max-width: 600px) {
+    .ue-steps {
+        max-width: 100%;
+        gap: 0;
+    }
+    .ue-step span {
+        font-size: 9px;
+    }
+    .ue-step-circle {
+        width: 26px;
+        height: 26px;
+        font-size: 11px;
+    }
+    .ue-step-line {
+        min-width: 8px;
+    }
+}
+/* =====================================================
+   USER-INFOR: các style copy lại, KHÔNG import CSS khác
+   ===================================================== */
+
+.box-right .cp-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100%;
+    max-width: 520px;
+    box-sizing: border-box;
+}
+
+.box-right .cp-send-hint {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.65;
+    width: 100%;
+}
+
+.box-right .cp-send-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    outline: none;
+    padding: 13px 22px;
+    border-radius: 10px;
+    background-color: #0396c7;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+}
+
+.box-right .cp-send-btn:hover {
+    background-color: hsl(195, 98%, 50%);
+}
+
+.box-right .fp-error-box,
+.box-right .fp-success-box {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+}
+
+.box-right .fp-error-box {
+    color: #c0392b;
+    background: #fdf0f0;
+    border-left: 4px solid #e74c3c;
+}
+
+.box-right .fp-success-box {
+    color: #1e8449;
+    background: #eafaf1;
+    border-left: 4px solid #27ae60;
+}
+
+.box-right .fp-error-box i,
+.box-right .fp-success-box i {
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.box-right .fp-error-box span,
+.box-right .fp-success-box span {
+    flex: 1;
+    min-width: 0;
+}
+
+.box-right .fp-sent-to {
+    color: #555;
+    font-size: 13px;
+    font-weight: normal;
+    width: 100%;
+}
+
+.box-right .fp-sent-to strong {
+    font-size: 13px;
+}
+
+.box-right .code-input {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    box-sizing: border-box;
+}
+
+.box-right .code-input input {
+    flex: 1;
+    min-width: 0;
+    padding: 15px;
+    border: none;
+    outline: none;
+    border-radius: 10px;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    color: #333;
+}
+
+.box-right .code-input input::placeholder {
+    color: #0396c7;
+    font-weight: 600;
+}
+
+.box-right .code-input .code-btn {
+    flex-shrink: 0;
+    border: none;
+    outline: none;
+    padding: 15px 18px;
+    border-radius: 10px;
+    background-color: #0396c7;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.3s ease;
+}
+
+.box-right .code-input .code-btn:hover {
+    background-color: hsl(195, 98%, 50%);
+}
+
+.box-right .fp-resend {
+    width: 100%;
+    margin-bottom: 4px;
+}
+
+.box-right .fp-resend-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    outline: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    background-color: #0396c7;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+
+.box-right .fp-resend-btn:hover:not(:disabled) {
+    background-color: hsl(195, 98%, 50%);
+}
+
+.box-right .fp-resend-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#ueCountdown,
+#cpCountdown {
+    font-weight: 700;
+    color: #e74c3c;
+}
+
+.box-right .fp-back-link {
+    width: 100%;
+    margin-top: 6px;
+    margin-bottom: 0;
+}
+
+.box-right .fp-back-link a {
+    color: #666;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.box-right .fp-back-link a:hover {
+    text-decoration: underline;
+}
+
+.box-right .fp-pw-wrap {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.box-right .fp-pw-wrap input {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 15px 44px 15px 15px !important;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    color: #333;
+}
+
+.box-right .fp-pw-wrap input::placeholder {
+    color: #0396c7;
+    font-weight: 600;
+}
+
+.box-right .fp-pw-wrap input:focus {
+    border: 1px solid #0396c7;
+    box-shadow: 0 0 5px rgba(3, 150, 199, 0.5);
+}
+
+.box-right .fp-eye {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #0396c7;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.box-right .fp-eye:hover {
+    color: #027aa3;
+}
+/* =====================================================
+   CUSTOM CONFIRM MODAL — Huỷ liên kết Google
+   ===================================================== */
+
+.ui-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: uiModalFadeIn 0.18s ease;
+}
+
+@keyframes uiModalFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.ui-modal-box {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px 28px 24px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    animation: uiModalSlideUp 0.2s ease;
+}
+
+@keyframes uiModalSlideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+.ui-modal-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #fef2f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #e53e3e;
+    margin-bottom: 4px;
+}
+
+.ui-modal-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a202c;
+    text-align: center;
+    margin: 0;
+}
+
+.ui-modal-desc {
+    font-size: 13px;
+    color: #555;
+    text-align: center;
+    line-height: 1.65;
+    margin: 0;
+}
+
+.ui-modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.ui-modal-cancel {
+    flex: 1;
+    min-width: 120px;
+    padding: 11px 16px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: #f7f7f7;
+    color: #444;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.ui-modal-cancel:hover { background: #efefef; }
+
+.ui-modal-confirm {
+    flex: 1;
+    min-width: 120px;
+    padding: 11px 16px;
+    border-radius: 8px;
+    border: none;
+    background: #e53e3e;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background 0.15s;
+}
+.ui-modal-confirm:hover { background: #c53030; }
+
+
+.box-right .cp-inner .fp-countdown {
+    margin-top: 0;
+    margin-bottom: 0;
+    width: 100%;
+    font-size: 13px;
+    color: #555;
+}
+
+.box-right .cp-inner .fp-resend {
+    margin-top: 0;
+    margin-bottom: 0;
+    width: 100%;
+}
+
+.box-right a.fp-back-link,
+.box-right .fp-back-link a {
+    color: #666;
+    font-size: 13px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 4px;
+}
+.box-right a.fp-back-link:hover,
+.box-right .fp-back-link a:hover {
+    text-decoration: underline;
+    color: #444;
+}
