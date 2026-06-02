@@ -20,13 +20,19 @@ import services.CheckoutService;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @WebServlet(name = "CheckoutController", value = "/checkout")
 public class CheckoutController extends HttpServlet {
+
     private CheckoutService checkoutService;
     private CartService cartService;
+
     private static final Logger logger = LoggerFactory.getLogger(CheckoutController.class);
     private static final String LOG_PREFIX = "[CHECKOUT_CONTROLLER]";
+
+    private static final String SESSION_CHECKOUT_MODE = "checkoutMode";
+    private static final String SESSION_CHECKOUT_BOOK_ID = "checkoutBookId";
 
     @Override
     public void init() throws ServletException {
@@ -48,20 +54,48 @@ public class CheckoutController extends HttpServlet {
         int userId = user.getId();
         logger.info("{} Processing checkout page initialization for User ID: {}.", LOG_PREFIX, userId);
 
+        String mode = req.getParameter("mode");
+        String bookIdParam = req.getParameter("bookId");
+        boolean singleMode = "single".equalsIgnoreCase(mode) && bookIdParam != null && !bookIdParam.isBlank();
+
         Cart cart = cartService.getCartByUserID(userId);
         if (cart == null) {
-            logger.info("{} No active cart instance tracked for User ID {}. Dynamically instantiating empty cart entity structure.", LOG_PREFIX, userId);
             cartService.createCart(userId);
             cart = cartService.getCartByUserID(userId);
         }
 
         List<CartItem> cartItems = cartService.getCartItemsByCartID(userId, cart.getId());
+
+        if (singleMode) {
+            int singleBookId = Integer.parseInt(bookIdParam);
+
+            cartItems = cartItems.stream()
+                    .filter(ci -> ci.getEbook().getId() == singleBookId)
+                    .collect(Collectors.toList());
+
+            req.setAttribute("singleMode", true);
+            req.setAttribute("singleBookId", singleBookId);
+
+            session.setAttribute(SESSION_CHECKOUT_MODE, "single");
+            session.setAttribute(SESSION_CHECKOUT_BOOK_ID, singleBookId);
+
+            if (cartItems.isEmpty()) {
+                logger.warn("{} Single checkout requested but selected book is not available in cart for User ID {}.", LOG_PREFIX, userId);
+                resp.sendRedirect(req.getContextPath() + "/cart");
+                return;
+            }
+        } else {
+            req.setAttribute("singleMode", false);
+            req.removeAttribute("singleBookId");
+
+            session.removeAttribute(SESSION_CHECKOUT_MODE);
+            session.removeAttribute(SESSION_CHECKOUT_BOOK_ID);
+        }
+
         double totalPrice = 0;
         for (CartItem ci : cartItems) {
             totalPrice += ci.getPriceAtADD();
         }
-
-        logger.debug("{} User ID {} retrieved checkout items. Count: {}, Aggregate Calculated Cost: {}.", LOG_PREFIX, userId, cartItems.size(), totalPrice);
 
         req.setAttribute("cart", cart);
         req.setAttribute("cartItems", cartItems);
@@ -83,62 +117,117 @@ public class CheckoutController extends HttpServlet {
 
         int userId = user.getId();
         String chosenPaymentMethod = req.getParameter("paymentMethod");
-        
-        logger.info("{} User ID {} initiated payment checkout operation sequence using channel variant '{}'.", LOG_PREFIX, userId, chosenPaymentMethod);
+
+        logger.info("{} User ID {} initiated payment checkout operation sequence using channel variant '{}'.",
+                LOG_PREFIX, userId, chosenPaymentMethod);
 
         int paymentMethodID = checkoutService.getPMIDByName(chosenPaymentMethod);
+
         Cart cart = cartService.getCartByUserID(userId);
         if (cart == null) {
-            logger.warn("{} Unexpected State: Active cart vanished mid-transaction routing for User ID {}. Rebuilding cart record entry.", LOG_PREFIX, userId);
+            logger.warn("{} Unexpected State: Active cart vanished mid-transaction routing for User ID {}. Rebuilding cart record entry.",
+                    LOG_PREFIX, userId);
             cartService.createCart(userId);
             cart = cartService.getCartByUserID(userId);
         }
 
-        List<CartItem> cartItems = cartService.getCartItemsByCartID(userId, cart.getId());
-        
-        if (cartItems == null || cartItems.isEmpty()) {
-            logger.warn("{} Transaction execution rejected: Empty or zero-item collection state detected for checkout processing path on User ID {}.", LOG_PREFIX, userId);
+        Integer singleBookId = resolveSingleBookId(req, session);
+        List<CartItem> allCartItems = cartService.getCartItemsByCartID(userId, cart.getId());
+
+        List<CartItem> checkoutItems;
+        if (singleBookId != null) {
+            checkoutItems = allCartItems.stream()
+                    .filter(ci -> ci.getEbook().getId() == singleBookId)
+                    .collect(Collectors.toList());
+        } else {
+            checkoutItems = allCartItems;
+        }
+
+        if (checkoutItems == null || checkoutItems.isEmpty()) {
+            logger.warn("{} Transaction execution rejected: Empty or zero-item collection state detected for checkout processing path on User ID {}.",
+                    LOG_PREFIX, userId);
             resp.sendRedirect(req.getContextPath() + "/cart");
             return;
         }
 
         double totalPrice = 0;
-        for (CartItem ci : cartItems) {
+        for (CartItem ci : checkoutItems) {
             totalPrice += ci.getPriceAtADD();
         }
 
         Checkout checkout = new Checkout(userId, paymentMethodID, totalPrice, "Pending");
-        
-        logger.debug("{} Executing core invoice database transaction persist sequence for User ID {}. Aggregate Total: {}", LOG_PREFIX, userId, totalPrice);
-        boolean result = checkoutService.checkout(checkout, cartItems);
+
+        logger.debug("{} Executing core invoice database transaction persist sequence for User ID {}. Aggregate Total: {}",
+                LOG_PREFIX, userId, totalPrice);
+
+        boolean result = checkoutService.checkout(checkout, checkoutItems);
         Map<Integer, PaymentMethod> pmMap = checkoutService.getAllPMs();
 
         if (result) {
-            logger.info("{} INVOICE CONFIRMED: Payment processing transaction verified successfully for User ID {}. Total Paid: {}", LOG_PREFIX, userId, totalPrice);
-            
+            logger.info("{} INVOICE CONFIRMED: Payment processing transaction verified successfully for User ID {}. Total Paid: {}",
+                    LOG_PREFIX, userId, totalPrice);
+
             try {
                 BookshelfService bookshelfService = new BookshelfService();
-                for (CartItem item : cartItems) {
+
+                for (CartItem item : checkoutItems) {
                     bookshelfService.addBookToBookshelf(userId, item.getEbook().getId());
-                    logger.debug("{} Distributed digital assets permission access: Book ID {} pinned onto User ID {} virtual bookshelf repository.", LOG_PREFIX, item.getEbook().getId(), userId);
+                    logger.debug("{} Distributed digital assets permission access: Book ID {} pinned onto User ID {} virtual bookshelf repository.",
+                            LOG_PREFIX, item.getEbook().getId(), userId);
                 }
-                
-                cartService.clearCart(cart.getId());
-                session.removeAttribute("totalCartDetails");
-                logger.debug("{} Cleared and flushed active user checkout temporary cart container state metadata for Cart ID: {}.", LOG_PREFIX, cart.getId());
+
+                if (singleBookId != null) {
+                    cartService.removeItem(cart.getId(), singleBookId);
+                    session.setAttribute("totalCartDetails", cartService.getTotalCartDetails(cart.getId()));
+                    logger.debug("{} Removed only purchased bookID {} from cartID {} after single-item checkout.",
+                            LOG_PREFIX, singleBookId, cart.getId());
+                } else {
+                    cartService.clearCart(cart.getId());
+                    session.removeAttribute("totalCartDetails");
+                    logger.debug("{} Cleared entire cartID {} after full-cart checkout.", LOG_PREFIX, cart.getId());
+                }
+
+                session.removeAttribute(SESSION_CHECKOUT_MODE);
+                session.removeAttribute(SESSION_CHECKOUT_BOOK_ID);
+
             } catch (Exception e) {
-                logger.error("{} Structural failure encountered during post-payment digital asset synchronization allocations for User ID {}: ", LOG_PREFIX, userId, e);
+                logger.error("{} Structural failure encountered during post-payment digital asset synchronization allocations for User ID {}: ",
+                        LOG_PREFIX, userId, e);
             }
 
             req.setAttribute("checkout", checkout);
             req.setAttribute("paymentMethod", pmMap.get(paymentMethodID));
             req.getRequestDispatcher("/WEB-INF/views/payment-success.jsp").forward(req, resp);
         } else {
-            logger.warn("{} TRANSACTION RECORD DECLINED: Checkout sequence pipeline reported an external or internal core execution failure for User ID: {}. Invoice reference aggregate amount: {}", LOG_PREFIX, userId, totalPrice);
-            
+            logger.warn("{} TRANSACTION RECORD DECLINED: Checkout sequence pipeline reported an external or internal core execution failure for User ID: {}. Invoice reference aggregate amount: {}",
+                    LOG_PREFIX, userId, totalPrice);
+
             req.setAttribute("checkout", checkout);
             req.setAttribute("paymentMethod", pmMap.get(paymentMethodID));
             req.getRequestDispatcher("/WEB-INF/views/payment-fail.jsp").forward(req, resp);
         }
+    }
+
+    private Integer resolveSingleBookId(HttpServletRequest req, HttpSession session) {
+        String mode = req.getParameter("mode");
+        String bookIdParam = req.getParameter("bookId");
+
+        if ("single".equalsIgnoreCase(mode) && bookIdParam != null && !bookIdParam.isBlank()) {
+            return Integer.parseInt(bookIdParam);
+        }
+
+        Object sessionMode = session.getAttribute(SESSION_CHECKOUT_MODE);
+        Object sessionBookId = session.getAttribute(SESSION_CHECKOUT_BOOK_ID);
+
+        if ("single".equals(String.valueOf(sessionMode)) && sessionBookId != null) {
+            if (sessionBookId instanceof Integer) {
+                return (Integer) sessionBookId;
+            }
+            if (sessionBookId instanceof String) {
+                return Integer.parseInt((String) sessionBookId);
+            }
+        }
+
+        return null;
     }
 }
