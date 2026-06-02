@@ -238,6 +238,9 @@ public class GoogleOAuthController extends HttpServlet {
             );
         }
 
+
+        CartController.mergeGuestCartToUser(session, cartService,
+                new DAO.BookshelfDAO(), user.getId());
         Cart cart = cartService.getCartByUserID(user.getId());
         int total = (cart != null) ? cartService.getTotalCartDetails(cart.getId()) : 0;
         session.setAttribute("totalCartDetails", total);
