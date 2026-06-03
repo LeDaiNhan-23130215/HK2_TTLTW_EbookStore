@@ -25,6 +25,24 @@
       <%-- ===== STEP 1: NHẬP THÔNG TIN ===== --%>
       <c:if test="${empty param.step}">
 
+        <%-- Thanh tiến trình --%>
+        <div class="fp-steps">
+          <div class="fp-step active">
+            <div class="fp-step-circle">1</div>
+            <span>Nhập thông tin</span>
+          </div>
+          <div class="fp-step-line"></div>
+          <div class="fp-step">
+            <div class="fp-step-circle">2</div>
+            <span>Xác thực OTP</span>
+          </div>
+          <div class="fp-step-line"></div>
+          <div class="fp-step">
+            <div class="fp-step-circle">3</div>
+            <span>Hoàn tất</span>
+          </div>
+        </div>
+
         <%-- Lỗi từ server --%>
         <c:if test="${not empty error_msg}">
           <p class="su-error-box">
@@ -97,6 +115,24 @@
 
         <input type="hidden" name="step" value="verify"/>
 
+        <%-- Thanh tiến trình --%>
+        <div class="fp-steps">
+          <div class="fp-step done">
+            <div class="fp-step-circle"><i class="fa-solid fa-check"></i></div>
+            <span>Nhập thông tin</span>
+          </div>
+          <div class="fp-step-line active"></div>
+          <div class="fp-step active">
+            <div class="fp-step-circle">2</div>
+            <span>Xác thực OTP</span>
+          </div>
+          <div class="fp-step-line"></div>
+          <div class="fp-step">
+            <div class="fp-step-circle">3</div>
+            <span>Hoàn tất</span>
+          </div>
+        </div>
+
         <%-- Lỗi OTP --%>
         <c:if test="${not empty param.error}">
           <p class="su-error-box">
@@ -167,6 +203,24 @@
       <c:if test="${param.step == 'password'}">
 
         <input type="hidden" name="step" value="password"/>
+
+        <%-- Thanh tiến trình --%>
+        <div class="fp-steps">
+          <div class="fp-step done">
+            <div class="fp-step-circle"><i class="fa-solid fa-check"></i></div>
+            <span>Nhập thông tin</span>
+          </div>
+          <div class="fp-step-line active"></div>
+          <div class="fp-step done">
+            <div class="fp-step-circle"><i class="fa-solid fa-check"></i></div>
+            <span>Xác thực OTP</span>
+          </div>
+          <div class="fp-step-line active"></div>
+          <div class="fp-step active">
+            <div class="fp-step-circle">3</div>
+            <span>Hoàn tất</span>
+          </div>
+        </div>
 
         <c:if test="${not empty param.error}">
           <p class="su-error-box">

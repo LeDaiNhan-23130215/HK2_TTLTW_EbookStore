@@ -69,13 +69,14 @@ public class OAuthLinkConfirmController extends HttpServlet {
             }
 
             userDAO.linkOAuthAccount(user.getId(), provider, providerId);
-
-            session.setAttribute("user",             user);
-            session.setAttribute("userID",           user.getId());
-            session.setAttribute("userName",         user.getUsername());
-            session.setAttribute("email",            user.getEmail());
-            session.setAttribute("phoneNum",         user.getPhoneNum());
-            session.setAttribute("role",             user.getRole());
+            User freshUser = userDAO.getUserByID(user.getId()); // reload
+            if (freshUser == null) freshUser = user;
+            session.setAttribute("user",     freshUser);
+            session.setAttribute("userID",   freshUser.getId());
+            session.setAttribute("userName", freshUser.getUsername());
+            session.setAttribute("email",    freshUser.getEmail());
+            session.setAttribute("phoneNum", freshUser.getPhoneNum());
+            session.setAttribute("role",     freshUser.getRole());
             session.setAttribute("toastSuccess",     "✅ Đã liên kết tài khoản Google thành công!");
 
             try {

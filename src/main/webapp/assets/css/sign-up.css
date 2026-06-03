@@ -349,3 +349,48 @@ form {
     .su-code-btn, .su-btn, .google-btn { width: 100%; }
     .google-btn-text { padding-right: 50px; }
 }
+/* ========================================================
+   THANH TIẾN TRÌNH (Step bar) — KHÔNG import từ file khác
+   ======================================================== */
+.fp-steps {
+    display: flex; align-items: center; gap: 0;
+    width: 100%; max-width: 350px;
+    margin: 0 auto 28px auto;
+}
+.fp-step {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 6px; flex-shrink: 0;
+}
+.fp-step span {
+    font-size: 11px; color: #aaa; font-weight: 500;
+    text-align: center; white-space: nowrap; transition: color 0.25s;
+}
+.fp-step-circle {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #e9ecef; color: #aaa; font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.25s, color 0.25s, box-shadow 0.25s; flex-shrink: 0;
+}
+.fp-step.active .fp-step-circle {
+    background: #0396c7; color: #fff;
+    box-shadow: 0 0 0 4px rgba(3,150,199,0.18);
+}
+.fp-step.active span { color: #0396c7; font-weight: 600; }
+.fp-step.done .fp-step-circle { background: #27ae60; color: #fff; }
+.fp-step.done span { color: #27ae60; }
+.fp-step-line {
+    flex: 1; height: 2px; background: #e9ecef;
+    margin-bottom: 18px; transition: background 0.25s; min-width: 16px;
+}
+.fp-step-line.active { background: #27ae60; }
+@media (max-width: 600px) {
+    .fp-steps { max-width: 100%; }
+    .fp-step span { font-size: 9px; }
+    .fp-step-circle { width: 26px; height: 26px; font-size: 11px; }
+    .fp-step-line { min-width: 8px; }
+}
+.container .fp-steps {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 350px;
+}

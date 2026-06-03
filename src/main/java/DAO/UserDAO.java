@@ -355,6 +355,65 @@ public class UserDAO {
         return false;
     }
 
+    public boolean updateUsername(int userId, String newUsername) {
+        String sql = "UPDATE users SET userName=? WHERE id=?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newUsername);
+            ps.setInt(2, userId);
+            boolean result = ps.executeUpdate() > 0;
+            if (result) logger.info("{} Username updated for userId={}", LOG_PREFIX, userId);
+            return result;
+        } catch (SQLException e) {
+            logger.error("{} Error in updateUsername for userId={}: ", LOG_PREFIX, userId, e);
+        }
+        return false;
+    }
+
+    public boolean updatePhone(int userId, String newPhone) {
+        String sql = "UPDATE users SET phoneNum=? WHERE id=?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newPhone);
+            ps.setInt(2, userId);
+            boolean result = ps.executeUpdate() > 0;
+            if (result) logger.info("{} Phone updated for userId={}", LOG_PREFIX, userId);
+            return result;
+        } catch (SQLException e) {
+            logger.error("{} Error in updatePhone for userId={}: ", LOG_PREFIX, userId, e);
+        }
+        return false;
+    }
+
+    public boolean updateEmail(int userId, String newEmail) {
+        String sql = "UPDATE users SET email=? WHERE id=?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newEmail);
+            ps.setInt(2, userId);
+            boolean result = ps.executeUpdate() > 0;
+            if (result) logger.info("{} Email updated for userId={}", LOG_PREFIX, userId);
+            return result;
+        } catch (SQLException e) {
+            logger.error("{} Error in updateEmail for userId={}: ", LOG_PREFIX, userId, e);
+        }
+        return false;
+    }
+
+    public boolean unlinkOAuth(int userId) {
+        String sql = "UPDATE users SET provider=NULL, provider_id=NULL WHERE id=?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            boolean result = ps.executeUpdate() > 0;
+            if (result) logger.info("{} OAuth unlinked for userId={}", LOG_PREFIX, userId);
+            return result;
+        } catch (SQLException e) {
+            logger.error("{} Error in unlinkOAuth for userId={}: ", LOG_PREFIX, userId, e);
+        }
+        return false;
+    }
+
     public boolean deleteUser(int id) {
         String sql = "DELETE FROM users WHERE id=?";
         try (Connection connection = DBConnection.getConnection();
@@ -396,6 +455,30 @@ public class UserDAO {
             return result;
         } catch (SQLException e) {
             logger.error("{} Error in updatePassword for userId: {}", LOG_PREFIX, userId, e);
+        }
+        return false;
+    }
+
+    public boolean checkUsernameExists(String username) {
+        String sql = "SELECT 1 FROM users WHERE userName = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            return ps.executeQuery().next();
+        } catch (SQLException e) {
+            logger.error("{} Error in checkUsernameExists for: {}", LOG_PREFIX, username, e);
+        }
+        return false;
+    }
+
+    public boolean checkEmailExists(String email) {
+        String sql = "SELECT 1 FROM users WHERE email = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            return ps.executeQuery().next();
+        } catch (SQLException e) {
+            logger.error("{} Error in checkEmailExists for: {}", LOG_PREFIX, email, e);
         }
         return false;
     }
