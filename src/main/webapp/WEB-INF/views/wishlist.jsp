@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt"  prefix="fmt" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,7 +69,7 @@
                                     </c:otherwise>
                                 </c:choose>
                             </p>
-                            <p><b>${book.price} VND</b></p>
+                            <p class="wishlist-price"><fmt:formatNumber value="${book.price}" type="number"/>đ</p>
                         </div>
 
                         <div class="actions">
@@ -85,15 +86,18 @@
                             </form>
 
                             <!-- Xóa wishlist -->
-                            <form action="${pageContext.request.contextPath}/wishlist" method="post"
-                                  onsubmit="return confirm('Xóa khỏi wishlist?')">
+                            <form class="wishlist-remove-form"
+                                  action="${pageContext.request.contextPath}/wishlist"
+                                  method="post"
+                                  data-title="Xoá khỏi danh sách yêu thích?"
+                                  data-desc="${book.title}">
                                 <input type="hidden" name="action" value="remove">
                                 <input type="hidden" name="ebookId" value="${book.id}">
-                                <button class="remove" type="submit">
-                                    <i class="fa-solid fa-trash"></i> Xóa
+                                <button type="button"
+                                        class="remove wishlist-delete-trigger">
+                                    <i class="fa-solid fa-trash-can"></i> Xoá
                                 </button>
                             </form>
-
                         </div>
                     </div>
                 </c:forEach>
@@ -101,10 +105,30 @@
         </div>
     </div>
 </div>
+<%-- Modal xác nhận xoá wishlist --%>
+<div id="wishlistDeleteModal" class="ui-modal-overlay"
+     style="display:none;" aria-modal="true" role="dialog">
+    <div class="ui-modal-box">
+        <div class="ui-modal-icon">
+            <i class="fa-solid fa-trash-can" style="color:#e53e3e;font-size:1.6rem;"></i>
+        </div>
+        <h3 class="ui-modal-title">Xoá khỏi danh mục yêu thích?</h3>
+        <p class="ui-modal-desc" id="wishlistDeleteModalDesc"></p>
+        <div class="ui-modal-actions">
+            <button type="button" class="ui-modal-cancel"
+                    id="wishlistDeleteModalCancel">Quay lại</button>
+            <button type="button" class="ui-modal-confirm"
+                    id="wishlistDeleteModalConfirm">
+                <i class="fa-solid fa-trash-can"></i> Xoá
+            </button>
+        </div>
+    </div>
+</div>
 
 <jsp:include page="/WEB-INF/views/footer.jsp"></jsp:include>
 <script>window.ctxPath = "${pageContext.request.contextPath}";</script>
 <script src="${pageContext.request.contextPath}/assets/js/cart.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/wishlist-remove.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/component.js"></script>
 </body>
 </html>
