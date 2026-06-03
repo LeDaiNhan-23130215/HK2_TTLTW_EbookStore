@@ -1,162 +1,351 @@
-*{
-    margin: 0;
-    padding: 0;
-    font-family: Arial, Helvetica, sans-serif;
-}
-form{
+* { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
+
+form {
     display: flex;
     align-items: center;
     justify-content: center;
 }
-.container{
+
+/* ── Container ── */
+.container {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    width: 700px;
-    height: auto;
-    gap: 20px;
+    width: 500px;
     background-color: #fff;
     border-radius: 5px;
     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin: 20px auto;
+    gap: 20px;
+    box-sizing: border-box;
+    padding-bottom: 30px;
 }
-.container .header{
+
+/* ── Tiêu đề ── */
+.container .header {
     font-size: 1.5rem;
     font-weight: bold;
     color: #0396c7;
     margin-top: 25px;
 }
-.container .top-input{
+
+/* ── Khu vực input ── */
+.container .input {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-}
-.container .mid-input{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-}
-.container .bottom-input{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-}
-.container .input{
-    display: flex;
-    justify-content: center;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 10px;
+    width: 100%;
 }
-.container .input .top-input .input-div input{
-    width: 630px;
+
+/* ── Ô input (Step 1) ── */
+.su-field-wrap {
+    display: flex;
+    flex-direction: column;
 }
-.container .input .input-div input{
-    border: none;
+.su-wide { width: 350px; }
+
+.su-field-wrap input {
+    border: 2px solid transparent;
     outline: none;
-    width: 300px;
+    width: 100%;
     height: 50px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 10px;
+    padding: 10px 14px;
     border-radius: 10px;
     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    font-size: 0.9rem;
+    transition: border-color 0.15s, box-shadow 0.15s;
 }
-.container .input .input-div input::placeholder{
-    color: #0396c7;
-    font-weight: bold;
+.su-field-wrap input::placeholder { color: #0396c7; font-weight: bold; }
+.su-field-wrap input:hover  { cursor: text; }
+.su-field-wrap input:focus  { border-color: #0396c7; box-shadow: 0 0 6px rgba(3, 150, 199, 0.3); }
+
+/* Inline error — giữ chỗ để không đẩy layout */
+.su-field-err {
+    color: #e53e3e;
+    font-size: 11.5px;
+    min-height: 16px;
+    margin-top: 3px;
+    display: block;
+    line-height: 1.3;
 }
-.container .input .input-div input:hover{
-    transform: translateY(-10px);
-    cursor: pointer;
+
+/* ── Thông báo lỗi / thành công dạng box ── */
+.su-error-box,
+.su-success-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 13px;
+    width: 350px;
+    box-sizing: border-box;
+    line-height: 1.5;
 }
-.container .input button{
+.su-error-box {
+    background: #fff5f5;
+    border: 1px solid #feb2b2;
+    color: #c53030;
+}
+.su-success-box {
+    background: #f0fff4;
+    border: 1px solid #9ae6b4;
+    color: #276749;
+}
+.su-error-box i,
+.su-success-box i { flex-shrink: 0; margin-top: 2px; }
+
+/* ── Nút chính ── */
+.su-btn {
     width: 300px;
     height: 50px;
     border-radius: 20px;
     color: #fff;
-    font-weight: 500;
-    font-size: 0.9rem;
-    background-color: rgb(3, 150, 199);
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    background-color: #0396c7;
     border: none;
-}
-.container .input button:hover{
-    background-color: hsl(195, 98%, 50%);
-    cursor: pointer;
-}
-.container .input-div .error-msg {
-    color: hsl(0, 100%, 70%);
-    font-size: 0.7rem;
     margin-top: 4px;
-    display: block;
-    height: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
 }
-.container .anotherOption{
+.su-btn:hover { background-color: #02b3ee; }
+
+/* ── "Hoặc đăng ký bằng" ── */
+.su-divider {
     font-size: 0.75rem;
-    color: rgb(185 185 185);
+    color: #b9b9b9;
+    margin-top: 4px;
 }
-.container .logoContainer .logoList{
-    list-style: none;
+
+/* ── Google button ── */
+.su-social-wrap { width: 100%; display: flex; justify-content: center; }
+
+.google-btn {
+    display: inline-flex;
+    align-items: center;
+    background: #fff;
+    border: 1.5px solid #dadce0;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    height: 50px;
+    width: 300px;
+    padding: 0;
+    text-decoration: none;
+    color: #3c4043;
+    transition: box-shadow 0.2s, background 0.2s;
+    overflow: hidden;
+}
+.google-btn:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    background: #f8f9fa;
+    text-decoration: none;
+    color: #3c4043;
+}
+.google-icon-wrap {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 50px;
+    height: 50px;
+    background: #fff;
+    border-right: 1.5px solid #dadce0;
+    flex-shrink: 0;
+}
+.google-icon { width: 20px; height: 20px; display: block; }
+.google-btn-text {
+    flex: 1;
+    text-align: center;
+    padding-right: 50px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* ── Link quay lại ── */
+.su-back-link { margin-top: 4px; margin-bottom: 14px; }
+.su-back-link a { color: #666; font-size: 13px; text-decoration: none; }
+.su-back-link a:hover { text-decoration: underline; }
+
+/* ── Step 2: OTP sent info ── */
+.su-sent-to {
+    font-size: 13px;
+    color: #555;
+    text-align: center;
+    padding: 0 20px;
+}
+.su-sent-to strong { color: #0396c7; }
+
+/* ── Step 2: OTP input + confirm button ── */
+.su-code-input {
+    width: 350px;
+    display: flex;
     flex-direction: row;
-    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
-.container .logoContainer .logoList li{
-    background-color: rgb(254 254 254);
-    padding: 10px;
+.su-code-input input {
+    border: 2px solid transparent;
+    outline: none;
+    flex: 1;
+    padding: 15px;
+    border-radius: 10px;
     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
-    border-radius: 50%;
-    margin-bottom: 10px;
+    font-size: 0.9rem;
+    transition: border-color 0.15s, box-shadow 0.15s;
 }
-.container .logoContainer .logoList li:hover{
-    transform: translateY(-5px);
+.su-code-input input::placeholder { color: #0396c7; font-weight: 600; }
+.su-code-input input:focus {
+    border-color: #0396c7;
+    box-shadow: 0 0 6px rgba(3, 150, 199, 0.3);
+}
+.su-code-btn {
+    border: none;
+    outline: none;
+    padding: 15px;
+    width: 110px;
+    border-radius: 10px;
+    background-color: #0396c7;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 600;
     cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
 }
-/* =================== Responsive ≤ 900px =================== */
-@media (max-width: 900px){
-    .container{
-        width: 90%;
-        padding: 15px;
-        gap: 15px;
-        margin: 10px;
-    }
+.su-code-btn:hover { background-color: hsl(195, 98%, 50%); }
 
-    .container .header{
-        font-size: 1.3rem;
-    }
+/* ── Step 2: Countdown ── */
+.su-countdown {
+    font-size: 13px;
+    color: #555;
+}
+#suCountdown {
+    font-weight: 700;
+    color: #e74c3c;
+}
 
-    .container .top-input,
-    .container .mid-input,
-    .container .bottom-input{
-        flex-direction: column;
-        gap: 10px;
-        align-items: center;
-    }
+/* ── Step 2: Nút gửi lại ── */
+.su-resend { margin-bottom: 4px; }
+.su-resend-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    outline: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    background-color: #0396c7;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+.su-resend-btn:hover:not(:disabled) { background-color: hsl(195, 98%, 50%); }
+.su-resend-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+#suResendCooldown { font-size: 12px; opacity: 0.85; }
 
-    .container .input .top-input .input-div input{
-        width: 300px;
-    }
+/* ── Step 3: Password wrapper + eye icon ── */
+.su-password-input {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
 
-    .container .input-div input,
-    .container .input button{
-        width: 100%;
-        max-width: 100%;
-        height: 45px;
-        font-size: 0.9rem;
-    }
+.su-pw-wrap {
+    position: relative;
+    width: 350px;
+    box-sizing: border-box;
+}
+.su-pw-wrap input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 15px 44px 15px 15px;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    outline: none;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    font-size: 14px;
+    color: #333;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.su-pw-wrap input::placeholder { color: #0396c7; font-weight: 600; }
+.su-pw-wrap input:focus {
+    border-color: #0396c7;
+    box-shadow: 0 0 6px rgba(3, 150, 199, 0.3);
+}
+.su-eye {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #0396c7;
+    font-size: 16px;
+    line-height: 1;
+}
+.su-eye:hover { color: #027aa3; }
 
-    .container .anotherOption{
-        font-size: 0.75rem;
-    }
+/* ── Step 3: Checklist ── */
+.su-pw-checklist {
+    list-style: none;
+    width: 350px;
+    box-sizing: border-box;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+}
+.su-pw-checklist li {
+    font-size: 12px;
+    color: #e74c3c;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: color 0.2s;
+}
+.su-pw-checklist li i { font-size: 13px; flex-shrink: 0; transition: color 0.2s; }
+.su-pw-checklist li.ok { color: #27ae60; }
+.su-pw-checklist li.ok i::before { content: "\f058"; }
 
-    .container .logoContainer .logoList li{
-        padding: 8px;
-    }
+/* ── Step 3: Strength bar ── */
+.su-strength-wrap { width: 350px; box-sizing: border-box; }
+#suStrengthBar {
+    height: 10px;
+    border-radius: 6px;
+    background: #eee;
+    width: 0%;
+    transition: width 0.4s ease, background 0.4s ease;
+}
+#suStrengthTxt {
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 5px;
+    display: block;
+    font-weight: 500;
+}
+
+/* ── Responsive ≤ 560px ── */
+@media (max-width: 560px) {
+    .container { width: 95%; padding: 15px; }
+    .su-field-wrap, .su-wide, .su-code-input, .su-pw-wrap,
+    .su-pw-checklist, .su-strength-wrap, .su-error-box, .su-success-box { width: 100%; }
+    .su-code-input { flex-direction: column; gap: 8px; }
+    .su-code-btn, .su-btn, .google-btn { width: 100%; }
+    .google-btn-text { padding-right: 50px; }
 }

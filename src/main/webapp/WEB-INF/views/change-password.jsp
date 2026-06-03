@@ -225,7 +225,7 @@
             </div>
         </form>
     </div>
-</div><
+</div>
 
 <jsp:include page="/WEB-INF/views/footer.jsp"/>
 <script src="${pageContext.request.contextPath}/assets/js/component.js"></script>
