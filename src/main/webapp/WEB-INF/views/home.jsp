@@ -80,7 +80,7 @@
                                 <c:otherwise>
                                     <button type="button"
                                             class="favorite-btn"
-                                            onclick="alert('Vui lòng đăng nhập để sử dụng chức năng này')">
+                                            data-guest-wishlist="true">
                                         <i class="fa-regular fa-heart"></i>
                                     </button>
                                 </c:otherwise>
@@ -158,7 +158,7 @@
                                     <c:otherwise>
                                         <button type="button"
                                                 class="favorite-btn"
-                                                onclick="alert('Vui lòng đăng nhập để sử dụng chức năng này')">
+                                                data-guest-wishlist="true">
                                             <i class="fa-regular fa-heart"></i>
                                         </button>
                                     </c:otherwise>
@@ -255,7 +255,7 @@
                                         <c:otherwise>
                                             <button type="button"
                                                     class="favorite-btn"
-                                                    onclick="alert('Vui lòng đăng nhập để sử dụng chức năng này')">
+                                                    data-guest-wishlist="true">
                                                 <i class="fa-regular fa-heart"></i>
                                             </button>
                                         </c:otherwise>

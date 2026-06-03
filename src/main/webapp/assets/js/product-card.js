@@ -1,4 +1,3 @@
-
 (function () {
 
     var ctx = window.ctxPath || window.ctx || '';
@@ -25,11 +24,16 @@
         var btn = e.target.closest('.favorite-btn');
         if (!btn) return;
 
-        var form = btn.closest('form');
-        if (!form) return;
-
         e.preventDefault();
         e.stopPropagation();
+
+        if (btn.dataset.guestWishlist) {
+            showToast('⚠️ Vui lòng đăng nhập để sử dụng chức năng này.', 'warning');
+            return;
+        }
+
+        var form = btn.closest('form');
+        if (!form) return;
 
         var ebookId = form.querySelector('[name=ebookId]').value;
         var action  = form.querySelector('[name=action]').value;

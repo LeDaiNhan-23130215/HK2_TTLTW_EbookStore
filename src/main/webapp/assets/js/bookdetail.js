@@ -1,18 +1,72 @@
-//
-//     document.addEventListener("DOMContentLoaded", function () {
-//     const tabButtons = document.querySelectorAll(".tab-btn");
-//     const tabContents = document.querySelectorAll(".tab-content");
-//
-//     tabButtons.forEach((btn, index) => {
-//     btn.addEventListener("click", function () {
-//     // remove active
-//     tabButtons.forEach(b => b.classList.remove("active"));
-//     tabContents.forEach(c => c.classList.remove("active"));
-//
-//     // add active
-//     btn.classList.add("active");
-//     tabContents[index].classList.add("active");
-// });
-// });
-// });
-//
+(function () {
+    var ctx = window.ctxPath || '';
+
+    function showToast(msg, type) {
+        var existing = document.getElementById('cartToast');
+        if (existing) existing.remove();
+        var colors = {success: '#27ae60', warning: '#f59e0b', error: '#e53e3e', info: '#0396c7'};
+        var el = document.createElement('div');
+        el.id = 'cartToast';
+        el.textContent = msg;
+        el.style.cssText = [
+            'position:fixed', 'top:20px', 'right:20px', 'z-index:9999',
+            'padding:14px 22px', 'border-radius:8px', 'font-size:14px',
+            'color:#fff', 'box-shadow:0 4px 12px rgba(0,0,0,.25)',
+            'max-width:320px', 'word-break:break-word',
+            'background:' + (colors[type] || colors.info)
+        ].join(';');
+        document.body.appendChild(el);
+        setTimeout(function () {
+            if (el.parentNode) el.remove();
+        }, 4000);
+    }
+
+    var form = document.querySelector('.wishlist-form');
+    if (!form) return;
+    var btn = form.querySelector('.favorite-btn');
+    if (!btn) return;
+
+    btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var ebookId = form.querySelector('[name=ebookId]').value;
+        var action = form.querySelector('[name=action]').value;
+
+        var body = new URLSearchParams();
+        body.set('ebookId', ebookId);
+        body.set('action', action);
+
+        fetch(ctx + '/wishlist', {
+            method: 'POST',
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+            body: body
+        })
+            .then(function (r) {
+                return r.json();
+            })
+            .then(function (data) {
+                if (data.msg) showToast(data.msg, data.type || 'success');
+                var actionInput = form.querySelector('[name=action]');
+                var icon = btn.querySelector('i');
+                if (data.inWishlist) {
+                    btn.classList.add('active');
+                    if (actionInput) actionInput.value = 'remove';
+                    if (icon) {
+                        icon.classList.remove('fa-regular');
+                        icon.classList.add('fa-solid');
+                    }
+                } else {
+                    btn.classList.remove('active');
+                    if (actionInput) actionInput.value = 'add';
+                    if (icon) {
+                        icon.classList.remove('fa-solid');
+                        icon.classList.add('fa-regular');
+                    }
+                }
+            })
+            .catch(function () {
+                showToast('Đã xảy ra lỗi, vui lòng thử lại.', 'error');
+            });
+    });
+})();
