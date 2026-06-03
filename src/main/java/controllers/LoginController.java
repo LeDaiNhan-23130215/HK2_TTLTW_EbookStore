@@ -1,6 +1,7 @@
 package controllers;
 
 import DAO.UserDAO;
+import DAO.BookshelfDAO;
 import DTO.LoginOutcome;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
@@ -120,6 +121,8 @@ public class LoginController extends HttpServlet {
         session.setAttribute("role",     user.getRole());
 
         Cart cart = cartService.getCartByUserID(user.getId());
+        CartController.mergeGuestCartToUser(session, cartService,
+                new BookshelfDAO(), user.getId());
         int totalCartDetails = (cart != null) ? cartService.getTotalCartDetails(cart.getId()) : 0;
         session.setAttribute("totalCartDetails", totalCartDetails);
 

@@ -62,7 +62,7 @@ public class CartService {
         List<CartDetail> details = cartDetailDAO.getCartDetailsByCartID(cartID);
 
         for (CartDetail cd : details) {
-            if(bookshelfDAO.userOwnsEbook(userId, cartID)){
+            if(bookshelfDAO.userOwnsEbook(userId, cd.getBookID())){
                 continue;
             }
             Ebook ebook = ebookDAO.getEbookWithDetailsById(cd.getBookID());

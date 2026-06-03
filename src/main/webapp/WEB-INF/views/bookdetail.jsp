@@ -74,7 +74,8 @@
         <div class="btn-group">
 
           <!-- ADD TO CART -->
-          <form action="${pageContext.request.contextPath}/cart" method="post">
+          <form class="add-to-cart-form"
+                action="${pageContext.request.contextPath}/cart" method="post">
             <input type="hidden" name="action" value="add"/>
             <input type="hidden" name="bookId" value="${ebook.id}"/>
             <input type="hidden" name="price" value="${ebook.price}"/>
@@ -188,6 +189,8 @@
 </div>
 
 <jsp:include page="/WEB-INF/views/footer.jsp"/>
+<script>window.ctxPath = "${pageContext.request.contextPath}";</script>
+<script src="${pageContext.request.contextPath}/assets/js/cart.js"></script>
 
 </body>
 </html>
