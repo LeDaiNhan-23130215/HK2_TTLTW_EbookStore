@@ -40,9 +40,10 @@
 
                 <p>
                     Hotline:
-                    <span class="phoneNumber">
-                        <i class="fa-solid fa-phone phoneIcon"></i> 0354.30.09.05
-                    </span>
+                    <a href="tel:0354300905" class="phoneNumber">
+                        <i class="fa-solid fa-phone phoneIcon"></i>
+                        0354.30.09.05
+                    </a>
                 </p>
             </div>
         </div>

@@ -71,9 +71,6 @@ tasks.register('docker_app_start') {
                 """
             }
         }
-        // Thông báo đúng port để bạn không bị nhầm
-        println ">>> SUCCESS! Website is running on port 8080 (Internal)"
-        println ">>> Check your domain: https://ebooknlu.id.vn/lab/"
     }
 }
 tasks.register('docker_deploy') {

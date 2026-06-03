@@ -49,7 +49,12 @@
                 Xuân, TP. Hồ Chí Minh, Việt Nam</a
             >
 
-            <p><i class="fa-solid fa-phone phoneIcon"></i> 0354.30.09.05</p>
+            <p>
+                <a href="tel:0354300905" class="phoneNumber">
+                    <i class="fa-solid fa-phone phoneIcon"></i>
+                0354.30.09.05
+                </a>
+            </p>
             <p><i class="fa-solid fa-envelope"></i> ebookstore@gmail.com</p>
         </div>
 
@@ -84,7 +89,7 @@
 
             <div class="kn-tt">
                 <h3>GÓP Ý KHIẾU NẠI</h3>
-                <a href="#">0354.30.09.05</a>
+                <a href="tel:0354300905">0354.30.09.05</a>
                 <div class="footer-feedback">
                     <p>Gửi feedback của bạn tại đây:</p>
                     <a href="feedback" class="feedback-button">
