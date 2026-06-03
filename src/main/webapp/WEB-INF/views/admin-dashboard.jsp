@@ -15,8 +15,6 @@
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
 
-
-
     <!-- DataTables + Bootstrap 5 theme -->
     <link rel="stylesheet"
           href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
@@ -69,6 +67,9 @@
             <a href="${pageContext.request.contextPath}/admin-news">Tin tức</a>
             <a href="${pageContext.request.contextPath}/admin-review">Review</a>
             <a href="${pageContext.request.contextPath}/admin-feedback">Feedback</a>
+            <a href="${pageContext.request.contextPath}/admin-logs">
+                System Logs
+            </a>
             <hr>
             <a href="${pageContext.request.contextPath}/admin-login" class="logout">Đăng xuất</a>
         </nav>

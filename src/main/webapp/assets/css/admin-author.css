@@ -21,6 +21,8 @@ body{
     display: flex;
     flex-direction: column;
     position: fixed;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .sidebar-logo{

@@ -17,6 +17,8 @@ body .sidebar{
     display: flex;
     flex-direction: column;
     position: fixed;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 body .sidebar .sidebar-logo{
     text-align: center;
