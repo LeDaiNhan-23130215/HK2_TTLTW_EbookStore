@@ -13,6 +13,7 @@ import services.WishlistService;
 
 import java.io.IOException;
 import java.util.List;
+
 @WebServlet(name = "WishlistController", value = "/wishlist")
 public class WishlistController extends HttpServlet {
 
@@ -26,23 +27,15 @@ public class WishlistController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-
         HttpSession session = req.getSession(false);
-
         int userID = (Integer) session.getAttribute("userID");
 
-        // Ebook đã được hydrate authors + images
         List<Ebook> wishlist = wishlistService.getWishlistWithDetails(userID);
+        List<Integer> wishlistIds = wishlist.stream().map(Ebook::getId).toList();
 
-        List<Integer> wishlistIds = wishlist.stream()
-                .map(Ebook::getId)
-                .toList();
-
-        req.setAttribute("wishlist", wishlist);
+        req.setAttribute("wishlist",    wishlist);
         req.setAttribute("wishlistIds", wishlistIds);
-
-        req.getRequestDispatcher("/WEB-INF/views/wishlist.jsp")
-                .forward(req, resp);
+        req.getRequestDispatcher("/WEB-INF/views/wishlist.jsp").forward(req, resp);
     }
 
     @Override
@@ -50,47 +43,63 @@ public class WishlistController extends HttpServlet {
             throws IOException {
 
         HttpSession session = req.getSession(false);
+        User   user    = (User) session.getAttribute("user");
+        int    userID  = user.getId();
+        String action  = req.getParameter("action");
+        int    ebookId = Integer.parseInt(req.getParameter("ebookId"));
 
-        User user =
-                (User) session.getAttribute("user");
-        int userID = user.getId();
-        String action = req.getParameter("action");
-        int ebookId = Integer.parseInt(req.getParameter("ebookId"));
+        boolean isAjax = "XMLHttpRequest".equals(req.getHeader("X-Requested-With"));
+
+        String  msg        = null;
+        String  type       = "success";
+        boolean inWishlist = false;
 
         if ("add".equalsIgnoreCase(action)) {
             AddBookResult result = wishlistService.addToWishlist(userID, ebookId);
-
             switch (result) {
                 case ALREADY_OWNED:
-                    req.getSession().setAttribute(
-                            "toastError",
-                            "📚 Bạn đã sở hữu sách này rồi"
-                    );
+                    msg        = "📚 Bạn đã sở hữu sách này rồi";
+                    type       = "error";
+                    inWishlist = false;
                     break;
-
                 case ALREADY_EXISTS:
-                    req.getSession().setAttribute(
-                            "toastWarning",
-                            "⚠️ Sách đã có trong giỏ hàng"
-                    );
+                    msg        = "❤️ Sách đã có trong danh sách yêu thích";
+                    type       = "warning";
+                    inWishlist = true;
                     break;
-
                 case SUCCESS:
-                    req.getSession().setAttribute(
-                            "toastSuccess",
-                            "✅ Đã thêm sách vào giỏ hàng"
-                    );
+                    msg        = "❤️ Đã thêm sản phẩm vào danh sách yêu thích";
+                    type       = "success";
+                    inWishlist = true;
                     break;
             }
         } else if ("remove".equalsIgnoreCase(action)) {
             wishlistService.removeFromWishlist(userID, ebookId);
+            msg        = "💔 Đã xóa khỏi danh sách yêu thích";
+            type       = "success";
+            inWishlist = false;
         }
 
-        resp.sendRedirect(
-                req.getHeader("Referer") != null
-                        ? req.getHeader("Referer")
-                        : req.getContextPath() + "/home"
-        );
+        if (isAjax) {
+            resp.setContentType("application/json;charset=UTF-8");
+            resp.getWriter().write(
+                    "{\"msg\":"        + jsonStr(msg)
+                            + ",\"type\":\""     + type + "\""
+                            + ",\"inWishlist\":" + inWishlist + "}");
+        } else {
+            if (msg != null) {
+                String key = "error".equals(type)   ? "toastError"
+                        : "warning".equals(type) ? "toastWarning"
+                        : "toastSuccess";
+                session.setAttribute(key, msg);
+            }
+            String referer = req.getHeader("Referer");
+            resp.sendRedirect(referer != null ? referer : req.getContextPath() + "/home");
+        }
+    }
+
+    private String jsonStr(String s) {
+        if (s == null) return "null";
+        return "\"" + s.replace("\"", "\\\"") + "\"";
     }
 }
-

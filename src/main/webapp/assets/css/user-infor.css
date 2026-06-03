@@ -296,18 +296,34 @@
 
 .wishlist-item .actions {
     display: flex;
-    justify-content: space-between;
+    gap: 8px;
     padding: 10px 12px;
     border-top: 1px solid #eee;
 }
 
+/* add-to-cart form: flex 6, remove form: flex 4 */
+.wishlist-item .actions .add-to-cart-form {
+    flex: 6;
+}
+
+.wishlist-item .actions .wishlist-remove-form {
+    flex: 4;
+}
+
 .wishlist-item button {
+    width: 100%;
     border: none;
-    padding: 8px 12px;
+    padding: 8px 10px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     transition: 0.3s;
+    white-space: nowrap;
 }
 
 .wishlist-item button.add-cart {
@@ -326,6 +342,13 @@
 
 .wishlist-item button.remove:hover {
     background-color: hsl(0, 70%, 45%);
+}
+
+.wishlist-price {
+    font-size: 15px;
+    font-weight: 700;
+    color: hsl(0, 80%, 50%);
+    margin: 4px 0;
 }
 /* =================== Responsive max-width 900px =================== */
 @media (max-width: 900px) {

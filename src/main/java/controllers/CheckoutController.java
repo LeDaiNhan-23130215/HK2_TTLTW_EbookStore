@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import services.BookshelfService;
 import services.CartService;
 import services.CheckoutService;
+import services.WishlistService;
 
 import java.io.IOException;
 import java.util.List;
@@ -169,9 +170,12 @@ public class CheckoutController extends HttpServlet {
 
             try {
                 BookshelfService bookshelfService = new BookshelfService();
+                WishlistService wishlistService = new WishlistService();
 
                 for (CartItem item : checkoutItems) {
                     bookshelfService.addBookToBookshelf(userId, item.getEbook().getId());
+                    wishlistService.removeFromWishlist(userId, item.getEbook().getId());
+
                     logger.debug("{} Distributed digital assets permission access: Book ID {} pinned onto User ID {} virtual bookshelf repository.",
                             LOG_PREFIX, item.getEbook().getId(), userId);
                 }
