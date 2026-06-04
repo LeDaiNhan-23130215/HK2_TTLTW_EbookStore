@@ -10,7 +10,8 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/toast.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/base.css">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script>window.ctxPath = '${pageContext.request.contextPath}';</script>
 </head>
 
@@ -41,9 +42,12 @@
 
                 <p>
                     Hotline:
-                    <span class="phoneNumber">
-                        <i class="fa-solid fa-phone phoneIcon"></i> 0354.30.09.05
-                    </span>
+                    <a href="tel:0354300905"
+                       class="phoneNumber"
+                       onclick="handlePhoneClick(event)">
+                        <i class="fa-solid fa-phone phoneIcon"></i>
+                        0354.30.09.05
+                    </a>
                 </p>
             </div>
         </div>
@@ -100,3 +104,17 @@
     </div>
 </header>
 <script src="${pageContext.request.contextPath}/assets/js/toast.js"></script>
+<script>
+    function handlePhoneClick(event) {
+        if (window.innerWidth >= 768) {
+            event.preventDefault();
+            navigator.clipboard.writeText("0354300905")
+                .then(() => {
+                    showToast("📋 Đã sao chép số điện thoại!", "success");
+                })
+                .catch(() => {
+                    showToast("Không thể sao chép số điện thoại!", "error");
+                });
+        }
+    }
+</script>

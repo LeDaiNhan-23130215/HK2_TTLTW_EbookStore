@@ -450,6 +450,11 @@
   color: black;
 }
 
+#siteFooter .footer-container .left a:hover {
+  color: #0396c7;
+  background-color: none
+}
+
 #siteFooter .footer-container .cs-hd-dm {
   display: flex;
   flex-direction: row;
