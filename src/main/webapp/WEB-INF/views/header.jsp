@@ -11,7 +11,9 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/base.css">
 
     <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></head>
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script>window.ctxPath = '${pageContext.request.contextPath}';</script>
+</head>
 
 <body>
 <jsp:include page="/WEB-INF/views/toast.jsp"/>
@@ -92,7 +94,7 @@
                             <i class="fa-solid fa-cart-shopping"></i> Giỏ hàng
                         </button>
                     </a>
-                    <span class="notification-badge">
+                    <span class="notification-badge" id="cartBadge">
                         ${totalCartDetails != null ? totalCartDetails : 0}
                     </span>
                 </div>

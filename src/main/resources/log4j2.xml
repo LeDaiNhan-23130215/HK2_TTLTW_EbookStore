@@ -1,20 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
-
+    <Properties>
+        <Property name="LOG_PATH">${sys:catalina.base}/logs/ebookstore</Property>
+    </Properties>
     <Appenders>
         <Console name="Console">
-            <PatternLayout pattern="%d{HH:mm:ss} %-5level %c{1} - %msg%n"/>
+            <PatternLayout
+                    pattern="%d{HH:mm:ss} %-5level %c{1} - %msg%n"/>
         </Console>
+
+        <RollingFile
+                name="SystemFile"
+                fileName="${LOG_PATH}/system.log"
+                filePattern="${LOG_PATH}/system-%d{yyyy-MM-dd}.log">
+
+            <PatternLayout
+                    pattern="%d{HH:mm:ss} %-5level %c{1} - %msg%n"/>
+
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+
+        </RollingFile>
+
+        <RollingFile
+                name="ErrorFile"
+                fileName="${LOG_PATH}/error.log"
+                filePattern="${LOG_PATH}/error-%d{yyyy-MM-dd}.log">
+
+            <PatternLayout
+                    pattern="%d{HH:mm:ss} %-5level %c{1} - %msg%n"/>
+
+            <Filters>
+                <ThresholdFilter
+                        level="ERROR"
+                        onMatch="ACCEPT"
+                        onMismatch="DENY"/>
+            </Filters>
+
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+
+        </RollingFile>
     </Appenders>
 
     <Loggers>
-        <Root level="debug">
+        <Logger
+                name="com.zaxxer.hikari"
+                level="debug"
+                additivity="false">
             <AppenderRef ref="Console"/>
+            <AppenderRef ref="SystemFile"/>
+        </Logger>
+
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="SystemFile"/>
+            <AppenderRef ref="ErrorFile"/>
         </Root>
 
-        <Logger name="com.zaxxer.hikari" level="debug" additivity="false">
-            <AppenderRef ref="Console"/>
-        </Logger>
     </Loggers>
-
 </Configuration>

@@ -11,25 +11,34 @@
             <div class="product-card" title="${eb.title}">
 
                 <!-- WISHLIST -->
-                <form action="${pageContext.request.contextPath}/wishlist" method="post">
-                    <input type="hidden" name="ebookId" value="${eb.id}"/>
-
-                    <c:choose>
-                        <c:when test="${wishlistIds != null and wishlistIds.contains(eb.id)}">
-                            <input type="hidden" name="action" value="remove"/>
-                            <button type="submit" class="favorite-btn active" title="Remove from wishlist">
-                                <i class="fa-solid fa-heart"></i>
-                            </button>
-                        </c:when>
-
-                        <c:otherwise>
-                            <input type="hidden" name="action" value="add"/>
-                            <button type="submit" class="favorite-btn" title="Add to wishlist">
-                                <i class="fa-solid fa-heart"></i>
-                            </button>
-                        </c:otherwise>
-                    </c:choose>
-                </form>
+                <c:choose>
+                    <c:when test="${sessionScope.user != null}">
+                        <form action="${pageContext.request.contextPath}/wishlist" method="post">
+                            <input type="hidden" name="ebookId" value="${eb.id}"/>
+                            <c:choose>
+                                <c:when test="${wishlistIds != null and wishlistIds.contains(eb.id)}">
+                                    <input type="hidden" name="action" value="remove"/>
+                                    <button type="submit" class="favorite-btn active" title="Xoá khỏi yêu thích">
+                                        <i class="fa-solid fa-heart"></i>
+                                    </button>
+                                </c:when>
+                                <c:otherwise>
+                                    <input type="hidden" name="action" value="add"/>
+                                    <button type="submit" class="favorite-btn" title="Thêm vào yêu thích">
+                                        <i class="fa-regular fa-heart"></i>
+                                    </button>
+                                </c:otherwise>
+                            </c:choose>
+                        </form>
+                    </c:when>
+                    <c:otherwise>
+                        <button type="button"
+                                class="favorite-btn"
+                                data-guest-wishlist="true">
+                            <i class="fa-regular fa-heart"></i>
+                        </button>
+                    </c:otherwise>
+                </c:choose>
 
                 <!-- IMAGE -->
                 <div class="img-wrapper">

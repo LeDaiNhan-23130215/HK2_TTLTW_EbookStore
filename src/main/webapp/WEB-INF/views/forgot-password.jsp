@@ -34,6 +34,24 @@
             <%-- ===== STEP 1: NHẬP EMAIL ===== --%>
             <c:if test="${empty param.step}">
 
+                <%-- Thanh tiến trình --%>
+                <div class="fp-steps">
+                    <div class="fp-step active">
+                        <div class="fp-step-circle">1</div>
+                        <span>Nhập email</span>
+                    </div>
+                    <div class="fp-step-line"></div>
+                    <div class="fp-step">
+                        <div class="fp-step-circle">2</div>
+                        <span>Xác thực OTP</span>
+                    </div>
+                    <div class="fp-step-line"></div>
+                    <div class="fp-step">
+                        <div class="fp-step-circle">3</div>
+                        <span>${sessionScope.fpIsOAuthOnly == true ? 'Tạo mật khẩu' : 'Đặt lại mật khẩu'}</span>
+                    </div>
+                </div>
+
                 <%-- Lỗi từ server --%>
                 <c:if test="${not empty param.error}">
                     <p class="fp-error-box">
@@ -78,8 +96,25 @@
 
             <%-- ===== STEP 2: NHẬP OTP ===== --%>
             <c:if test="${param.step == 'verify'}">
-
                 <input type="hidden" name="step" value="verify"/>
+
+                <%-- Thanh tiến trình --%>
+                <div class="fp-steps">
+                    <div class="fp-step done">
+                        <div class="fp-step-circle"><i class="fa-solid fa-check"></i></div>
+                        <span>Nhập email</span>
+                    </div>
+                    <div class="fp-step-line active"></div>
+                    <div class="fp-step active">
+                        <div class="fp-step-circle">2</div>
+                        <span>Xác thực OTP</span>
+                    </div>
+                    <div class="fp-step-line"></div>
+                    <div class="fp-step">
+                        <div class="fp-step-circle">3</div>
+                        <span>${sessionScope.fpIsOAuthOnly == true ? 'Tạo mật khẩu' : 'Đặt lại mật khẩu'}</span>
+                    </div>
+                </div>
 
                 <%-- Phát hiện tài khoản OAuth ngay ở step 2: hiện banner, KHÔNG chuyển step 3 --%>
                 <c:if test="${sessionScope.fpIsOAuthOnly == true and empty param.error}">
@@ -180,6 +215,24 @@
 
             <%-- ===== STEP 3: ĐỔI / TẠO MẬT KHẨU ===== --%>
             <c:if test="${param.step == 'reset'}">
+
+                <%-- Thanh tiến trình --%>
+                <div class="fp-steps">
+                    <div class="fp-step done">
+                        <div class="fp-step-circle"><i class="fa-solid fa-check"></i></div>
+                        <span>Nhập email</span>
+                    </div>
+                    <div class="fp-step-line active"></div>
+                    <div class="fp-step done">
+                        <div class="fp-step-circle"><i class="fa-solid fa-check"></i></div>
+                        <span>Xác thực OTP</span>
+                    </div>
+                    <div class="fp-step-line active"></div>
+                    <div class="fp-step active">
+                        <div class="fp-step-circle">3</div>
+                        <span>${sessionScope.fpIsOAuthOnly == true ? 'Tạo mật khẩu' : 'Đặt lại mật khẩu'}</span>
+                    </div>
+                </div>
 
                 <c:if test="${sessionScope.fpIsOAuthOnly == true}">
                     <div class="fp-oauth-banner">

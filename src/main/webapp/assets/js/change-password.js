@@ -1,18 +1,20 @@
-
 (function () {
     var params = new URL(window.location.href).searchParams;
 
     if (params.get('resent') === 'true') {
         Object.keys(sessionStorage).forEach(function (k) {
-            if (k.startsWith('cp_otp_cooldown_')) sessionStorage.removeItem(k);
+            if (k.startsWith('cp_otp_deadline_') || k.startsWith('cp_otp_cooldown_')) {
+                sessionStorage.removeItem(k);
+            }
         });
         sessionStorage.setItem('cp_otp_cooldown_skip_init', '1');
     }
 
     if (params.get('error') === 'alreadyUsed') {
         Object.keys(sessionStorage).forEach(function (k) {
-            if (k.startsWith('cp_otp_deadline_')) sessionStorage.removeItem(k);
-            if (k.startsWith('cp_otp_cooldown_')) sessionStorage.removeItem(k);
+            if (k.startsWith('cp_otp_deadline_') || k.startsWith('cp_otp_cooldown_')) {
+                sessionStorage.removeItem(k);
+            }
         });
         sessionStorage.setItem('cp_otp_cooldown_skip_init', '1');
     }
@@ -41,6 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var skipExpiredMsg = params.get('error') === 'alreadyUsed';
 
     if (params.get('error') === 'alreadyUsed') {
+        sessionStorage.removeItem(otpKey);
         otpDeadline = Date.now();
     } else {
         var storedOtp = sessionStorage.getItem(otpKey);
@@ -62,7 +65,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (remaining <= 0) {
             otpDisplay.style.color = '#e74c3c';
-            if (submitBtn) { submitBtn.disabled = true; submitBtn.style.opacity = '0.5'; }
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
+            }
 
             // Hiện thông báo hết hạn (trừ trường hợp alreadyUsed)
             if (!skipExpiredMsg && !document.getElementById('cpOtpExpiredMsg')) {
@@ -74,9 +80,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 var sentTo = document.querySelector('.fp-sent-to');
                 if (sentTo) sentTo.parentNode.insertBefore(msg, sentTo);
             }
-            sessionStorage.removeItem(otpKey);
+
             return;
         }
+
         setTimeout(otpTick, 500);
     }
 
@@ -93,6 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (skipInit) {
         sessionStorage.removeItem('cp_otp_cooldown_skip_init');
+        sessionStorage.removeItem(coolKey);
         coolDeadline = Date.now();
     } else if (storedCool && parseInt(storedCool, 10) > Date.now()) {
         coolDeadline = parseInt(storedCool, 10);
@@ -100,6 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
         coolDeadline = Date.now() + 30_000;
         sessionStorage.setItem(coolKey, coolDeadline.toString());
     } else {
+        sessionStorage.removeItem(coolKey);
         coolDeadline = Date.now();
     }
 
@@ -108,15 +117,33 @@ document.addEventListener('DOMContentLoaded', function () {
         if (resendDisplay) {
             resendDisplay.textContent = remaining > 0 ? '(' + remaining + 's)' : '';
         }
+
+        if (resendBtn) {
+            resendBtn.disabled = remaining > 0;
+        }
+
         if (remaining <= 0) {
-            if (resendBtn) resendBtn.disabled = false;
             sessionStorage.removeItem(coolKey);
             return;
         }
+
         setTimeout(coolTick, 500);
     }
 
     coolTick();
+
+    // ===== VALIDATE OTP =====
+    var cpOtpInput = document.getElementById('cpOtpInput');
+    if (cpOtpInput && submitBtn) {
+        submitBtn.closest('form') && submitBtn.closest('form').addEventListener('submit', function (e) {
+            if (e.submitter && e.submitter.value !== 'verifyOtp') return;
+            var v = cpOtpInput.value.trim();
+            if (!v || !/^\d{6}$/.test(v)) {
+                e.preventDefault();
+                cpOtpInput.focus();
+            }
+        });
+    }
 });
 
 // ===== TOGGLE EYE (Bước reset) =====
@@ -160,12 +187,11 @@ if (newPwInput) {
     var cpForm = document.getElementById('cpForm');
     if (cpForm) {
         cpForm.addEventListener('submit', function (e) {
-            var action = cpForm.querySelector('[name="action"][type="submit"]:focus') ||
-                cpForm.querySelector('[name="action"]');
-            // Chỉ validate khi submit changePassword, không chặn sendOtp/resendOtp/verifyOtp
+            // Chỉ validate khi bấm đúng nút đổi mật khẩu / tạo mật khẩu
+            var action = e.submitter;
             if (!action || action.value !== 'changePassword') return;
 
-            var pw        = newPwInput.value;
+            var pw = newPwInput.value;
             var confirmPw = document.getElementById('cpConfirmPw');
 
             if (!pw) {

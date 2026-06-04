@@ -2,6 +2,10 @@ package utils;
 
 public enum ActivityType {
 
+    REGISTER(
+            "Chào mừng bạn đến với EbookStore",
+            "Đăng ký tài khoản thành công"
+    ),
     LOGIN(
             "Thông báo đăng nhập tài khoản",
             "Đăng nhập thành công"
@@ -33,6 +37,10 @@ public enum ActivityType {
     LINK_GOOGLE(
             "Tài khoản Google vừa được liên kết",
             "Liên kết tài khoản Google thành công"
+    ),
+    UNLINK_GOOGLE(
+    "Tài khoản Google vừa được huỷ liên kết",
+            "Huỷ liên kết tài khoản Google thành công"
     );
 
     private final String subject;

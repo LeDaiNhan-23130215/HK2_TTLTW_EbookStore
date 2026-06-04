@@ -50,6 +50,11 @@
 
             <input type="hidden" name="step" value="payment"/>
 
+            <c:if test="${singleMode}">
+                <input type="hidden" name="mode" value="single"/>
+                <input type="hidden" name="bookId" value="${singleBookId}"/>
+            </c:if>
+
             <p>Phương thức thanh toán</p>
 
             <div class="payment-container">
@@ -107,7 +112,7 @@
         <c:forEach var="item" items="${cartItems}">
             <div class="product-row">
                 <div class="product-detail">
-                    <img src="${item.ebook.images[0].imgLink}" alt="${item.ebook.images[0].imgLink}">
+                    <img src="${item.ebook.images[0].imgLink}" alt="${item.ebook.title}">
                     <div class="product-name">${item.ebook.title}</div>
                 </div>
                 <div class="product-price">

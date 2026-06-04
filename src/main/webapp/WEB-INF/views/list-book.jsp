@@ -16,8 +16,8 @@
   <link rel="stylesheet" href="<c:url value='/assets/css/components.css' />">
   <link rel="stylesheet" href="<c:url value='/assets/css/list-book.css' />">
 
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
   <link rel="icon" type="image/png"
         href="<c:url value='/assets/img/ebook-logo2.png' />">
@@ -151,7 +151,8 @@
 <script src="<c:url value='/assets/js/product-card.js' />"></script>
 
 <script>
-    const ctx = "${pageContext.request.contextPath}";
+  const ctx = "${pageContext.request.contextPath}";
+  window.ctxPath = "${pageContext.request.contextPath}";
 </script>
 
 <script src="<c:url value='/assets/js/backToTopBtn.js' />"></script>
@@ -159,7 +160,7 @@
 <script src="<c:url value='/assets/js/hamburger-button.js' />"></script>
 
 <script src="<c:url value='/assets/js/list-book-pagination.js' />"></script>
-
+<script src="${pageContext.request.contextPath}/assets/js/cart.js"></script>
 <script src="<c:url value='/assets/js/list-book-filter.js' />"></script>
 </body>
 </html>

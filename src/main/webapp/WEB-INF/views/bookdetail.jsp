@@ -74,7 +74,8 @@
         <div class="btn-group">
 
           <!-- ADD TO CART -->
-          <form action="${pageContext.request.contextPath}/cart" method="post">
+          <form class="add-to-cart-form"
+                action="${pageContext.request.contextPath}/cart" method="post">
             <input type="hidden" name="action" value="add"/>
             <input type="hidden" name="bookId" value="${ebook.id}"/>
             <input type="hidden" name="price" value="${ebook.price}"/>
@@ -114,7 +115,7 @@
             <c:otherwise>
               <button type="button"
                       class="favorite-btn"
-                      onclick="alert('Vui lòng đăng nhập để sử dụng chức năng này')">
+                      data-guest-wishlist="true">
                 <i class="fa-regular fa-heart"></i>
               </button>
             </c:otherwise>
@@ -188,6 +189,9 @@
 </div>
 
 <jsp:include page="/WEB-INF/views/footer.jsp"/>
-
+<script>window.ctxPath = "${pageContext.request.contextPath}";</script>
+<script src="${pageContext.request.contextPath}/assets/js/cart.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/product-card.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/bookdetail.js"></script>
 </body>
 </html>

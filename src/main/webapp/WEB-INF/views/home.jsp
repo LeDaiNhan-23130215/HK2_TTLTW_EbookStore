@@ -43,9 +43,9 @@
         <div class="danh-sach-danh-muc">
             <c:forEach var="category" items="${randomCategory}">
                 <a href="${pageContext.request.contextPath}/list-book?sortBy=created_at&sortDir=desc&category=${category.id}&free=&page=1">                    <div class="danh-muc">
-                        <i class="${category.icon}"></i>
-                        <p>${category.name}</p>
-                    </div>
+                    <i class="${category.icon}"></i>
+                    <p>${category.name}</p>
+                </div>
                 </a>
             </c:forEach>
         </div>
@@ -80,7 +80,7 @@
                                 <c:otherwise>
                                     <button type="button"
                                             class="favorite-btn"
-                                            onclick="alert('Vui lòng đăng nhập để sử dụng chức năng này')">
+                                            data-guest-wishlist="true">
                                         <i class="fa-regular fa-heart"></i>
                                     </button>
                                 </c:otherwise>
@@ -158,7 +158,7 @@
                                     <c:otherwise>
                                         <button type="button"
                                                 class="favorite-btn"
-                                                onclick="alert('Vui lòng đăng nhập để sử dụng chức năng này')">
+                                                data-guest-wishlist="true">
                                             <i class="fa-regular fa-heart"></i>
                                         </button>
                                     </c:otherwise>
@@ -201,7 +201,7 @@
                         </c:forEach>
                     </div>
 
-                     <a href="list-book" id="xem-tat-ca" class="xem-tat-ca">Xem tất cả</a>
+                    <a href="list-book" id="xem-tat-ca" class="xem-tat-ca">Xem tất cả</a>
                 </div>
             </div>
 
@@ -255,7 +255,7 @@
                                         <c:otherwise>
                                             <button type="button"
                                                     class="favorite-btn"
-                                                    onclick="alert('Vui lòng đăng nhập để sử dụng chức năng này')">
+                                                    data-guest-wishlist="true">
                                                 <i class="fa-regular fa-heart"></i>
                                             </button>
                                         </c:otherwise>
@@ -374,9 +374,14 @@
 </body>
 <script>
     const ctx = "${pageContext.request.contextPath}";
+    window.ctxPath = "${pageContext.request.contextPath}";
 </script>
 <script src="${pageContext.request.contextPath}/assets/js/component.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/home.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/product-card.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/backToTopBtn.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/cart.js"></script>
+
+
+</body>
 </html>

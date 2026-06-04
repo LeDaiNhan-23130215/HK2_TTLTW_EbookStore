@@ -49,6 +49,24 @@
                      ======================================================== --%>
                 <c:if test="${empty param.step}">
 
+                    <%-- Thanh tiến trình --%>
+                    <div class="fp-steps">
+                        <div class="fp-step active">
+                            <div class="fp-step-circle">1</div>
+                            <span>Gửi mã OTP</span>
+                        </div>
+                        <div class="fp-step-line"></div>
+                        <div class="fp-step">
+                            <div class="fp-step-circle">2</div>
+                            <span>Xác thực OTP</span>
+                        </div>
+                        <div class="fp-step-line"></div>
+                        <div class="fp-step">
+                            <div class="fp-step-circle">3</div>
+                            <span>${isOAuthOnly ? 'Tạo mật khẩu' : 'Đổi mật khẩu'}</span>
+                        </div>
+                    </div>
+
                     <%-- OAuth info banner --%>
                     <c:if test="${isOAuthOnly}">
                         <div class="cp-oauth-notice">
@@ -83,6 +101,24 @@
                      ======================================================== --%>
                 <c:if test="${param.step == 'verify'}">
                     <input type="hidden" name="step" value="verify"/>
+
+                    <%-- Thanh tiến trình --%>
+                    <div class="fp-steps">
+                        <div class="fp-step done">
+                            <div class="fp-step-circle"><i class="fa-solid fa-check"></i></div>
+                            <span>Gửi mã OTP</span>
+                        </div>
+                        <div class="fp-step-line active"></div>
+                        <div class="fp-step active">
+                            <div class="fp-step-circle">2</div>
+                            <span>Xác thực OTP</span>
+                        </div>
+                        <div class="fp-step-line"></div>
+                        <div class="fp-step">
+                            <div class="fp-step-circle">3</div>
+                            <span>${isOAuthOnly ? 'Tạo mật khẩu' : 'Đổi mật khẩu'}</span>
+                        </div>
+                    </div>
 
                     <%-- Lỗi OTP --%>
                     <c:if test="${not empty param.error}">
@@ -156,6 +192,24 @@
                      ======================================================== --%>
                 <c:if test="${param.step == 'reset'}">
 
+                    <%-- Thanh tiến trình --%>
+                    <div class="fp-steps">
+                        <div class="fp-step done">
+                            <div class="fp-step-circle"><i class="fa-solid fa-check"></i></div>
+                            <span>Gửi mã OTP</span>
+                        </div>
+                        <div class="fp-step-line active"></div>
+                        <div class="fp-step done">
+                            <div class="fp-step-circle"><i class="fa-solid fa-check"></i></div>
+                            <span>Xác thực OTP</span>
+                        </div>
+                        <div class="fp-step-line active"></div>
+                        <div class="fp-step active">
+                            <div class="fp-step-circle">3</div>
+                            <span>${isOAuthOnly ? 'Tạo mật khẩu' : 'Đổi mật khẩu'}</span>
+                        </div>
+                    </div>
+
                     <%-- Lỗi --%>
                     <c:if test="${not empty param.error}">
                         <p class="fp-error-box">
@@ -225,7 +279,7 @@
             </div>
         </form>
     </div>
-</div><
+</div>
 
 <jsp:include page="/WEB-INF/views/footer.jsp"/>
 <script src="${pageContext.request.contextPath}/assets/js/component.js"></script>

@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/base.css"/>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/login.css"/>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/components.css"/>
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/toast.css"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/assets/img/ebook-logo2.png"/>
 </head>
@@ -20,31 +21,21 @@
   <div class="container">
     <p class="header">Đăng nhập</p>
 
-    <%-- Toast: đổi mật khẩu thành công --%>
-    <c:if test="${param.msg == 'password_changed'}">
-      <div id="toastChangeOk" style="position:fixed;top:20px;right:20px;z-index:9999;
-               background:#27ae60;color:#fff;padding:14px 22px;border-radius:8px;
-               font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,.25);">
-        ✅ Mật khẩu đã được đổi thành công! Vui lòng đăng nhập lại.
-      </div>
-      <script>setTimeout(function(){var el=document.getElementById('toastChangeOk');if(el)el.remove();},4000);</script>
+    <c:if test="${param.msg == 'signup_success'}">
+      <div class="toast toast-success">✅ Đăng ký thành công! Vui lòng đăng nhập.</div>
     </c:if>
-
-    <%-- Toast: reset / tạo mật khẩu thành công --%>
+    <c:if test="${param.msg == 'password_changed'}">
+      <div class="toast toast-success">✅ Mật khẩu đã được đổi thành công! Vui lòng đăng nhập lại.</div>
+    </c:if>
     <c:if test="${param.msg == 'reset_success'}">
-      <div id="toastResetOk" style="position:fixed;top:20px;right:20px;z-index:9999;
-               background:#27ae60;color:#fff;padding:14px 22px;border-radius:8px;
-               font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,.25);">
-        <c:choose>
-          <c:when test="${param.created == 'true'}">
-            ✅ Tạo mật khẩu thành công! Bạn có thể đăng nhập bằng email và mật khẩu vừa tạo.
-          </c:when>
-          <c:otherwise>
-            ✅ Đổi mật khẩu thành công! Vui lòng đăng nhập lại.
-          </c:otherwise>
-        </c:choose>
-      </div>
-      <script>setTimeout(function(){document.getElementById('toastResetOk').remove();},5000);</script>
+      <c:choose>
+        <c:when test="${param.created == 'true'}">
+          <div class="toast toast-success">✅ Tạo mật khẩu thành công! Bạn có thể đăng nhập bằng email và mật khẩu vừa tạo.</div>
+        </c:when>
+        <c:otherwise>
+          <div class="toast toast-success">✅ Đổi mật khẩu thành công! Vui lòng đăng nhập lại.</div>
+        </c:otherwise>
+      </c:choose>
     </c:if>
 
     <div class="input">
@@ -113,5 +104,6 @@
 <jsp:include page="/WEB-INF/views/footer.jsp"/>
 <script src="${pageContext.request.contextPath}/assets/js/component.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/login.js" defer></script>
+<script src="${pageContext.request.contextPath}/assets/js/toast.js" defer></script>
 </body>
 </html>
