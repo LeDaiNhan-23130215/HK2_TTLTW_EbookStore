@@ -35,7 +35,9 @@
         STATUS CODE:
         ${pageContext.errorData.statusCode}
     </p>
-    <a href="${pageContext.request.contextPath}/home" class="back-to-home-error">
+    <a href="${pageContext.request.contextPath}/home"
+       class="back-to-home-error"
+       target = "_top">
         Quay về trang chủ
     </a>
 </div>
