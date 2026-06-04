@@ -13,7 +13,6 @@ import java.io.IOException;
 public class LogGlobalFilter implements Filter {
     private static final Logger logger = LogManager.getLogger(LogGlobalFilter.class);
     private static final String LOG_PREFIX = "[LOG_GLOBAL_FILTER]";
-
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
@@ -24,13 +23,8 @@ public class LogGlobalFilter implements Filter {
             chain.doFilter(request, response);
         } catch (Exception e) {
             logger.error("{} Unhandled exception at URI: {}", LOG_PREFIX, req.getRequestURI(), e);
-
-            request.setAttribute("errorMessage", e.getMessage());
-            if (!resp.isCommitted())  {
-                RequestDispatcher dispatcher = request.getRequestDispatcher("/error/general-error.jsp");
-
-                dispatcher.forward(request, response);
-            }
+           req.getSession().setAttribute("errorMessage", e.getMessage());
+            resp.sendRedirect(((HttpServletRequest) request).getContextPath() + "/error");
         }
 
 

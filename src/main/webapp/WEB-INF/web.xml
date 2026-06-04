@@ -4,7 +4,7 @@
          version="6.0">
     <error-page>
         <error-code>404</error-code>
-        <location> /error/404.jsp</location>
+        <location>/error/404.jsp</location>
     </error-page>
 
     <error-page>
@@ -16,6 +16,7 @@
         <exception-type>java.lang.Exception</exception-type>
         <location>/error/general-error.jsp</location>
     </error-page>
+
     <!-- Session timeout: 2 tuần = 20160 phút -->
     <session-config>
         <session-timeout>20160</session-timeout>

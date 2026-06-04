@@ -20,7 +20,6 @@
           href="${pageContext.request.contextPath}/assets/img/ebook-logo2.png"/>
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
 </head>
 <body>
 <div class = "box">
@@ -39,7 +38,9 @@
             </c:otherwise>
         </c:choose>
     </div>
-    <a href="${pageContext.request.contextPath}/home" class="back-to-home-error">
+    <a href="${pageContext.request.contextPath}/home"
+       class="back-to-home-error"
+        target="_top">
         Quay về trang chủ
     </a>
 
