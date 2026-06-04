@@ -1,6 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
-
 <footer id="siteFooter">
     <div class="topFooter">
         <div class="left-container">
@@ -16,12 +15,18 @@
 
         <div class="right-container">
             <p>Kết nối với chúng tôi:</p>
-            <img src="assets/img/zalo-logo.png" alt="zalo" class="zalo-logo" />
-            <img
-                    src="assets/img/facebook-logo.png"
-                    alt="facebook"
-                    class="facebook-logo"
-            />
+            <a href = "https://zalo.me/0354300905" target="_blank">
+            <img src="assets/img/zalo-logo.png"
+                 alt="zalo"
+                 class="zalo-logo" />
+            </a>
+            <a href="https://facebook.com/groups/1001016509184228/" target="_blank">
+                <img
+                        src="assets/img/facebook-logo.png"
+                        alt="facebook"
+                        class="facebook-logo"
+                />
+            </a>
         </div>
     </div>
 
@@ -50,12 +55,22 @@
             >
 
             <p>
-                <a href="tel:0354300905" class="phoneNumber">
-                    <i class="fa-solid fa-phone phoneIcon"></i>
-                0354.30.09.05
+                <a href="tel:0354300905"
+                   class="phoneNumber"
+                   onclick ="handlePhoneClick(event)">
+                        <i class="fa-solid fa-phone phoneIcon"></i>
+                        0354.30.09.05
                 </a>
             </p>
-            <p><i class="fa-solid fa-envelope"></i> ebookstore@gmail.com</p>
+            <p> <a href="mailto:23130215@st.hcmuaf.edu.vn
+                   ?subject= Liên hệ từ EbookStore
+                   &body = Xin chào EBookStore,"
+                    onclick="handleEmailClick(event)"
+            >
+                <i class="fa-solid fa-envelope"></i>
+                Email liên hệ: 23130215@st.hcmuaf.edu.vn
+            </a>
+            </p>
         </div>
 
         <div class="cs-hd-dm">
@@ -89,7 +104,8 @@
 
             <div class="kn-tt">
                 <h3>GÓP Ý KHIẾU NẠI</h3>
-                <a href="tel:0354300905">0354.30.09.05</a>
+                <a href="tel:0354300905"
+                   onclick="handlePhoneClick(event)">0354.30.09.05</a>
                 <div class="footer-feedback">
                     <p>Gửi feedback của bạn tại đây:</p>
                     <a href="feedback" class="feedback-button">
@@ -113,8 +129,18 @@
             </div>
         </div>
     </div>
-
     <div class="footer-bottom">
         <p>Chúc bạn tìm được eBook ưng ý!!!</p>
     </div>
 </footer>
+<script>
+    function handleEmailClick(event) {
+        if (window.innerWidth >= 768) {
+            event.preventDefault();
+            navigator.clipboard.writeText("2130215@st.hcmuaf.edu.vn")
+                .then(() => {
+                    showToast("📋 Đã sao chép email!", "success");
+                });
+        }
+    }
+</script>

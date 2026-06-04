@@ -379,7 +379,4 @@
 <script src="${pageContext.request.contextPath}/assets/js/home.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/product-card.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/backToTopBtn.js"></script>
-
-
-</body>
 </html>
