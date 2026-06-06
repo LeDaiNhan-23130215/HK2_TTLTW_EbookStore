@@ -11,7 +11,7 @@ public class ImageServices {
 
     private final ImageDAO imageDAO = new ImageDAO();
     private final EbookImageDAO ebookImageDAO = new EbookImageDAO();
-
+    private final CloudinaryService cloudinaryService = new CloudinaryService();
     /* ================= GET ================= */
 
     public List<Image> getImagesByEbookID(int ebookID) {
@@ -48,9 +48,28 @@ public class ImageServices {
     public void removeAllImagesOfEbook(int ebookID) {
         ebookImageDAO.removeByEbookID(ebookID);
     }
-    public static void main(String[] args) {
-        ImageServices imgS = new ImageServices();
-        System.out.println(imgS.getThumbnail(283).getImgLink());
+
+
+    public void migratePendingImages() {
+        List<Integer> ids =
+                imageDAO.getPendingImageIds();
+
+        for (Integer imageId : ids) {
+            try {
+                String originalUrl =
+                        imageDAO.getOriginalUrl(imageId);
+
+                String cloudinaryUrl =
+                        cloudinaryService
+                                .uploadImageFromUrl(
+                                        originalUrl);
+                imageDAO.markMigrated(
+                        imageId,
+                        cloudinaryUrl);
+            } catch (Exception e) {
+                imageDAO.markFailed(imageId);
+            }
+        }
     }
 }
 
