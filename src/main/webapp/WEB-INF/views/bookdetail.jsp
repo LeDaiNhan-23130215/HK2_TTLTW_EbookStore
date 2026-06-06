@@ -44,7 +44,7 @@
     <!-- LEFT: IMAGE -->
     <div class="col-left gallery-section">
       <div class="main-image-box">
-        <img src="${ebook.images[0].imgLink}" alt="${ebook.title}">
+        <img src="${ebook.images[0].imgLink} alt="${ebook.title}">
       </div>
     </div>
 

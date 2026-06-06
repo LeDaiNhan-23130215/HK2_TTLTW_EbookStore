@@ -57,7 +57,7 @@ public class CheckoutDetailDAO {
         return list;
     }
 
-    public List<Integer> getEbookIdsTopSale() {
+    public List<Integer> getEbookIdsTopSale(int limit) {
         logger.info("{} Executing getEbookIdsTopSale", LOG_PREFIX);
         List<Integer> list = new ArrayList<>();
         String sql = """
@@ -67,11 +67,11 @@ public class CheckoutDetailDAO {
                 FROM checkoutdetail
                 GROUP BY bookID
                 ORDER BY total_sold DESC
-                LIMIT 7;
+                LIMIT ?;
                 """;
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
-
+            ps.setInt(1, limit);
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {

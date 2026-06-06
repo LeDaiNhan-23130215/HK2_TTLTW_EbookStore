@@ -28,4 +28,5 @@ public class EbookProductCardView {
     public double getPrice() {
         return price;
     }
+
 }

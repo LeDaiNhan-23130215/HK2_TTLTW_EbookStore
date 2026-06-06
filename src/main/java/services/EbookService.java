@@ -18,23 +18,11 @@ public class EbookService {
     private final CheckoutDetailDAO checkoutDetailDAO = new CheckoutDetailDAO();
     private final EbookDAO ebookDAO = new EbookDAO();
     private final CategoryDAO categoryDAO = new CategoryDAO();
-    private final ImageServices imageService = new ImageServices();
 
     private static final int PAGE_SIZE = 24;
 
-    /* ================= PRODUCT CARDS ================= */
-
-    public List<EbookProductCardView> getProductCards() {
-        List<Ebook> ebooks = ebookDAO.findAll();
-        return buildProductCards(ebooks);
-    }
-
     public List<EbookProductCardView> getNewEbookProductCards() {
-        List<Ebook> ebooks = ebookDAO.getNewBook();
-        for(Ebook eb : ebooks) {
-            eb.setImages(imageService.getImagesByEbookID(eb.getId()));
-        }
-        return buildProductCards(ebooks);
+        return ebookDAO.getNewEbookCardsWithThumbnail(15);
     }
 
     public PageView<EbookProductCardView> getBooks(int page, EbookFilterView filter) {
@@ -58,15 +46,12 @@ public class EbookService {
         return PAGE_SIZE;
     }
 
-    /* ================= CATEGORY ================= */
-
     public List<Category> getAllCategories() {
         return categoryDAO.getAllCategory();
     }
     public Category getCategoryById(Integer id) {
         return categoryDAO.getCategoryById(id);
     }
-    /* ================= BUSINESS ================= */
 
     public String generateEBookCode(int categoryId) {
         String categoryCode = categoryDAO.getCategoryCodeById(categoryId);
@@ -76,51 +61,18 @@ public class EbookService {
         return categoryCode + String.format("%03d", nextNumber);
     }
 
-    /* ================= PRIVATE ================= */
-
-    private List<EbookProductCardView> buildProductCards(List<Ebook> ebooks) {
-
-        return ebooks.stream()
-                .map(this::toProductCard)
-                .collect(Collectors.toList());
-    }
-
-    private EbookProductCardView toProductCard(Ebook ebook) {
-
-        String imgLink = "/assets/img/no-image.png";
-
-        if (ebook.getImages() != null && !ebook.getImages().isEmpty()) {
-            imgLink = ebook.getImages().get(0).getImgLink();
-        }
-
-        return new EbookProductCardView(
-                ebook.getId(),
-                ebook.getTitle(),
-                ebook.getPrice(),
-                imgLink
-        );
-    }
-
     public List<EbookProductCardView> getTopSaleEbookProductCards() {
-        List<Integer> bid = checkoutDetailDAO.getEbookIdsTopSale();
-        List<Ebook> ebooks = new ArrayList<Ebook>();
+        List<Integer> bid = checkoutDetailDAO.getEbookIdsTopSale(8);
+        List<EbookProductCardView> ebooks = new ArrayList<>();
 
         for(Integer id : bid) {
-            Ebook eb = ebookDAO.getEbookById(id);
-            ebooks.add(eb);
+            EbookProductCardView ebv = ebookDAO.getEbookCardsWithThumbnailById(id);
+            ebooks.add(ebv);
         }
-        for(Ebook eb : ebooks) {
-            eb.setImages(imageService.getImagesByEbookID(eb.getId()));
-        }
-        return buildProductCards(ebooks);
+        return ebooks;
     }
 
-
     public List<EbookProductCardView> getRandomEbook() {
-        List<Ebook> eb = ebookDAO.getRandomEbook(8);
-        for(Ebook ebook : eb) {
-            ebook.setImages(imageService.getImagesByEbookID(ebook.getId()));
-        }
-        return buildProductCards(eb);
+        return ebookDAO.getRandomEbookCardsWithThumbnail(8);
     }
 }

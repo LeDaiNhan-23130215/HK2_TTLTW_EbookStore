@@ -1,5 +1,6 @@
 package DAO;
 
+import DTO.EbookProductCardView;
 import models.Image;
 import utils.DBConnection;
 import org.slf4j.Logger;
@@ -73,7 +74,17 @@ public class ImageDAO {
         List<Image> list = new ArrayList<>();
 
         String sql = """
-            SELECT i.*
+            SELECT
+                i.id,
+                i.imgName,
+                CASE
+                    WHEN i.migration_status = 'MIGRATED'
+                         AND i.cloudinary_url IS NOT NULL
+                         AND i.cloudinary_url <> ''
+                    THEN i.cloudinary_url
+                    ELSE i.imgLink
+                END AS imgLink,
+                i.imgStatus
             FROM ebookimage ei
             JOIN images i ON ei.imgID = i.id
             WHERE ei.ebookID = ?
@@ -101,13 +112,23 @@ public class ImageDAO {
     public Image getFirstImageByEbookID(int ebookID) {
         logger.info("{} Executing getFirstImageByEbookID for ebookID: {}", LOG_PREFIX, ebookID);
         String sql = """
-            SELECT i.*
-            FROM ebookimage ei
-            JOIN images i ON ei.imgID = i.id
-            WHERE ei.ebookID = ?
-              AND i.imgStatus = 'ACTIVE'
-            ORDER BY i.id ASC
-            LIMIT 1
+                SELECT
+                    i.id,
+                    i.imgName,
+                    CASE
+                        WHEN i.migration_status = 'MIGRATED'
+                             AND i.cloudinary_url IS NOT NULL
+                             AND i.cloudinary_url <> ''
+                        THEN i.cloudinary_url
+                        ELSE i.imgLink
+                    END AS imgLink,
+                    i.imgStatus
+                FROM ebookimage ei
+                JOIN images i ON ei.imgID = i.id
+                WHERE ei.ebookID = ?
+                  AND i.imgStatus = 'ACTIVE'
+                ORDER BY i.id ASC
+                LIMIT 1
         """;
 
         try (Connection conn = DBConnection.getConnection();
@@ -136,5 +157,93 @@ public class ImageDAO {
                 rs.getString("imgLink"),
                 rs.getString("imgStatus")
         );
+    }
+
+    public List<Integer> getImageIdsForMigration() {
+        List<Integer> ids = new ArrayList<>();
+
+                String sql = """
+                SELECT id
+                FROM images
+                WHERE migration_status <> 'MIGRATED'
+            """;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                ids.add(rs.getInt("id"));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return ids;
+    }
+
+    public String getOriginalUrl(int imageId) {
+                String sql = """
+                SELECT imgLink
+                FROM images
+                WHERE id = ?
+            """;
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, imageId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("imgLink");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return null;
+    }
+
+    public void markMigrated(int imageId, String cloudinaryUrl) {
+
+        String sql = """
+        UPDATE images
+        SET cloudinary_url = ?,
+            migration_status = 'MIGRATED'
+        WHERE id = ?
+    """;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, cloudinaryUrl);
+            ps.setInt(2, imageId);
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void markFailed(int imageId) {
+
+        String sql = """
+        UPDATE images
+        SET migration_status = 'FAILED'
+        WHERE id = ?
+    """;
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, imageId);
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
