@@ -192,17 +192,29 @@ public class EbookDAO {
     public List<EbookProductCardView> findProductCards(int page, int pageSize, EbookFilterView filter) {
         logger.info("{} Finding product cards - Page: {}, Size: {}", LOG_PREFIX, page, pageSize);
         List<EbookProductCardView> result = new ArrayList<>();
-
         StringBuilder sql = new StringBuilder("""
-                    SELECT e.id, e.title, e.price, MIN(i.imgLink) AS imgLink
-                    FROM ebook e
-                    JOIN ebookimage ie ON e.id = ie.ebookID
-                    JOIN images i ON ie.imgID = i.id
-                    LEFT JOIN ebookauthor ea ON e.id = ea.ebookID
-                    LEFT JOIN author a ON ea.authorID = a.id
-                    LEFT JOIN files f ON f.id = e.id
-                    WHERE i.imgStatus = 'ACTIVE'
-                    AND e.status = 'ACTIVE'
+                        SELECT
+                                e.id,
+                                e.title,
+                                e.price,
+                                COALESCE(
+                                    MIN(CASE
+                                        WHEN i.migration_status = 'MIGRATED'
+                                             AND i.cloudinary_url IS NOT NULL
+                                             AND i.cloudinary_url <> ''
+                                        THEN i.cloudinary_url
+                                    END),
+                                    MIN(i.imgLink),
+                                    '/assets/img/no-image.png'
+                                ) AS thumbnail
+                            FROM ebook e
+                            LEFT JOIN ebookimage ei ON e.id = ei.ebookID
+                            LEFT JOIN images i ON ei.imgID = i.id
+                            LEFT JOIN ebookauthor ea ON e.id = ea.ebookID
+                            LEFT JOIN author a ON ea.authorID = a.id
+                            LEFT JOIN files f ON f.id = e.id
+                            WHERE i.imgStatus = 'ACTIVE'
+                            AND e.status = 'ACTIVE'
                 """);
 
         List<Object> params = new ArrayList<>();
@@ -235,7 +247,7 @@ public class EbookDAO {
                         rs.getInt("id"),
                         rs.getString("title"),
                         rs.getDouble("price"),
-                        rs.getString("imgLink")
+                        rs.getString("thumbnail")
                 ));
             }
             logger.debug("{} Found {} product cards", LOG_PREFIX, result.size());
@@ -409,32 +421,6 @@ public class EbookDAO {
         return null;
     }
 
-    public List<Ebook> getRandomEbook(int numberOfBook) {
-        logger.info("{} Fetching {} random ebooks", LOG_PREFIX, numberOfBook);
-        List<Ebook> ebooks = new ArrayList<>();
-        String sql = "SELECT * FROM ebook WHERE status = 'active' ORDER BY RAND() LIMIT ?";
-        try (Connection connection = DBConnection.getConnection();
-             PreparedStatement stm = connection.prepareStatement(sql)) {
-            stm.setInt(1, numberOfBook);
-            ResultSet rs = stm.executeQuery();
-            while (rs.next()) {
-                ebooks.add(new Ebook(
-                        rs.getInt("id"),
-                        rs.getString("ebookCode"),
-                        rs.getString("title"),
-                        rs.getDouble("price"),
-                        rs.getString("description"),
-                        rs.getInt("categoryID"),
-                        rs.getInt("fileID"),
-                        rs.getString("status")
-                ));
-            }
-            return ebooks;
-        } catch (SQLException e) {
-            logger.error("{} Error fetching random ebooks", LOG_PREFIX, e);
-            throw new RuntimeException(e);
-        }
-    }
 
     public List<Ebook> getSimilarByCategory(int categoryID, int excludeEbookId, int limit) {
         logger.debug("{} Fetching {} similar books for category: {} (excluding ID: {})", LOG_PREFIX, limit, categoryID, excludeEbookId);
@@ -525,5 +511,152 @@ public class EbookDAO {
         }
         return list;
 
+    }
+
+    public List<EbookProductCardView> getNewEbookCardsWithThumbnail(int limit) {
+        List<EbookProductCardView> result = new ArrayList<>();
+        String sql = """
+            SELECT e.id,
+                e.title,
+                e.price,
+                COALESCE(
+                    MIN(CASE
+                        WHEN i.migration_status = 'MIGRATED'
+                                 AND i.cloudinary_url IS NOT NULL
+                                 AND i.cloudinary_url <> ''
+                            THEN i.cloudinary_url
+                    END),
+                    MIN(i.imgLink),
+                    '/assets/img/no-image.png'
+                ) AS thumbnail
+            FROM ebook e
+            LEFT JOIN ebookimage ei ON e.id = ei.ebookID
+            LEFT JOIN images i ON ei.imgID = i.id
+            WHERE e.status = 'ACTIVE'
+            GROUP BY e.id, e.title, e.price
+            ORDER BY e.id DESC
+            LIMIT ?
+        """;
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, limit);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                result.add(new EbookProductCardView(
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getDouble("price"),
+                        rs.getString("thumbnail")
+                ));
+            }
+
+            logger.info("{} Loaded {} ebook cards", LOG_PREFIX, result.size());
+
+        } catch (SQLException e) {
+            logger.error("{} Error in getEbookCardsWithThumbnail", LOG_PREFIX, e);
+            throw new RuntimeException(e);
+        }
+        return result;
+    }
+
+    public List<EbookProductCardView> getRandomEbookCardsWithThumbnail(int limit) {
+        List<EbookProductCardView> result = new ArrayList<>();
+        String sql = """
+            SELECT
+                e.id,
+                e.title,
+                e.price,
+                COALESCE(
+                    MIN(CASE 
+                        WHEN i.migration_status = 'MIGRATED'
+                             AND i.cloudinary_url IS NOT NULL
+                             AND i.cloudinary_url <> ''
+                        THEN i.cloudinary_url
+                    END),
+                    MIN(i.imgLink),
+                    '/assets/img/no-image.png'
+                ) AS thumbnail
+            FROM ebook e
+            LEFT JOIN ebookimage ei ON e.id = ei.ebookID
+            LEFT JOIN images i ON ei.imgID = i.id
+            WHERE e.status = 'ACTIVE'
+            GROUP BY e.id, e.title, e.price
+            ORDER BY RAND()
+            LIMIT ?
+        """;
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, limit);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                result.add(new EbookProductCardView(
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getDouble("price"),
+                        rs.getString("thumbnail")
+                ));
+            }
+
+            logger.info("{} Loaded random {} ebook cards", LOG_PREFIX, result.size());
+
+        } catch (SQLException e) {
+            logger.error("{} Error in getEbookCardsWithThumbnail", LOG_PREFIX, e);
+            throw new RuntimeException(e);
+        }
+        return result;
+    }
+
+    public EbookProductCardView getEbookCardsWithThumbnailById(int id) {
+        EbookProductCardView result = null;
+        String sql = """
+            SELECT 
+                e.id,
+                e.title,
+                e.price,
+                COALESCE(
+                    MIN(CASE 
+                        WHEN i.migration_status = 'MIGRATED'
+                             AND i.cloudinary_url IS NOT NULL
+                             AND i.cloudinary_url <> ''
+                        THEN i.cloudinary_url
+                    END),
+                    MIN(i.imgLink),
+                    '/assets/img/no-image.png'
+                ) AS thumbnail
+            FROM ebook e
+            LEFT JOIN ebookimage ei ON e.id = ei.ebookID
+            LEFT JOIN images i ON ei.imgID = i.id
+            WHERE e.status = 'ACTIVE' 
+            AND e.id = ?
+        """;
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                result = new EbookProductCardView(
+                        rs.getInt("id"),
+                        rs.getString("title"),
+                        rs.getDouble("price"),
+                        rs.getString("thumbnail")
+                );
+            }
+
+            logger.info("{} Loaded ebook cards with id: {}", LOG_PREFIX, id);
+
+        } catch (SQLException e) {
+            logger.error("{} Error in getEbookCardsWithThumbnail", LOG_PREFIX, e);
+            throw new RuntimeException(e);
+        }
+        return result;
     }
 }
