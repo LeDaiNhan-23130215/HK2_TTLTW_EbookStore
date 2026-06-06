@@ -64,7 +64,7 @@ public class CheckoutDetailDAO {
                 SELECT
                     bookID,
                     COUNT(*) AS total_sold
-                FROM checkoutDetail
+                FROM checkoutdetail
                 GROUP BY bookID
                 ORDER BY total_sold DESC
                 LIMIT 7;

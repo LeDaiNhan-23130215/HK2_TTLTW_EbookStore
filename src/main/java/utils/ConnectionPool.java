@@ -13,9 +13,10 @@ public class ConnectionPool {
 
     private static ConnectionPool instance;
 
-    private final String URL = "jdbc:mysql://localhost:3306/ebookstore?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
-    private final String USER = "root";
-    private final String PASS = "LeDaiNhan05012005!";
+    private final String URL = DBConfig.getUrl();
+    private final String USER = DBConfig.getUsername();
+    private final String PASS = DBConfig.getPassword();
+    private final String DRIVER = DBConfig.getDriver();
 
     private HikariDataSource ds;
 
@@ -26,7 +27,7 @@ public class ConnectionPool {
             config.setJdbcUrl(URL);
             config.setUsername(USER);
             config.setPassword(PASS);
-            config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+            config.setDriverClassName(DRIVER);
 
             config.setMaximumPoolSize(5);
             config.setMinimumIdle(2);
@@ -63,16 +64,6 @@ public class ConnectionPool {
         if (ds != null && !ds.isClosed()) {
             ds.close();
             logger.info("{} Database Connection Pool safely flushed, closed, and unregistered.", LOG_PREFIX);
-        }
-    }
-
-    public static void main(String[] args) {
-        logger.info("{} Executing standalone development sandbox driver availability sanity diagnostics...", LOG_PREFIX);
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            logger.info("{} Driver diagnostic validation check: SUCCESS. MySQL connector driver is available on the application classpath.", LOG_PREFIX);
-        } catch (ClassNotFoundException e) {
-            logger.error("{} Driver diagnostic validation check: FAILED. 'com.mysql.cj.jdbc.Driver' is missing from runtime context resource paths: ", LOG_PREFIX, e);
         }
     }
 }
