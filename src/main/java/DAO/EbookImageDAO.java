@@ -116,4 +116,70 @@ public class EbookImageDAO {
             throw new RuntimeException(e);
         }
     }
+
+    public Image getCoverImageByEbookId(int ebookId) {
+                String sql = """
+                SELECT i.*
+                FROM ebookimage ei
+                JOIN images i ON ei.imgID = i.id
+                WHERE ei.ebookID = ?
+                  AND ei.isCover = 1
+                  AND i.imgStatus = 'active'
+                LIMIT 1
+            """;
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, ebookId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return mapImage(rs);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+    private Image mapImage(ResultSet rs) throws SQLException {
+        return new Image(
+                rs.getInt("id"),
+                rs.getString("imgName"),
+                rs.getString("imgLink"),
+                rs.getString("imgStatus")
+        );
+    }
+
+    public void clearCoverByEbookId(int ebookId) {
+        String sql = """
+            UPDATE ebookimage
+            SET isCover = 0
+            WHERE ebookID = ?
+        """;
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, ebookId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void setCover(int ebookId, int imageId) {
+        String sql = """
+        UPDATE ebookimage
+        SET isCover = 1
+        WHERE ebookID = ? AND imgID = ?
+    """;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, ebookId);
+            ps.setInt(2, imageId);
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

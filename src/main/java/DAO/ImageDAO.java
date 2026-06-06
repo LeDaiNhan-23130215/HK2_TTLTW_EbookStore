@@ -72,7 +72,6 @@ public class ImageDAO {
     public List<Image> getByEbookID(int ebookID) {
         logger.info("{} Executing getByEbookID for ebookID: {}", LOG_PREFIX, ebookID);
         List<Image> list = new ArrayList<>();
-
         String sql = """
             SELECT
                 i.id,
@@ -89,6 +88,8 @@ public class ImageDAO {
             JOIN images i ON ei.imgID = i.id
             WHERE ei.ebookID = ?
               AND i.imgStatus = 'ACTIVE'
+            ORDER BY ei.isCover DESC, i.id ASC
+            LIMIT 1
         """;
 
         try (Connection conn = DBConnection.getConnection();
@@ -161,7 +162,6 @@ public class ImageDAO {
 
     public List<Integer> getImageIdsForMigration() {
         List<Integer> ids = new ArrayList<>();
-
                 String sql = """
                 SELECT id
                 FROM images

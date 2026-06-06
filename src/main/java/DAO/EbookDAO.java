@@ -533,6 +533,7 @@ public class EbookDAO {
             LEFT JOIN ebookimage ei ON e.id = ei.ebookID
             LEFT JOIN images i ON ei.imgID = i.id
             WHERE e.status = 'ACTIVE'
+            AND ei.isCover = 1
             GROUP BY e.id, e.title, e.price
             ORDER BY e.id DESC
             LIMIT ?
@@ -583,6 +584,7 @@ public class EbookDAO {
             LEFT JOIN ebookimage ei ON e.id = ei.ebookID
             LEFT JOIN images i ON ei.imgID = i.id
             WHERE e.status = 'ACTIVE'
+             AND ei.isCover = 1
             GROUP BY e.id, e.title, e.price
             ORDER BY RAND()
             LIMIT ?
@@ -632,7 +634,8 @@ public class EbookDAO {
             FROM ebook e
             LEFT JOIN ebookimage ei ON e.id = ei.ebookID
             LEFT JOIN images i ON ei.imgID = i.id
-            WHERE e.status = 'ACTIVE' 
+            WHERE e.status = 'ACTIVE'
+            AND ei.isCover = 1
             AND e.id = ?
         """;
 
