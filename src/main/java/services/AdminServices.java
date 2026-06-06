@@ -395,7 +395,7 @@ public class AdminServices {
 
     //Image
     public List<Image> getListImagesByEbookID(int ebookID) {
-        return imageServices.getImagesByEbookID(ebookID);
+        return imageServices.getImageByEbookID(ebookID);
     }
 
     public void insertImage(int ebookID, List<String> urls, String ebookTitle) {

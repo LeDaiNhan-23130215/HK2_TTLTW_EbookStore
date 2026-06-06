@@ -55,7 +55,8 @@
             <h2><i class="fa-solid fa-pen-to-square"></i> Cập nhật eBook</h2>
 
             <form action="${pageContext.request.contextPath}/admin-ebook"
-                  method="post">
+                  method="post"
+                  enctype="multipart/form-data">
 
                 <input type="hidden" name="action" value="update"/>
                 <input type="hidden" name="id" value="${ebook.id}"/>
@@ -114,7 +115,14 @@
                 <!-- Placeholder cho upload sau này -->
                 <div class="form-row">
                     <label>Ảnh bìa:</label>
-                    <input type="text" disabled value="(Chưa hỗ trợ chỉnh sửa)">
+                    <div style="margin-bottom: 10px;">
+                        <img src="${coverImageURL}" style="width:120px; border-radius:6px;border:1px solid black" alt=""/>
+                    </div>
+                    <label>Upload ảnh:</label>
+                        <input type="file" name="coverFile" accept="image/*">
+                    <br>
+                    <label>Hoặc nhập link ảnh:</label>
+                        <input type="text" name="coverUrl" placeholder="https://..."/>
                 </div>
 
                 <div class="form-row">
