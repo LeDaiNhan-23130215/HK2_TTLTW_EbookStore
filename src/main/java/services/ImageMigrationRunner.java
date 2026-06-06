@@ -6,9 +6,9 @@ public class ImageMigrationRunner {
         ImageServices service = new ImageServices();
 
         try {
-            service.migratePendingImages();
+            service.migrateUnmigratedImages();
         } catch (Exception e) {
-            e.printStackTrace(); // <<< BẮT BUỘC
+            e.printStackTrace();
         }
     }
 }

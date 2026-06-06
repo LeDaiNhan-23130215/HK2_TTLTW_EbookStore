@@ -159,14 +159,14 @@ public class ImageDAO {
         );
     }
 
-    public List<Integer> getPendingImageIds() {
+    public List<Integer> getImageIdsForMigration() {
         List<Integer> ids = new ArrayList<>();
 
-        String sql = """
-        SELECT id
-        FROM images
-        WHERE migration_status = 'PENDING'
-    """;
+                String sql = """
+                SELECT id
+                FROM images
+                WHERE migration_status <> 'MIGRATED'
+            """;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -245,55 +245,5 @@ public class ImageDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public List<EbookProductCardView> getEbookCardsWithThumbnail() {
-
-        List<EbookProductCardView> list = new ArrayList<>();
-
-        String sql = """
-        SELECT 
-            e.id,
-            e.title,
-            e.price,
-            COALESCE(
-                CASE 
-                    WHEN i.migration_status = 'MIGRATED'
-                         AND i.cloudinary_url IS NOT NULL
-                         AND i.cloudinary_url <> ''
-                    THEN i.cloudinary_url
-                    ELSE i.imgLink
-                END,
-                '/assets/img/no-image.png'
-            ) AS thumbnail
-        FROM ebook e
-        LEFT JOIN ebookimage ei 
-            ON e.id = ei.ebookID
-        LEFT JOIN images i 
-            ON ei.imgID = i.id
-        WHERE i.imgStatus = 'ACTIVE'
-        GROUP BY e.id, e.title, e.price
-        ORDER BY e.id DESC
-    """;
-
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-
-                list.add(new EbookProductCardView(
-                        rs.getInt("id"),
-                        rs.getString("title"),
-                        rs.getDouble("price"),
-                        rs.getString("thumbnail")
-                ));
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return list;
     }
 }
