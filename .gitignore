@@ -36,4 +36,7 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
 /src/main/resources/db.properties
+/src/main/resources/cloudinary.properties
+/src/main/resources/oauth.properties

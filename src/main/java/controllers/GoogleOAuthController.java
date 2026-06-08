@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import services.CartService;
 import utils.ActivityType;
 import utils.MailUtil;
+import utils.OAuthConfig;
 
 import java.io.*;
 import java.net.*;
@@ -20,9 +21,6 @@ public class GoogleOAuthController extends HttpServlet {
 
     private static final Logger logger     = LoggerFactory.getLogger(GoogleOAuthController.class);
     private static final String LOG_PREFIX = "[GOOGLE_OAUTH]";
-
-    private static final String CLIENT_ID     = "1077978751095-rlg4b4itubfrkejho04nrvn6dtspsu9j.apps.googleusercontent.com";
-    private static final String CLIENT_SECRET = "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";
 
     private UserDAO     userDAO;
     private CartService cartService;
@@ -44,7 +42,7 @@ public class GoogleOAuthController extends HttpServlet {
             return;
         }
 
-        String code = req.getParameter("code");
+        String code  = req.getParameter("code");
         String state = req.getParameter("state");
         String redirectAfter = null;
 
@@ -64,9 +62,13 @@ public class GoogleOAuthController extends HttpServlet {
             return;
         }
 
-        String redirectUri = req.getScheme() + "://" + req.getServerName()
-                + ":" + req.getServerPort()
-                + req.getContextPath() + "/oauth/google/callback";
+        String host = req.getHeader("Host");
+        boolean isLocal = host != null && host.startsWith("localhost");
+        String redirectUri = isLocal
+                ? OAuthConfig.getRedirectUriLocal()
+                : OAuthConfig.getRedirectUriProd();
+
+        logger.info("{} host={} redirectUri={}", LOG_PREFIX, host, redirectUri);
 
         try {
             String tokenJson   = exchangeCodeForToken(code, redirectUri);
@@ -81,7 +83,7 @@ public class GoogleOAuthController extends HttpServlet {
             String userJson    = fetchGoogleUserInfo(accessToken);
             String googleId    = extractJson(userJson, "sub");
             String email       = extractJson(userJson, "email");
-            String displayName  = extractJson(userJson, "name");
+            String displayName = extractJson(userJson, "name");
 
             if (googleId == null || email == null) {
                 logger.error("{} Failed to get user info. Response: {}", LOG_PREFIX, userJson);
@@ -105,7 +107,7 @@ public class GoogleOAuthController extends HttpServlet {
                         returnUrl = req.getContextPath() + "/home";
                     }
 
-                    session.setAttribute("pendingProvider",  "google");
+                    session.setAttribute("pendingProvider",   "google");
                     session.setAttribute("pendingProviderId", googleId);
                     session.setAttribute("pendingEmail",      email);
                     session.setAttribute("pendingReturnUrl",  returnUrl);
@@ -152,10 +154,10 @@ public class GoogleOAuthController extends HttpServlet {
         conn.setDoOutput(true);
         conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
-        String body = "code="           + URLEncoder.encode(code,          "UTF-8")
-                + "&client_id="        + URLEncoder.encode(CLIENT_ID,     "UTF-8")
-                + "&client_secret="     + URLEncoder.encode(CLIENT_SECRET, "UTF-8")
-                + "&redirect_uri="      + URLEncoder.encode(redirectUri,   "UTF-8")
+        String body = "code="          + URLEncoder.encode(code,                        "UTF-8")
+                + "&client_id="        + URLEncoder.encode(OAuthConfig.getClientId(),     "UTF-8")
+                + "&client_secret="    + URLEncoder.encode(OAuthConfig.getClientSecret(), "UTF-8")
+                + "&redirect_uri="     + URLEncoder.encode(redirectUri,                   "UTF-8")
                 + "&grant_type=authorization_code";
 
         conn.getOutputStream().write(body.getBytes(StandardCharsets.UTF_8));
@@ -219,25 +221,16 @@ public class GoogleOAuthController extends HttpServlet {
                            String redirectAfter) throws IOException {
 
         HttpSession session = req.getSession();
-        session.setAttribute("user", user);
-        session.setAttribute("userID", user.getId());
+        session.setAttribute("user",     user);
+        session.setAttribute("userID",   user.getId());
         session.setAttribute("userName", user.getUsername());
-        session.setAttribute("email", user.getEmail());
+        session.setAttribute("email",    user.getEmail());
         session.setAttribute("phoneNum", user.getPhoneNum());
-        session.setAttribute("role", user.getRole());
+        session.setAttribute("role",     user.getRole());
 
-        if (isNewUser) {
-            session.setAttribute(
-                    "toastSuccess",
-                    "✅ Chào mừng bạn đến với EbookStore! Tài khoản Google đã được tạo thành công."
-            );
-        } else {
-            session.setAttribute(
-                    "toastSuccess",
-                    "✅ Đăng nhập bằng Google thành công!"
-            );
-        }
-
+        session.setAttribute("toastSuccess", isNewUser
+                ? "✅ Chào mừng bạn đến với EbookStore! Tài khoản Google đã được tạo thành công."
+                : "✅ Đăng nhập bằng Google thành công!");
 
         CartController.mergeGuestCartToUser(session, cartService,
                 new DAO.BookshelfDAO(), user.getId());
@@ -246,14 +239,10 @@ public class GoogleOAuthController extends HttpServlet {
         session.setAttribute("totalCartDetails", total);
 
         try {
-            ActivityType activityType = isNewUser
-                    ? ActivityType.REGISTER
-                    : ActivityType.LOGIN;
-
             MailUtil.sendAccountActivity(
                     user.getEmail(),
                     user.getUsername(),
-                    activityType
+                    isNewUser ? ActivityType.REGISTER : ActivityType.LOGIN
             );
         } catch (Exception e) {
             logger.warn("{} Failed to send activity mail", LOG_PREFIX);
@@ -270,6 +259,7 @@ public class GoogleOAuthController extends HttpServlet {
             resp.sendRedirect(sessionRedirect);
             return;
         }
+
         resp.sendRedirect(req.getContextPath() + "/home");
     }
 }
