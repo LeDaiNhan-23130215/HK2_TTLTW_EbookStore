@@ -1,0 +1,62 @@
+/* ============================================================
+   admin-discount.css
+   Link vào admin-discount-form.jsp và admin-discount.jsp
+   ============================================================ */
+
+.form-section {
+    background: #fff;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+.form-section h4 {
+    margin-bottom: 1rem;
+    font-weight: 700;
+    color: #333;
+}
+.target-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: .75rem;
+}
+.target-list label {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    background: #f4f4f4;
+    border-radius: 4px;
+    padding: .3rem .6rem;
+    cursor: pointer;
+    font-size: .88rem;
+}
+.target-list label:hover { background: #e0e7ff; }
+
+.tab-btns { display: flex; gap: .5rem; margin-bottom: .75rem; }
+.tab-btn {
+    padding: .35rem .9rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #f4f4f4;
+    cursor: pointer;
+    font-size: .9rem;
+}
+.tab-btn.active { background: #0396c7; color: #fff; border-color: #0396c7; }
+.tab-panel  { display: none; }
+.tab-panel.show { display: block; }
+.hint       { font-size: .8rem; color: #6b7280; margin-bottom: .5rem; }
+.free-label { color: #6b7280; font-size: .78rem; }
+
+/* Dark mode — theo đúng pattern class .dark của project */
+body.dark .form-section          { background: #1e293b; }
+body.dark .form-section h4       { color: #e2e8f0; }
+body.dark .target-list           { border-color: #334155; }
+body.dark .target-list label     { background: #334155; color: #e2e8f0; }
+body.dark .target-list label:hover { background: #4f46e5; }
+body.dark .tab-btn               { background: #334155; color: #e2e8f0; border-color: #475569; }
+body.dark .tab-btn.active        { background: #0396c7; border-color: #0396c7; }
