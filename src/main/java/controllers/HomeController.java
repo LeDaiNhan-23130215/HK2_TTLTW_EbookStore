@@ -47,11 +47,11 @@ public class  HomeController extends HttpServlet {
         request.setAttribute("newEBooks", newEBooks);
 
         List<EbookProductCardView> topSaleEbooks = ebookService.getTopSaleEbookProductCards();
-        enrichWithDiscount(newEBooks);
+        enrichWithDiscount(topSaleEbooks);
         request.setAttribute("topSaleEBooks", topSaleEbooks);
 
         List<EbookProductCardView> randomEbook = ebookService.getRandomEbook();
-        enrichWithDiscount(newEBooks);
+        enrichWithDiscount(randomEbook);
         request.setAttribute("randomEbook", randomEbook);
 
         String imgRandom1 = randomEbook.get(0).getImageLink();
