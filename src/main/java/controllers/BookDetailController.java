@@ -8,21 +8,27 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import models.Ebook;
+import services.DiscountResult;
+import services.DiscountService;
 import services.WishlistService;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @WebServlet("/bookdetail")
 public class BookDetailController extends HttpServlet {
 
     private WishlistService wishlistService;
     private EbookDAO ebookDAO;
+    private DiscountService discountService;
 
     @Override
     public void init() throws ServletException {
-        wishlistService = new WishlistService();
-        ebookDAO = new EbookDAO();
+        wishlistService  = new WishlistService();
+        ebookDAO         = new EbookDAO();
+        discountService  = new DiscountService();
     }
 
     @Override
@@ -32,7 +38,6 @@ public class BookDetailController extends HttpServlet {
         // ===== 1. VALIDATE ID =====
         String idParam = request.getParameter("id");
         int ebookId;
-
         try {
             ebookId = Integer.parseInt(idParam);
         } catch (Exception e) {
@@ -50,7 +55,6 @@ public class BookDetailController extends HttpServlet {
         // ===== 3. CHECK LOGIN =====
         HttpSession session = request.getSession(false);
         Integer userID = (session != null) ? (Integer) session.getAttribute("userID") : null;
-
         if (userID == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
@@ -58,18 +62,12 @@ public class BookDetailController extends HttpServlet {
 
         // ===== 4. LOAD WISHLIST =====
         List<Ebook> wishlist = wishlistService.getWishlistWithDetails(userID);
-        List<Integer> wishlistIds = wishlist.stream()
-                .map(Ebook::getId)
-                .toList();
+        List<Integer> wishlistIds = wishlist.stream().map(Ebook::getId).toList();
 
         // ===== 5. LOAD SIMILAR EBOOKS =====
         List<Ebook> similarEbooks = ebookDAO.getSimilarByCategory(
-                ebook.getCategoryID(),
-                ebook.getId(),
-                4
-        );
+                ebook.getCategoryID(), ebook.getId(), 4);
 
-        // hydrate images + authors
         for (Ebook e : similarEbooks) {
             Ebook full = ebookDAO.getEbookWithDetailsById(e.getId());
             if (full != null) {
@@ -78,13 +76,29 @@ public class BookDetailController extends HttpServlet {
             }
         }
 
-        // ===== 6. SET ATTRIBUTES =====
-        request.setAttribute("ebook", ebook);
-        request.setAttribute("wishlist", wishlist);
-        request.setAttribute("wishlistIds", wishlistIds);
-        request.setAttribute("similarEbooks", similarEbooks);
+        // ===== 6. DISCOUNT: ebook chính =====
+        DiscountResult discountResult =
+                discountService.calculateBestDiscount(ebook.getId(), ebook.getPrice());
 
-        // ===== 7. FORWARD =====
+        // ===== 7. DISCOUNT: similar ebooks =====
+        Map<Integer, DiscountResult> similarDiscounts = new HashMap<>();
+        for (Ebook e : similarEbooks) {
+            DiscountResult r = discountService.calculateBestDiscount(e.getId(), e.getPrice());
+            if (r.hasDiscount()) {
+                similarDiscounts.put(e.getId(), r);
+            }
+        }
+
+        // ===== 8. SET ATTRIBUTES =====
+        request.setAttribute("ebook",            ebook);
+        request.setAttribute("wishlist",         wishlist);
+        request.setAttribute("wishlistIds",      wishlistIds);
+        request.setAttribute("similarEbooks",    similarEbooks);
+        request.setAttribute("discountResult",   discountResult);
+        request.setAttribute("discountService",  discountService);
+        request.setAttribute("similarDiscounts", similarDiscounts);
+
+        // ===== 9. FORWARD =====
         request.getRequestDispatcher("/WEB-INF/views/bookdetail.jsp")
                 .forward(request, response);
     }

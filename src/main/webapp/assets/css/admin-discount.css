@@ -1,0 +1,173 @@
+/* ============================================================
+   admin-discount.css
+   Link vào admin-discount-form.jsp và admin-discount.jsp
+   ============================================================ */
+
+.form-section {
+    background: #fff;
+    border-radius: 10px;
+    padding: 2rem 2rem 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+.form-section h4 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    padding-bottom: .75rem;
+    border-bottom: 2px solid #e5e7eb;
+    font-size: 1.05rem;
+}
+/* form-row override for discount form (not inside .add-form) */
+.form-row {
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+}
+.form-row label {
+    font-weight: 600;
+    color: #374151;
+    font-size: .93rem;
+}
+.form-row input,
+.form-row select,
+.form-row textarea {
+    padding: 9px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    outline: none;
+    font-size: .95rem;
+    transition: border 0.2s;
+    max-width: 480px;
+}
+.form-row input:focus,
+.form-row select:focus,
+.form-row textarea:focus {
+    border-color: #0396c7;
+    box-shadow: 0 0 0 3px rgba(3,150,199,.12);
+}
+.form-row textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+.form-row small.hint {
+    color: #6b7280;
+    font-size: .82rem;
+}
+.target-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    max-height: 220px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: .75rem;
+}
+.target-list label {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    background: #f4f4f4;
+    border-radius: 4px;
+    padding: .3rem .6rem;
+    cursor: pointer;
+    font-size: .88rem;
+}
+.target-list label:hover { background: #e0e7ff; }
+
+.tab-btns { display: flex; gap: .5rem; margin-bottom: .75rem; }
+.tab-btn {
+    padding: .35rem .9rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #f4f4f4;
+    cursor: pointer;
+    font-size: .9rem;
+}
+.tab-btn.active { background: #0396c7; color: #fff; border-color: #0396c7; }
+.tab-panel  { display: none; }
+.tab-panel.show { display: block; }
+.hint       { font-size: .8rem; color: #6b7280; margin-bottom: .5rem; }
+.free-label { color: #6b7280; font-size: .78rem; }
+
+/* Dark mode — theo đúng pattern class .dark của project */
+body.dark .form-section          { background: #1e293b; }
+body.dark .form-section h4       { color: #e2e8f0; }
+body.dark .target-list           { border-color: #334155; }
+body.dark .target-list label     { background: #334155; color: #e2e8f0; }
+body.dark .target-list label:hover { background: #4f46e5; }
+body.dark .tab-btn               { background: #334155; color: #e2e8f0; border-color: #475569; }
+body.dark .tab-btn.active        { background: #0396c7; border-color: #0396c7; }
+
+/* ── Discount input group ── */
+.form-row .discount-input-group {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 480px;
+    box-sizing: border-box;
+}
+
+.form-row .discount-input-group input {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    width: 0 !important;
+    max-width: none !important;
+    border: none !important;
+    outline: none;
+    padding: 9px 12px;
+    font-size: .95rem;
+    box-sizing: border-box;
+    background: transparent;
+    -moz-appearance: textfield;
+}
+
+.form-row .discount-input-group input:focus {
+    box-shadow: none;   /* focus shadow đã có trên wrapper */
+}
+
+.form-row .discount-input-group:focus-within {
+    border-color: #0396c7;
+    box-shadow: 0 0 0 3px rgba(3,150,199,.12);
+}
+
+.form-row .discount-input-group input::-webkit-outer-spin-button,
+.form-row .discount-input-group input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.discount-btn {
+    width: 2.4rem;
+    flex-shrink: 0;
+    border: none;
+    background: #0d6efd;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+    line-height: 1;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.discount-btn:hover  { background: #0b5ed7; }
+.discount-btn:active { background: #0a58ca; }
+
+/* Dark mode */
+body.dark .discount-input-group {
+    border-color: #475569;
+    background: #334155;
+}
+body.dark .discount-input-group input {
+    background: transparent;
+    color: #f9fafb;
+}

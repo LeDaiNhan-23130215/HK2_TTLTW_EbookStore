@@ -11,7 +11,7 @@
  Target Server Version : 90400 (9.4.0)
  File Encoding         : 65001
 
- Date: 06/06/2026 09:54:26
+ Date: 11/06/2026 12:22:12
 */
 
 SET NAMES utf8mb4;
@@ -383,13 +383,14 @@ CREATE TABLE `cart`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `userID`(`userID` ASC) USING BTREE,
   CONSTRAINT `cart_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of cart
 -- ----------------------------
 INSERT INTO `cart` VALUES (5, 2, '2026-03-22 13:31:07');
 INSERT INTO `cart` VALUES (6, 1, '2026-06-04 09:18:36');
+INSERT INTO `cart` VALUES (7, 3, '2026-06-08 04:46:17');
 
 -- ----------------------------
 -- Table structure for cartdetail
@@ -405,7 +406,7 @@ CREATE TABLE `cartdetail`  (
   INDEX `bookID`(`bookID` ASC) USING BTREE,
   CONSTRAINT `cartdetail_ibfk_1` FOREIGN KEY (`cartID`) REFERENCES `cart` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `cartdetail_ibfk_2` FOREIGN KEY (`bookID`) REFERENCES `ebook` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 69 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 70 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of cartdetail
@@ -6133,19 +6134,91 @@ INSERT INTO `checkoutdetail` VALUES (2837, 2824, 288, 66.00);
 DROP TABLE IF EXISTS `discount`;
 CREATE TABLE `discount`  (
   `id` int NOT NULL AUTO_INCREMENT,
-  `ebookID` int NULL DEFAULT NULL,
-  `percent` decimal(5, 2) NULL DEFAULT NULL,
-  `startDate` datetime NULL DEFAULT NULL,
-  `endDate` datetime NULL DEFAULT NULL,
-  `isActive` tinyint(1) NULL DEFAULT 1,
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Tên chương trình, duy nhất',
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT 'Mô tả chương trình',
+  `discount_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'PERCENT hoặc FIXED',
+  `discount_value` decimal(10, 2) NOT NULL COMMENT 'Mức giảm: % hoặc số tiền cố định',
+  `start_date` datetime NULL DEFAULT NULL COMMENT 'Ngày bắt đầu áp dụng',
+  `end_date` datetime NULL DEFAULT NULL COMMENT 'Ngày kết thúc áp dụng',
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ACTIVE' COMMENT 'ACTIVE | INACTIVE | ENDED',
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `ebookID`(`ebookID` ASC) USING BTREE,
-  CONSTRAINT `discount_ibfk_1` FOREIGN KEY (`ebookID`) REFERENCES `ebook` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+  UNIQUE INDEX `uq_discount_name`(`name` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of discount
 -- ----------------------------
+INSERT INTO `discount` VALUES (1, 'Mudadmuad', 'siéuale\r\n', 'PERCENT', 50.00, '2026-06-10 18:17:00', NULL, 'ACTIVE');
+INSERT INTO `discount` VALUES (2, 'test', 'sssss', 'FIXED', 500000.00, NULL, NULL, 'ACTIVE');
+
+-- ----------------------------
+-- Table structure for discount_author
+-- ----------------------------
+DROP TABLE IF EXISTS `discount_author`;
+CREATE TABLE `discount_author`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `discountID` int NOT NULL,
+  `authorID` int NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uq_discount_author`(`discountID` ASC, `authorID` ASC) USING BTREE,
+  INDEX `fk_disc_auth_auth`(`authorID` ASC) USING BTREE,
+  CONSTRAINT `fk_disc_auth_auth` FOREIGN KEY (`authorID`) REFERENCES `author` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_disc_auth_disc` FOREIGN KEY (`discountID`) REFERENCES `discount` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of discount_author
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for discount_category
+-- ----------------------------
+DROP TABLE IF EXISTS `discount_category`;
+CREATE TABLE `discount_category`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `discountID` int NOT NULL,
+  `categoryID` int NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uq_discount_category`(`discountID` ASC, `categoryID` ASC) USING BTREE,
+  INDEX `fk_disc_cat_cat`(`categoryID` ASC) USING BTREE,
+  CONSTRAINT `fk_disc_cat_cat` FOREIGN KEY (`categoryID`) REFERENCES `category` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_disc_cat_disc` FOREIGN KEY (`discountID`) REFERENCES `discount` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of discount_category
+-- ----------------------------
+INSERT INTO `discount_category` VALUES (14, 1, 4);
+INSERT INTO `discount_category` VALUES (15, 1, 8);
+
+-- ----------------------------
+-- Table structure for discount_ebook
+-- ----------------------------
+DROP TABLE IF EXISTS `discount_ebook`;
+CREATE TABLE `discount_ebook`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `discountID` int NOT NULL,
+  `ebookID` int NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uq_discount_ebook`(`discountID` ASC, `ebookID` ASC) USING BTREE,
+  INDEX `fk_disc_ebook_ebook`(`ebookID` ASC) USING BTREE,
+  CONSTRAINT `fk_disc_ebook_disc` FOREIGN KEY (`discountID`) REFERENCES `discount` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_disc_ebook_ebook` FOREIGN KEY (`ebookID`) REFERENCES `ebook` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 35 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of discount_ebook
+-- ----------------------------
+INSERT INTO `discount_ebook` VALUES (22, 1, 2);
+INSERT INTO `discount_ebook` VALUES (23, 1, 253);
+INSERT INTO `discount_ebook` VALUES (24, 1, 273);
+INSERT INTO `discount_ebook` VALUES (25, 1, 289);
+INSERT INTO `discount_ebook` VALUES (26, 1, 290);
+INSERT INTO `discount_ebook` VALUES (27, 1, 292);
+INSERT INTO `discount_ebook` VALUES (31, 2, 3);
+INSERT INTO `discount_ebook` VALUES (32, 2, 20);
+INSERT INTO `discount_ebook` VALUES (33, 2, 87);
+INSERT INTO `discount_ebook` VALUES (34, 2, 291);
 
 -- ----------------------------
 -- Table structure for ebook
@@ -7125,7 +7198,11 @@ INSERT INTO `ebookimage` VALUES (288, 288, 1, 0);
 INSERT INTO `ebookimage` VALUES (289, 289, 1, 0);
 INSERT INTO `ebookimage` VALUES (290, 290, 1, 0);
 INSERT INTO `ebookimage` VALUES (291, 291, 1, 0);
-INSERT INTO `ebookimage` VALUES (292, 292, 1, 0);
+INSERT INTO `ebookimage` VALUES (292, 292, 0, 0);
+INSERT INTO `ebookimage` VALUES (292, 305, 0, 0);
+INSERT INTO `ebookimage` VALUES (292, 306, 0, 0);
+INSERT INTO `ebookimage` VALUES (292, 307, 0, 0);
+INSERT INTO `ebookimage` VALUES (292, 308, 1, 0);
 
 -- ----------------------------
 -- Table structure for feedback
@@ -7472,302 +7549,312 @@ CREATE TABLE `images`  (
   `imgName` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `imgLink` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `imgStatus` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
+  `migration_status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT 'PENDING',
+  `cloudinary_url` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 301 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 309 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of images
 -- ----------------------------
-INSERT INTO `images` VALUES (1, 'Clean Code — Robert C. Martin (Uncle Bob)', 'https://m.media-amazon.com/images/I/51E2055ZGUL._SY522_.jpg', 'active');
-INSERT INTO `images` VALUES (2, 'The Pragmatic Programmer — Andrew Hunt & David Thomas', 'https://imagery.pragprog.com/products/59/tpp_xlargecover.jpg?1339433898', 'active');
-INSERT INTO `images` VALUES (3, 'Design Patterns: Elements of Reusable Object-Oriented Software — Gamma et al.', 'https://m.media-amazon.com/images/I/51JYkEpbhzL.jpg', 'active');
-INSERT INTO `images` VALUES (4, 'Refactoring — Martin Fowler', '71e6ndHEwqL._SL1500_.jpg (1209×1500)', 'active');
-INSERT INTO `images` VALUES (5, 'Code Complete — Steve McConnell', 'https://m.media-amazon.com/images/I/71CjT0N23ML.jpg', 'active');
-INSERT INTO `images` VALUES (6, 'Continuous Delivery — Jez Humble & David Farley', 'https://m.media-amazon.com/images/I/61URM5B90LL._UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (7, 'Release It! — Michael T. Nygard', 'https://ts2.mm.bing.net/th?id=OIP.5Ur3yVkuXYMBD_y0lmrRLAAAAA&pid=15.1', 'active');
-INSERT INTO `images` VALUES (8, 'Designing Data-Intensive Applications — Martin Kleppmann', 'https://m.media-amazon.com/images/I/91YfNb49PLL._AC_UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (9, 'Site Reliability Engineering (SRE) — Google (tập hợp bài viết)', 'https://m.media-amazon.com/images/I/814nAGmpAGL._AC_UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (10, 'The Phoenix Project — Gene Kim, Kevin Behr, George Spafford', 'https://m.media-amazon.com/images/I/71NMJeBW1AL._AC_UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (11, 'The DevOps Handbook — Gene Kim et al.', 'https://m.media-amazon.com/images/I/71mhqEw8LcL._AC_UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (12, 'Introduction to Algorithms — Cormen, Leiserson, Rivest, Stein', 'https://m.media-amazon.com/images/I/61Mw06x2XcL._AC_UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (13, 'Algorithms (Robert Sedgewick & Kevin Wayne)', 'https://m.media-amazon.com/images/I/61-8ZU7X3UL._AC_UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (14, 'Database System Concepts — Silberschatz, Korth, Sudarshan', 'https://m.media-amazon.com/images/I/918%2BJZbmWLL._UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (15, 'Designing Distributed Systems — Brendan Burns', 'https://m.media-amazon.com/images/I/91CxhyACrlL._AC_UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (16, 'Operating Systems: Three Easy Pieces — Remzi & Andrea Arpaci-Dusseau. UW Computer Sciences', 'https://m.media-amazon.com/images/I/81dYVXSuEOL._UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (17, 'Computer Networks — Andrew S. Tanenbaum / Kurose & Ross', 'https://m.media-amazon.com/images/I/81dYVXSuEOL._UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (18, 'TCP/IP Illustrated (Vol 1) — W. Richard Stevens', 'https://m.media-amazon.com/images/I/51hobElGJaL._AC_UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (19, 'The Linux Programming Interface — Michael Kerrisk', 'https://m.media-amazon.com/images/I/71kj6C0TNdL._AC_UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (20, 'Practical Object-Oriented Design in Ruby (or equivalent SOLID patterns)', 'https://images.squarespace-cdn.com/content/v1/5527cdbae4b0ee7b897c2111/1530279450483-K5BJ5TZGMYSWYA3QQA63/POODR_2e_cover_low_res.jpg', 'active');
-INSERT INTO `images` VALUES (21, 'Patterns of Enterprise Application Architecture — Martin Fowler', 'https://m.media-amazon.com/images/I/61yNt%2BjcM0L._AC_UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (22, 'Domain-Driven Design — Eric Evans', 'https://m.media-amazon.com/images/I/81ykBjVaUjL._AC_UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (23, 'Head First Design Patterns — Eric Freeman et al.', 'https://m.media-amazon.com/images/I/91bobQSPQrL._AC_UF350%2C350_QL50_.jpg', 'active');
-INSERT INTO `images` VALUES (24, 'Modern Operating Systems — Andrew S. Tanenbaum', 'https://m.media-amazon.com/images/I/9162thPPL%2BL._AC_UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (25, 'High Performance Browser Networking — Ilya Grigorik', 'https://m.media-amazon.com/images/I/91UPPjIl2SL._AC_UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (26, 'Systems Performance — Brendan Gregg', 'https://m.media-amazon.com/images/I/71kKbm9LEqL._AC_UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (27, 'Effective Java — Joshua Bloch', 'https://m.media-amazon.com/images/I/7167aaVxs3L._AC_UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (28, 'Programming Pearls — Jon Bentley', '61u11kRVdOL._AC_UF1000,1000_QL80_.jpg (677×1000)', 'active');
-INSERT INTO `images` VALUES (29, 'Fundamentals of Database Systems — Elmasri & Navathe', 'https://m.media-amazon.com/images/I/71ocXCxUQVL._AC_UF1000%2C1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (30, 'Pattern Recognition and Machine Learning — Christopher M. Bishop', 'https://m.media-amazon.com/images/I/71fqxXDY2ZL._AC_UF1000,1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (31, 'Machine Learning: A Probabilistic Perspective — Kevin P. Murphy', 'https://m.media-amazon.com/images/I/61NfFcHXGxL._AC_UF1000,1000_QL80_.jpg', 'active');
-INSERT INTO `images` VALUES (32, 'Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow — urélien Géron', 'Hands-on-Machine-Learning-With-Scikit-learn-Keras-and-Tensorflow-9781492032649_9d8691ea-7fc1-4ad9-845d-6c3895017e09_1.61131d86aa91783eff61e1d8378b69f4.jpeg (640×640)', 'active');
-INSERT INTO `images` VALUES (33, 'Reinforcement Learning: An Introduction — Richard S. Sutton & Andrew G. arto.', '71nk3rOK3jL.jpg (1536×2116)', 'active');
-INSERT INTO `images` VALUES (34, 'Probabilistic Graphical Models — Daphne Koller.', 'OIP._fuMPo977EPSBn2L9YZjPgHaIT (474×531)', 'active');
-INSERT INTO `images` VALUES (35, 'Bayesian Reasoning and Machine Learning — David Barber (lecture notes / book)', 'https://tse3.mm.bing.net/th/id/OIP.uIv3qDp9lFvsju3iB_OzBQHaLO?rs=1&pid=ImgDetMain&o=7&rm=3', 'active');
-INSERT INTO `images` VALUES (36, 'Neural Networks and Deep Learning — Michael Nielsen (online book)', 'https://tse1.mm.bing.net/th/id/OIP.6mp5eV0OrS_i3DTcAxb-5AHaJJ?rs=1&pid=ImgDetMain&o=7&rm=3', 'active');
-INSERT INTO `images` VALUES (37, 'Natural Language Processing with Transformers — (practical guides)', 'https://tse1.mm.bing.net/th/id/OIP.6mp5eV0OrS_i3DTcAxb-5AHaJJ?rs=1&pid=ImgDetMain&o=7&rm=3', 'active');
-INSERT INTO `images` VALUES (38, 'Speech and Language Processing — Jurafsky & Martin', 'OIP.UntDTX1rJXylUgGfj6vb4QAAAA (378×500)', 'active');
-INSERT INTO `images` VALUES (39, 'Deep Reinforcement Learning Hands-On — Maxim Lapan', 'OIP.sjkWhD27vpln6Ehji-xTTgAAAA (194×238)', 'active');
-INSERT INTO `images` VALUES (40, 'Computer Vision: Algorithms and Applications — Richard Szeliski (ebook vailable from author/site)', '61cyQ3OIp6L._SL1099_.jpg (827×1099)', 'active');
-INSERT INTO `images` VALUES (41, 'Practical Statistics for Data Scientists — Peter Bruce, Andrew Bruce', 'OIP.JMvnnnAWvwpFV77mrnhM7AHaJu (474×622)', 'active');
-INSERT INTO `images` VALUES (42, 'The Elements of Statistical Learning — Hastie, Tibshirani, Friedman', 'OIP.C3PB3BRzKp9SvddEP86rbQHaLd (474×733)', 'active');
-INSERT INTO `images` VALUES (43, 'Introduction to Statistical Learning — Gareth James et al. ', 'OIP.SBMvQ-zu8MBRTOU4XiLJZgHaLJ (474×713)', 'active');
-INSERT INTO `images` VALUES (44, 'Applied Predictive Modeling — Max Kuhn & Kjell Johnson', 'OIP.rmmyI0Sn2JoCILuyu9kMTgHaLh (474×737)', 'active');
-INSERT INTO `images` VALUES (45, 'Mathematics for Machine Learning — Marc Peter Deisenroth, A. Aldo Faisal, Cheng Soon Ong.', 'R.68f355fd2c309cb39921608df9e9cb09 (419×630)', 'active');
-INSERT INTO `images` VALUES (46, 'Deep Learning for Computer Vision — Adrian Rosebrock (practical)', 'R.1747c68e50a972d54f2c04f4cbeb9a3a (529×751)', 'active');
-INSERT INTO `images` VALUES (47, 'Generative Deep Learning — David Foster', 'Generative_Deep_Learning-_David_Foster-14729-435798.jpg (260×372)', 'active');
-INSERT INTO `images` VALUES (48, 'Reinforcement Learning by Example — (various practical books)', 'OIP.Rf6Ad_UK6rwtaOyiBPjaSwAAAA (185×270)', 'active');
-INSERT INTO `images` VALUES (49, 'Bayesian Data Analysis — Gelman et al.', 'bda_cover.jpg (1014×1304)', 'active');
-INSERT INTO `images` VALUES (50, 'Feature Engineering for Machine Learning — (various)', '31393737.jpg (500×656)', 'active');
-INSERT INTO `images` VALUES (51, 'Machine Learning Yearning — Andrew Ng (free ebook/notes)', 'OIP.fxy5-bUKrgCVIKa5hGTbZgHaG1 (474×437)', 'active');
-INSERT INTO `images` VALUES (52, 'Hands-On Reinforcement Learning with Python — (practical)', 'OIP.la1mX0PucurbOsfgdwuuVQHaJJ (474×585)', 'active');
-INSERT INTO `images` VALUES (53, 'Applied Deep Learning — Umberto Michelucci (or similar)', '41NqkuSQOUL._SY445_SX342_.jpg (312×445)', 'active');
-INSERT INTO `images` VALUES (54, 'Introduction to Information Retrieval — Manning, Raghavan, Schütze.', 'OIP.oQnPcWb0uAGMYLze1lY_-QAAAA (342×452)', 'active');
-INSERT INTO `images` VALUES (55, 'Algorithms for Optimization — (useful for ML)', 'R.30ad018aedc5c497f188e7d15b117bf7 (1536×1738)', 'active');
-INSERT INTO `images` VALUES (56, 'Foundations of Machine Learning — Mohri, Rostamizadeh, Talwalkar', '81UXzHp99PL._SL1500_.jpg (1106×1500)', 'active');
-INSERT INTO `images` VALUES (57, 'An Introduction to Statistical Learning with Applications in R.', '61XlRprVVML.jpg (827×1246)', 'active');
-INSERT INTO `images` VALUES (58, 'Practical Deep Learning for Cloud, Mobile, and Edge.', 'OIP.fM_EXcRBaJsbYO4kH-vJsQHaJu (474×622)', 'active');
-INSERT INTO `images` VALUES (59, 'University Physics (OpenStax) — Giải tích/đại cương\n', '312hMnXmhKL._SL1300___01704.1626879093.500.500.jpg (386×500)', 'active');
-INSERT INTO `images` VALUES (60, 'College Physics (OpenStax).\n', '9781711470825-uk.jpg (387×500)', 'active');
-INSERT INTO `images` VALUES (61, 'A Brief History of Time — Stephen Hawking.\n', '81pQPZAFWbL.jpg (1531×2409)', 'active');
-INSERT INTO `images` VALUES (62, 'The Selfish Gene — Richard Dawkins.\n', '9110Cakvr1L._SL1500_.jpg (991×1500)', 'active');
-INSERT INTO `images` VALUES (63, 'The Gene: An Intimate History — Siddhartha Mukherjee\n', 'OIP.SGtmvzNfOSNuNmHdRLworwHaL4 (474×760)', 'active');
-INSERT INTO `images` VALUES (64, 'Principles of Neural Science — Kandel et al.', 'm058onl59c9ee1o1tdkrqicz7vi8 (358×500)', 'active');
-INSERT INTO `images` VALUES (65, 'Molecular Biology of the Cell — Alberts et al.\n', '171284.jpg (960×1261)', 'active');
-INSERT INTO `images` VALUES (66, 'Physical Chemistry — Atkins (textbook)\n', '180852.jpg (1060×1209)', 'active');
-INSERT INTO `images` VALUES (67, 'The Structure of Scientific Revolutions — Thomas S. Kuhn\n', 'The-Structure-of-Scientific-Revolutions_-by-Thomas-S.-Kuhn.jpg (1410×2150)', 'active');
-INSERT INTO `images` VALUES (68, 'Chaos: Making a New Science — James Gleick\n', '91ErIwnnlSL.jpg (1650×2531)', 'active');
-INSERT INTO `images` VALUES (69, 'Six Easy Pieces — Richard Feynman (free/part of Feynman Lectures)\n', 'OIP.6YAnkS78_dVTYuG-jZf7cQHaLP (474×719)', 'active');
-INSERT INTO `images` VALUES (70, 'Conceptual Physics — Paul G. Hewitt\n', 'OIP.0l_ZDDxC20U7azqlXvNCMgHaJh (474×609)', 'active');
-INSERT INTO `images` VALUES (71, 'Theoretical Minimum series — Leonard Susskind (modern physics primers)\n', 'OIP.EYSE1iRBScGhayEuxr7gawHaLZ (474×729)', 'active');
-INSERT INTO `images` VALUES (72, 'Statistical Mechanics — Kerson Huang (textbook)\n', '81MR-Y0qbWL._SL1500_.jpg (986×1500)', 'active');
-INSERT INTO `images` VALUES (73, 'Introduction to Electrodynamics — David J. Griffiths\n', 'OIP.-HzS_OzYp9XhSvr0zHoBSwHaJw (474×624)', 'active');
-INSERT INTO `images` VALUES (74, 'Classical Mechanics — John R. Taylor\n', 'R.56fc6673d5be0b1954c0999dcb1108b3 (317×475)', 'active');
-INSERT INTO `images` VALUES (75, 'Evolution: The Modern Synthesis — Julian Huxley (or modern equivalents)', '9780045750184-us.jpg (309×500)', 'active');
-INSERT INTO `images` VALUES (76, 'On the Origin of Species — Charles Darwin.', 'on-the-origin-of-species-9781645178644_hr.jpg (1399×2065)', 'active');
-INSERT INTO `images` VALUES (77, 'The Double Helix — James D. Watson.\n', '31427976746.jpg (1500×2000)', 'active');
-INSERT INTO `images` VALUES (78, 'The Immortal Life of Henrietta Lacks — Rebecca Skloot.\n', 'The-immortal-life-of-Henrietta-Lacks-By-Rebecca-Skloot-Book-PDF-873x1536.jpg (873×1536)', 'active');
-INSERT INTO `images` VALUES (79, 'Biochemistry — Berg, Tymoczko, Stryer.\n', '9781464126109.BI.0.x.jpg (780×1000)', 'active');
-INSERT INTO `images` VALUES (80, 'Astronomy: Principles and Practice — (various textbooks).\n', 'OIP.uhw6039BlnGrgR7dhy92DgHaJk (474×612)', 'active');
-INSERT INTO `images` VALUES (81, 'The Physics of Star Trek — Lawrence Krauss (popular science)\n', '9780465002047.jpg (1721×2600)', 'active');
-INSERT INTO `images` VALUES (82, 'Physical Biology of the Cell — Rob Phillips et al.\n', '5941151.jpg (314×400)', 'active');
-INSERT INTO `images` VALUES (83, 'Introduction to Quantum Mechanics — David J. Griffiths (textbook)\n', 'R.c47078275b8abb780d3ef348c7011511 (318×442)', 'active');
-INSERT INTO `images` VALUES (84, ' Transport Phenomena — Bird, Stewart, Lightfoot (engineering text)\n', '9780470088289-us-300.jpg (378×500)', 'active');
-INSERT INTO `images` VALUES (85, 'General Chemistry — OpenStax (PDF available)\n', 'R.2d12087d89ca3793dc06dc80ce044909 (680×901)', 'active');
-INSERT INTO `images` VALUES (86, 'Common Science & other historical science texts — available at Project \n', '516FZ5CPZFL._SX342_SY445_.jpg (342×428)', 'active');
-INSERT INTO `images` VALUES (87, 'Science: A Collection Of Quotes From Albert Einstein, Carl Sagan, Charles Darwin, Michio Kaku, Neil deGrasse Tyson, Nikola Tesla, Richard Dawkins, Richard Feynman, Stephen Hawking And Many More!', '9781370229123_200x_science-a-collection-of-quotes-from-albert-einstein-carl-sagan-charles-darwin-michio-kaku-neil-degrasse-tyson-nikola-tesla-richard-dawkins-richard-feynman-stephen-hawking-and-many-more_e-bok (200×297)', 'active');
-INSERT INTO `images` VALUES (88, 'Special Relativity and Classical Field Theory The Theoretical Minimum', 'OIP.nXPR4zK0BI3FwnCI_NiXDAAAAA (289×445)', 'active');
-INSERT INTO `images` VALUES (89, 'Introduction to Statistical Physics', '9780429110115.jpg (180×295)', 'active');
-INSERT INTO `images` VALUES (90, 'Classical Mechanics: A Modern Perspective', '41TeiyIWlgL._SY445_SX342_.jpg (296×445)', 'active');
-INSERT INTO `images` VALUES (91, 'Pons General Reference – Trilingual Visual Dictionary', 'https://images.openai.com/thumbnails/url/vsrrInicDclbEkJQAADQFSFMwkzTIOSR8ppLPwbXs3Bxy2hR7afd1Pk930-NMZpFiir6fFoRLiCBs54hqxmnuMnJfOiouR4QavrqMO7_J0oOFPTcHSPB0diKaLUplHjfZDjPvpUv3r8SVbtYuzheQ6_Z6LMhD0crS6w0QAbqYgZEy5n1JQMCrNJxVAeZe3moMGS5qXx6QN7S4N35bgDGPhttqFxXc72XSnkikuYH1LU9fA', 'active');
-INSERT INTO `images` VALUES (92, 'Vietnamese‑English Dictionary', 'https://images.openai.com/static-rsc-1/X454v00welQ0vpjoJkMycjtqZnw2siAYHYGC-Z4R1qcDFniwiFbtXqEALKDXRl9hmDKy3XqfIhx-820wxn87JMjA0-DnsvuqMQMjRLUEa4T2dHXgYvoL0i7BqEQIStHD_1fizw3wkVQ36PEFJBmJZkt_7DYZI7c4TpORkfmZ_hp60wIW7R-i1zCpK6YgxThT9BnO-9rxQtnVrFJG-nSiz_owAoAatdZsBDuU-nPXy_zlgRQZCjohv3u1byJjGtgM', 'active');
-INSERT INTO `images` VALUES (93, 'A History of the Vietnamese', 'https://images.openai.com/static-rsc-1/w_JZCklOpxu7ibdVJjtS0tPvEqzi7mAjLTq1ohbtWKmytoJFRGbuhzjXTIkFbD4f8DDO14Y9yM2V9qaUE7hqxIIMO0iMBoNFiu4F4AJu0plch3FRoDuUmdDfkXiBWBJDBNeB06Zr2e6_SIdYtHlxNWy741rxnScPJxbvY00OXlDJd0idwY2SPuOKMwMSpiZmNNgJ-EyzbQZ7Wlju8NV5iJ08R2Smbpl41KLB88jtxjUhdz802CdNR-9WsbPiQN0MFYrCV5M-1CmWSqYb4fGhMQ', 'active');
-INSERT INTO `images` VALUES (94, 'Collins Vietnamese Dictionary Essential Edition', 'https://images.openai.com/static-rsc-1/ZtHzCxNPOSldGnQ8CE6MI0l5yahrsdtvFHrsyBOQFfT8xlPL7RBqngnqyBynDpNj5V5UKoeP2fdRO5C4_DfqZHRkOqYcT1UKaEhDctiNnLEzTmeGCyykNcz3QTzdyTvyhbKe3UfXmEBpwl5RI8oWgHHNRmWZvaF6pyMEnoLgn19yvxnhk4k6DbcAqV83a8NQwwlVbcVQvrZtI8FkakCW8Zp4rrlJCodZRhOTaq9CWGEMRlCcZzVCRXUpnbGsbH9q', 'active');
-INSERT INTO `images` VALUES (95, 'The Rough Guide to Vietnam: Travel Guide with eBook', 'https://images.openai.com/static-rsc-1/ajP3G6-h9Qt2cUEdeTYjoBvnNTjPsd7dGywzecuEgHoUqyUh_PJOdH0aOkEZH7wI1zgJp5WL-y-y5iOIDMV59_Xd-vEfnFR1fuU0_3VNkURPjO6poFf2kHYfl1KV0sKnMhkMDlneZqPsyskH3-x2lXbM6LvOcpEtNLU0qy6NC6_QAGKtjvitzscHp_Tjbv9_vyyViN-y3nequx-m3ft1QtVXXsP8ZFTitVfumCjfMVzhbfNuc8gs9fgM2gCCxePB', 'active');
-INSERT INTO `images` VALUES (96, 'Pons General Reference ‑ Trilingual Visual Dictionary', 'https://images.openai.com/static-rsc-1/Qo5oSjmRfro3mlKIF_zEAgKa81plK-awqI4fQoSsuY27u6cNN8oejDTYxXnMFqyiNhwncaPH4ExzvyCclxQv-stQmnnCOPK_mUw9pBx1hC22Qc76S4jrlrwQRmcl3Z8Hg5gZuMSi5q0dS63ECmH-YX2Nd8B-xUFLuHA_n5cAUoGTOCywp6TyqCjn4K7VHke599wWWIJwwDrSek3hnaftpSwxIlAjuCRTaAAszTqaykXvQUK3ZWW2IJCnxpAV5-y0NjlyFBkCCykQfW5rbBoLoA', 'active');
-INSERT INTO `images` VALUES (97, 'The Elements of Style', 'https://salt.tikicdn.com/cache/750x750/ts/product/09/07/67/5064320710412cde00d4af4228614b71.jpg.webp', 'active');
-INSERT INTO `images` VALUES (98, 'Introduction to Algorithms (CLRS)', 'https://salt.tikicdn.com/cache/750x750/ts/product/94/92/a9/97f7be7d4a130dec8e6f7f8fce5530f4.jpg.webp', 'active');
-INSERT INTO `images` VALUES (99, 'How to Solve It – George Pólya', 'https://th.bing.com/th/id/OIP.N-Y26oPcUF589RHjca3kFwHaLW?w=115&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3', 'active');
-INSERT INTO `images` VALUES (100, 'Oxford English Dictionary', 'https://th.bing.com/th/id/OIP.gFK47UBT8m34Im9JnlRUWgHaJv?w=128&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3', 'active');
-INSERT INTO `images` VALUES (101, 'Oxf Essential Dictionary (3rd Edition)', 'https://cdn1.fahasa.com/media/catalog/product/9/7/9780194419215.jpg', 'active');
-INSERT INTO `images` VALUES (102, 'Oxford Phrasal Verbs Dictionary', 'https://cdn1.fahasa.com/media/catalog/product/9/7/9780194317214_1_1.jpg', 'active');
-INSERT INTO `images` VALUES (103, 'Oxford Basic English Dictionary 5th Edition', 'https://cdn1.fahasa.com/media/catalog/product/9/7/9780194419208.jpg', 'active');
-INSERT INTO `images` VALUES (104, 'Oxford Learner\'s Spanish Dictionary', 'https://cdn1.fahasa.com/media/catalog/product/9/7/9780198407966.jpg', 'active');
-INSERT INTO `images` VALUES (105, 'Macmillan Dictionary Vietnam ED', 'https://cdn1.fahasa.com/media/catalog/product/m/s/msd_cover_600-400x550.jpg', 'active');
-INSERT INTO `images` VALUES (106, 'My First Picture Dictionary', 'https://cdn1.fahasa.com/media/catalog/product/i/m/image_195509_1_22122.jpg', 'active');
-INSERT INTO `images` VALUES (107, 'Oxford Essential Dictionary - New Ed - W/CD-Rom', 'https://cdn1.fahasa.com/media/catalog/product/i/m/image_195509_1_22650.jpg', 'active');
-INSERT INTO `images` VALUES (108, 'Oxford Picture Dictionary Third Edition: English - Vietnamese Edition', 'https://cdn1.fahasa.com/media/catalog/product/i/m/image_193948.jpg', 'active');
-INSERT INTO `images` VALUES (109, 'Global Success - Tiếng Anh 12 - Sách Học Sinh (2024)', 'https://cdn1.fahasa.com/media/catalog/product/9/7/9786040393708.jpg', 'active');
-INSERT INTO `images` VALUES (110, '500 Bài Toán Cơ Bản Và Nâng Cao Lớp 5', 'https://sachhoc.com/image/cache/catalog/LuyenThi/Lop1-5/500-bai-toan-co-ban-va-nang-cao-lop-5-500x554.jpg', 'active');
-INSERT INTO `images` VALUES (111, 'Principles of Mathematical Analysis — Walter Rudin', 'https://tse1.mm.bing.net/th/id/OIP.JdGIgVnrrwAsmtRzJkJE6QHaLS?pid=Api&P=0&h=180', 'active');
-INSERT INTO `images` VALUES (112, 'Advanced Engineering Mathematics', 'https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9781118165096.jpg', 'active');
-INSERT INTO `images` VALUES (113, 'Artificial Intelligence: A Modern Approach — Russell & Norvig', 'https://m.media-amazon.com/images/I/61-6TTTBZeL._SL1000_.jpg', 'active');
-INSERT INTO `images` VALUES (114, 'The Lean Startup – Eric Ries', 'https://theinnovationandstrategyblog.com/wp-content/uploads/2020/07/the-lean-startup-eric-ries.jpg', 'active');
-INSERT INTO `images` VALUES (115, 'Principles – Ray Dalio', 'https://d28hgpri8am2if.cloudfront.net/book_images/onix/interior_spreads/9781501124020/principles-9781501124020.in17.jpg', 'active');
-INSERT INTO `images` VALUES (116, 'Thinking, Fast and Slow – Daniel Kahneman', 'https://indianbookstore.co.in/wp-content/uploads/2024/04/Thinking-Fast-and-Slow-by-Daniel-Kahneman.webp', 'active');
-INSERT INTO `images` VALUES (117, 'Physics for Scientists and Engineers – Serway & Jewett', 'https://m.media-amazon.com/images/I/81I-xVcTh2L._SL1500_.jpg', 'active');
-INSERT INTO `images` VALUES (118, 'Campbell Biology – Reece et al.', 'https://m.media-amazon.com/images/I/81hfAehMpxL._SL1500_.jpg', 'active');
-INSERT INTO `images` VALUES (119, 'Mechanics of Materials – Hibbeler', 'https://gioumeh.com/wp-content/uploads/2021/04/Solution-Manual-of-Mechanics-of-materials-by-Hibbeler-11th-edition-solutions.jpg', 'active');
-INSERT INTO `images` VALUES (120, 'Pedagogy of the Oppressed – Paulo Freire', 'https://cdn.shopify.com/s/files/1/0423/2901/4428/products/IMG_3815_1200x.jpg?v=1653761304', 'active');
-INSERT INTO `images` VALUES (121, 'Atomic Habits – James Clear', 'https://i.pinimg.com/originals/03/5f/87/035f871609ba334ee7bd3766ccdc3f62.jpg', 'active');
-INSERT INTO `images` VALUES (122, 'Merriam‑Webster’s Advanced Learner’s English Dictionary   ', 'https://tse4.mm.bing.net/th/id/OIP.Jk7ihMqqxsnvJUBCu1Do6AHaHa?pid=Api&P=0&h=180', 'active');
-INSERT INTO `images` VALUES (123, 'Macmillan English Dictionary for Advanced Learners   ', 'https://cdn1.kingstone.com.tw/english/images/product/5462/9780230025462.jpg', 'active');
-INSERT INTO `images` VALUES (124, 'English Vocabulary in Use Upper‑Intermediate 3rd Edition  \n', 'https://ise.edu.vn/wp-content/uploads/2023/01/english-vocabulary-in-use-upper-intermediate.jpg ', 'active');
-INSERT INTO `images` VALUES (125, 'Advanced Grammar in Use with Answers  \n', 'https://cdn1.ozone.ru/s3/multimedia-1-t/c600/7021477973.jpg', 'active');
-INSERT INTO `images` VALUES (126, 'Essential Grammar in Use with Answers  ', 'https://i.zst.com.br/thumbs/12/2d/2c/1458073494.jpg', 'active');
-INSERT INTO `images` VALUES (127, 'English For Everyone English Grammar Guide & Practice Book  ', 'https://m.media-amazon.com/images/I/71afN2UmUxL._SL1500_.jpg', 'active');
-INSERT INTO `images` VALUES (128, 'The English Grammar Workbook for Adults   ', 'https://cdn1.ozone.ru/s3/multimedia-b/c600/6819428207.jpg', 'active');
-INSERT INTO `images` VALUES (129, 'Fluent Forever: How to Learn Any Language Fast and Never Forget It   ', 'https://img01.yzcdn.cn/upload_files/2020/02/12/FjU1ynWs-yBrDfv2poxS5GSQCz-D.jpg!middle.jpg', 'active');
-INSERT INTO `images` VALUES (130, 'English Grammar in Use: Book with Answers', 'https://images.openai.com/static-rsc-1/VRtCCyAJE2PiFn8SDddiiL_eW6sBOt9gvqSkE5av7hEyoPzGcQ7Wnz3KcAt8NKlVQ85zNsJ-Ll2jvsa2bP7EvUrQOTlPSoZDlWxd16ZELQHuh02ByonYCIuGjL7j7AEM67_gX-QBVpcHqB4_Gpe94j34MEz80p8A4FsOstjafwTWVZN_bZXWl5tla9WiVVMBFVo8MyVQ_w5iB-0J85smT-Tq1pqRk6ovRfwM0YRlL0IoVb8Gz0Ms7n_0D69uyzCEA6bZcWQuq5_NMdBcNYKSXQ', 'active');
-INSERT INTO `images` VALUES (131, 'Practical English Grammar & Composition', 'https://images.openai.com/static-rsc-1/ZsTH2D-tslfM87yp4_7hwgqg7v24qWsIJXgYwrbxGqpnRLKSZDOzP7RAlhMLerhdKumUTi3ideq-J04k02g87jdIvJ-bpzMqv6eqUZ8Rm0QNZYdraO4x79XTymWOPOh16IA740Q_yn3Q1dgGZT3xsr0PUGhChtemNeLSYjoHf7tCusPUERjBdLOJkszau9Sl8cKX6s9InJBhh1xOvWQo_3NmcNWxbtlA6iyqME8PVdnGkhbsUF2UN9D7PMiYxaghTY71pgFn2Rd5lKuKYJfxYA', 'active');
-INSERT INTO `images` VALUES (132, 'The Dictionary of Lost Words', 'https://images.openai.com/thumbnails/url/G98sUnicDcnbDkMwAADQL3JJSBuSZWEuWwTTDKsXoUWFUTS7fc7-an-zndfz_TAh-GYqSjOR9cVFQyVRT5rcbaISPZHJfFM2NnPeT91-2f3PtCJq-ASpgRtLS4shzyiAG4xO3MUDAknDBt1xfAGS7D4GsBiZEepZiuywRvDhcYyF1A40Z-k1KI9l-Dy0VX6OhxSFFsiXoowuXo-J9V5XW9Xe8AcHOjkZ', 'active');
-INSERT INTO `images` VALUES (133, 'Practical English Usage — Michael Swan', 'https://tse1.mm.bing.net/th/id/OIP.hMx1-YNbhF2pts-rtETnGgHaFr?pid=Api&P=0&h=180', 'active');
-INSERT INTO `images` VALUES (134, 'English Idioms in Use — Cambridge (Intermediate)', 'https://down-my.img.susercontent.com/file/vn-11134201-7r98o-ls9okmjdshguc2', 'active');
-INSERT INTO `images` VALUES (135, 'Phrasal Verbs in Use — Cambridge', 'https://cdn.ketabkonkour.com/uploads/2023/07/English-Phrasal-Verb-in-Use-Intermediate.jpg', 'active');
-INSERT INTO `images` VALUES (136, 'Oxford Word Skills (Advanced) — Stuart Redman', 'https://dkstatics-public.digikala.com/digikala-products/be8302fd6e6c1b1b5cdf82beb504679f35031611_1604050887.jpg?x-oss-process=image/resize,m_lfit,h_800,w_800/quality,q_90', 'active');
-INSERT INTO `images` VALUES (137, 'Cambridge Academic English (Course for Students)', 'https://englishbooks.cz/12531-home_default/cambridge-academic-english-intermediate-student-s-book.jpg', 'active');
-INSERT INTO `images` VALUES (138, 'Academic Writing for Graduate Students — Swales & Feak', 'https://rahnamapress.com/wp-content/uploads/2018/10/Academic-Writing-for-Graduate-Students-3rd-Edition.webp', 'active');
-INSERT INTO `images` VALUES (139, 'Collins COBUILD Advanced Learner’s Dictionary', 'https://down-th.img.susercontent.com/file/th-11134207-7r992-lns4yufdw300d4', 'active');
-INSERT INTO `images` VALUES (140, 'Longman Dictionary of Contemporary English', 'https://ir.ozone.ru/s3/multimedia-w/c1000/6813920588.jpg', 'active');
-INSERT INTO `images` VALUES (141, 'English Pronunciation in Use (Advanced) — Cambridge', 'https://kolbezabanpub.com/wp-content/uploads/2024/05/Cambridge-English-Pronunciation-in-Use-Advanced-1.webp', 'active');
-INSERT INTO `images` VALUES (142, 'Ship or Sheep? — Minimal Pairs Practice for Pronunciation', 'https://bizweb.dktcdn.net/100/351/397/products/21067451420617153-ship-or-sheep-an-intermediate-pronunciation-course-jpeg.jpg?v=1553845949583', 'active');
-INSERT INTO `images` VALUES (143, 'Clear Speech — Pronunciation and Listening Comprehension in North American English', 'https://m.media-amazon.com/images/I/51-FvaZWIxL.jpg', 'active');
-INSERT INTO `images` VALUES (144, 'Speakout (Upper-Intermediate) Course Book', 'https://productimages.hepsiburada.net/s/2/500/9574640451634.jpg', 'active');
-INSERT INTO `images` VALUES (145, 'New Headway (Upper-Intermediate) — Coursebook', 'https://www.libroidiomas.com/5819-large_default/headway-upper-intermediate-workbook-with-key-ed-oxford.jpg', 'active');
-INSERT INTO `images` VALUES (146, 'Official Cambridge Guide to IELTS', 'https://m.media-amazon.com/images/I/717pCgE8WKL._SL1500_.jpg', 'active');
-INSERT INTO `images` VALUES (147, 'Cambridge IELTS Trainer (with answers)', 'https://haenglish.edu.vn/wp-content/uploads/2023/06/cambridge-ielts-trainer.jpg', 'active');
-INSERT INTO `images` VALUES (148, 'Barron’s TOEFL iBT (with online audio)', 'https://target.scene7.com/is/image/Target/GUEST_83a80f18-d67b-44dd-90ce-a5c33ff7422e', 'active');
-INSERT INTO `images` VALUES (149, 'The Practice of English Language Teaching — Jeremy Harmer', 'https://carti-bune.ro/site_img/products/400/2018/07/the-practice-of-english-language-teaching-with-dvd-fifth-edition-harmer-jeremy-longman.jpg', 'active');
-INSERT INTO `images` VALUES (150, 'Dictionary of Phrasal Verbs', 'https://cdn.slidesharecdn.com/ss_thumbnails/cambridgeinternationaldictionaryofphrasalverbsphotocop-240702162431-a499e9dd-thumbnail.jpg?width=640&height=640&fit=bounds', 'active');
-INSERT INTO `images` VALUES (151, '1100 Words You Need to Know', 'https://ak-asset.jarir.com/akeneo-prod/asset/m1images/5/0/506187.jpg', 'active');
-INSERT INTO `images` VALUES (152, 'English Collocations in Use (Intermediate / Advanced)', 'https://down-vn.img.susercontent.com/file/vn-11134201-7ras8-m403ufubahn38e', 'active');
-INSERT INTO `images` VALUES (153, 'Getting Things Done: The Art of Stress‑Free Productivity', 'https://images.openai.com/static-rsc-1/KjYfs1T0jUzvBUJgwrq_Kzd6MWroQr4Y0lfkvVNQvXhnWpJj613727bcDuKktoecZRbDEoyLN--WpoIDoI-6vcikmsgCPQG-r0e0-FV7MeWQMWR5DaUrQSBxB3nByIqjgyhMhLdbJE0iKbhfg8aj6la4znocavrw6C-IMdTv2eYpkEu1T1BxcZ6gCCKdElW_2W8ZZjdQfF9cNgz5FWmfmWtsOM2__AvmCW7GIRma7B7Jbf9O_1lY0ehsDLtd3uH-', 'active');
-INSERT INTO `images` VALUES (154, 'The Genius of Empathy: Practical Skills to Heal Your Sensitive Self', 'https://images.openai.com/static-rsc-1/wHQNU6fFBVDMMnQAT4vq-ddxHU3bRQ_sWShw6JrsXktlF1JfF0kUmZcG3bsUaIE5rV4bW997OHDGVk1Qej_AQic2w9rOTn2ByqTYvueZ_ceNZeQAItL6-p_1SZovXl0KkblSi_Umf8pwpvr9KLiNGJDqx72CNm5dkLsDfgwrfTawEFtX7z4boT3nvgQksi9vc6BhTmpT2t8qNipLTLrIfbPExOcq1hzYuA17_nygnN8', 'active');
-INSERT INTO `images` VALUES (155, 'Life Skills for Teenage Boys: Practical Advice for Personal Growth', 'https://images.openai.com/static-rsc-1/DwCM2hXUtRyWBwlpmMImXd5uOH-V7eh8m0qixbkGZzvF2W2rn0H3d5UgzWgzcezTOk6TSH8_EpAVFgapAYXOLRGBLsw9Q9Pq7S5g2FAzYwOB258iPbsWkacLpMBfsPfhPuO13gVXPWSLjk1Ch3_O-FIkwimXUnk7OHWauiP6ViLg5FTstL6tGpvetKy20vptXSRDqAQLBgn3ll6bWO8kwNm_kcBndduwpc5EjvQng6YYN5SqLTN8eXLyzqxzJuZt', 'active');
-INSERT INTO `images` VALUES (156, 'Essential Life Skills for Boys', 'https://images.openai.com/static-rsc-1/w6N6uNfMCrjb40vkcoOFAf6wRHBXqq9OhvEYQZzdYrs_SBF1q70lROTSV6FVPQbgMeUb-0d9rnKBHpdfnjKHM4L08bbQx-xiwciAtByn3KFw4-b-6NVMLyXCXXsP4Qhjo5L46Ycxo3_a6VP3BYY7dZAgL_Xm9SDz3shcXWu0aHT6eMGY1Oci0Qdc_iIvx-a8db7HCn3-2S4UYtIHHnQh9TA3Sw-6bA495poPx_5SXREZhQdDszFxrYxisXQA9KHq3CUAc_dLEkEeXXHwXV1v3w', 'active');
-INSERT INTO `images` VALUES (157, 'Practical Life Skills Big Book Gr. 9‑12+ eBook', 'https://images.openai.com/static-rsc-1/c3U4opEC8Lq_DzXfWOXS5816pdJoqBszbZkHjZhgKVg5hNwfznXkOX79pRfZdEMqwHDIc9HUTtvTE7QOLatuvGWvQznMVeIPC2kXaBvvYOpRkLA_igHNctAqS5NYsyNztce6pf-xNX8wEiaoKNKKsYzSFLPWeuRQtZBADCnLGOp1bsup-hDbAZ9dQcED3LuCJNnVVhqD1VWqYIyYdtTXg0VrrvhfuqOhSFBwSODipFp9_0BTYO2X9ls5reos5_Uw', 'active');
-INSERT INTO `images` VALUES (158, 'Real World Life Skills‑Self Sustainability Skills Gr. 6‑12 eBook', 'https://images.openai.com/static-rsc-1/JSQqMw1rZNigryQQZ41kR7D9vLQpdWP5CXErOUs7DoyXUmAcOIqdrxCXQovCiks34JTedymt6VhWrLr_S5PlgUmVBLiQ9xIT3j6mB9lKXskY_kty1HDYz0vajTNS0t1vtvsTaEM8EP6YMksePv0j-tfwIR31HL9xYl7iYKJi-aCJsJG883F9caHrrO50rBM_', 'active');
-INSERT INTO `images` VALUES (159, 'Life Skills for Kids', 'https://images.openai.com/static-rsc-1/78x095k2LbxunbA13fBtlAh_MNEjisnQNbgYlTWvzr3HfVMYLSfwf8Oxv2OEBGxPYGVT-EP2BUKUgBgbSPzT93d_goEl5RCP56LvA1UwDqgwdoJasZR9IqgpTcUQ0wGO1oFHhKFrru4YG4zpjFpfiwr7hzWLHx4qZhpID3m1H3giBU10rJ3AuGPCz1J14rXaWXriov1mQdCeM4qm0bLAlHfhnX05nuru7Yu4jEyuJd4mhT6zAd7_e3vCf0-jnVRX', 'active');
-INSERT INTO `images` VALUES (160, 'Life Skills by Julia Laflin', 'https://images.openai.com/static-rsc-1/UKOZBe1niJXMPnqBsmcOK9GaTn-10svkJnhO91TQE0Cfns8VTUGkXNVc-o7Hj2lyDLlpvLMiXfE2BcwWiVkEl4k2p1DRp8OH-R5Ho_DSWEaXJjMzgb6KYR05MsiXkyuoE2lDK2YbjOe0_RydthXDBt-RfbM2KTk5SpdjtmCEqBtvqGW4TyqRYyJYNaDuL4D_jMIdbW0DLXJvfbCGzXtwL_3dTkZjdpVKujQe6rxsgayMOavxsZLoJ0REjI-_Apxg', 'active');
-INSERT INTO `images` VALUES (161, 'Life Skills Leveled Daily Curriculum (LEVEL 1)', 'https://images.openai.com/static-rsc-1/ioWrQxCoAcuRFcuqESGldVjU1_huQFQB_d__-h7mPf9b7RtTYBtMHF2YVZnG9b8UxCJoh9uMzN8SZMuN-GTNGv8KDy3y_2O88HQh7HfjpuLlU-VDaBpEPl6nuk9QlYWST2HR0IdanCsO0EHEyKQlOrfW-D5Dus_C5eipKcb1bRB8SkKssFrAxAwuhoXj2WoHhinpj5jsXvXW2FscxnKR2VmgGRLMmqEdkJXM-xV_krFaU2K9ttpLLiRiULgztSoWwdC3ysfOQ_Dp2NXh0O2F-w', 'active');
-INSERT INTO `images` VALUES (162, 'You Can (People Skills for Life)', 'https://images.openai.com/static-rsc-1/-mUtXEmloU0PY7A4Y4RGS3rYuO2186EL7vWaZdT8v_ICUx5CghzceTvQI-SXzrZZzOD3JkDecmUTZhAgHFTuyiSHBINqrlVXADB0p7hb41bNslLBK4gnppdqr4mC_ZDhf0dK6ri5a2W9vQW8alIxNtcrsUxdyQj1QLr_wxqFFsK8KS_fsfNTQEeHFJMdQ_q272lm-IFKlqcmOfIOGEjjCg', 'active');
-INSERT INTO `images` VALUES (163, 'Lifeskills: 8 Simple Ways to Build Stronger Relationships…', 'https://images.openai.com/static-rsc-1/pn3iEcXEYQWPdq3r0dRkGBtWhO-jBWsURoQ_l7Pv_qXjwYQHWpYfCv9D6sunEKnRirWSrrFH8Az-LooQfk8ubyFCrp3yEwn_iCCrxHkZHh6YDUuhBYQDhI0u79OYsl6LMLIpxB6Dn7J_z5tWfQnyuwjQq1Zlmjw8FyScH33VD2dI8jgdoOqxGGgeyyedXKHvGSTw8Bxq-cXrAxJn-qQ5BCwrjcicwZCC2nKlsr5HsS-0BYxO_95HyUUVuMGdhPKDBDtU9qspwZT0pVzVWU8faQ', 'active');
-INSERT INTO `images` VALUES (164, 'Life Skills', 'https://images.openai.com/static-rsc-1/MY5msjAr7Ym6IXr783YCOBu_4JmkJpUvEpJyRjioG9LxnblpAvTwGFE_OY4ZMgMWuqjXwl0GWJ-s1PwkxsWnIoOvoiG8iGAbkNsgMxYab-UjtqVXnj8zf1Pa7LO4Z1zdJ14jk16FYYF-MS27gqCS4apf7_x42l4bo1KgSykoj0XCukjd4l7Tb8wrt-iuKYa5L0vaUtJELRn1kgkVCTCRK8VAfbLubm_wn-5p73-WpBEgcmwHtPWX2oXYyuXbH8v4', 'active');
-INSERT INTO `images` VALUES (165, 'Life Skills: How to Chop Wood, Avoid a Lightning Strike …', 'https://images.openai.com/static-rsc-1/NYKoa3RXZ-TvXfRQQKC3e6hh6Us6Zk3AQO10gqyBQ5lxFCwkM0kVHkr1Q3nTqYOVsKmuDXMMH7taNawrPU8wJDzuyj2bNhY5gDHTUVWVF3WKYWCcwbl2DbDjgSAVkwBa6jMpiGuh7Ool-FP_edPbaN8D971jPfAA3covpXzxPtL9uJXoPSeu7RiQUtULx7Y_RDZisYHw7GmCmOKeDmlokDJLBHI78ahumAKpcweRSY-3v-o5-LGPET-gtJHdNR_D', 'active');
-INSERT INTO `images` VALUES (166, 'The Little Book of Life Skills: How to Deal with Dinner…', 'https://images.openai.com/static-rsc-1/gzJnmOCGbYSM0JwvK-kOjQI4Y7Z-4Lt9oZkRyfoQuev797lkrmAY25x-0DWeOKNGUWAeMcWOqiS12LjO_s8sWilKW9oLl7VqBP90i9cju7RBEu_wUcdW23CyhYEJ1M3oNCcn77QB-PvXQa35bSyDPaLw_h_QjLckGw1jaWxBm_s8Z4x93W6tH4kPfmkkYoNWV5fS1AFGqbbwaFiyKl31kcpzXCrX2uR8dwTgZyDshBQuacipi9uBpaM0HDJKhEju', 'active');
-INSERT INTO `images` VALUES (167, 'Life Skills: How to Cook, Clean, Manage Money, Fix Your Car…', 'https://images.openai.com/static-rsc-1/oo_Wv6sylUhSOtDYvu89UmtdNuN6ylStTU90NhrItev6fnKCtEXoftav4tHuX4AmIoVYMnC_TekzO1msr6DM77RDBWxoU11mJErvE8ZV0Kjtcxx5_CLMSefEUfta6LLYkScXpV7B4ZuA2cIwwCoYHOaBR2AMQugHqR3WfRZH4C5dogWyo5nLgIOZVE6t3VTA1gGZLrfg-swrB-JfcVF1zEDpFDH2yR5Uk3UxX49nwTmz33KDm8YatZwxOosS3gzv6eiAIs2oPSF5uNXw_n1Q2g', 'active');
-INSERT INTO `images` VALUES (168, 'The Power of Now', 'https://images.openai.com/static-rsc-1/uv2mkcawi4hHcOSCzxAJg4x5ypciL-z92U6ZfJzonI0Z-W8m3s0hFm_l5_AOKF5Z-6Ey6RL8RLgwYINnoG7aYC6zcmWY0xP7mCyKIaeOfWHlKw5qoS2Ggne7KIEvXD1MvkqTh9uuuw8nM1d85yyrDCHlzC8hezCOe9SW8bPZhOloo4rxNCwkFzS7l1t8qPY00RklS_coXkXrZwYx4DduU7F-E13T1eCJihU4WBr9RPGbBM7Yg9fRIJ5wLqvCcSW_I5LdEx6QNwr92NBEbKjAJg', 'active');
-INSERT INTO `images` VALUES (169, 'Man’s Search for Meaning', 'https://covers.shakespeareandcompany.com/97818460/9781846042843.jpg', 'active');
-INSERT INTO `images` VALUES (170, 'Mindset: The New Psychology of Success', 'https://images.openai.com/static-rsc-1/0BpN6s-pQyGDno7nqrupLG7HDewehcQ2GLLICAVKITLrDGQ0PwI285j0-wXye1T3HEFIA3Zz4QCf4yEyvVkHI9sl8g8oA01fKohRlx1HuMJSrLwUTq_QyP7C7KAIoop8hrTRKSyhzQzSg60s-32-T5R849XoH91sOFJjs4YhehrR5dp_1jZyEGRzoEkH5ral0YdVzt4TBS8U1ezQvaIYsWaHdDecuOECO4D_B8ev0YZkxO9bvL9QtGu4Ull3YelG', 'active');
-INSERT INTO `images` VALUES (171, 'The 7 Habits of Highly Effective People – Stephen R. Covey', 'https://cssbooks.net/wp-content/uploads/2022/06/The-7-Habits-of-Highly-Effective-People-By-Stephen-R.-Covey.png', 'active');
-INSERT INTO `images` VALUES (172, 'How to Win Friends and Influence People – Dale Carnegie', 'https://m.media-amazon.com/images/I/71rjriZD+qL._SL1500_.jpg', 'active');
-INSERT INTO `images` VALUES (173, 'The Subtle Art of Not Giving a F*ck – Mark Manson', 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1516608004i/38120201._UY630_SR1200,630_.jpg', 'active');
-INSERT INTO `images` VALUES (174, 'Deep Work – Cal Newport', 'https://tse2.mm.bing.net/th/id/OIP.IUVt53fcwXP23-Snmv6SfAHaG1?pid=Api&P=0&h=180', 'active');
-INSERT INTO `images` VALUES (175, 'Can’t Hurt Me – David Goggins', 'https://n3.sdlcdn.com/imgs/h/2/7/Can-t-Hurt-Me-Master-SDL461428142-1-3c4a5.jpg', 'active');
-INSERT INTO `images` VALUES (176, 'The Four Agreements – Don Miguel Ruiz', 'https://tse3.mm.bing.net/th/id/OIP.vg_jWjn6hEIOjIBAwk_IygHaHa?pid=Api&P=0&h=180', 'active');
-INSERT INTO `images` VALUES (177, 'Đắc Nhân Tâm – Dale Carnegie', 'https://pos.nvncdn.com/fd5775-40602/ps/20240406_eLnSJ8HdxS.jpeg', 'active');
-INSERT INTO `images` VALUES (178, 'Tư Duy Tích Cực – Norman Vincent Peale', 'https://cafebiz.cafebizcdn.vn/2017/3-1512617724858.jpg', 'active');
-INSERT INTO `images` VALUES (179, 'Bí Mật Của May Mắn – Alex Rovira & Fernando Trías de Bes', 'https://m.media-amazon.com/images/I/71KbjtRTw6L._SL1500_.jpg', 'active');
-INSERT INTO `images` VALUES (180, 'Khéo Ăn Nói Sẽ Có Được Thiên Hạ – Trác Nhã', 'https://www.vietbookalley.com.au/cdn/shop/products/kheo-an-noi_900x.webp?v=1669373347', 'active');
-INSERT INTO `images` VALUES (181, 'Sức Mạnh Của Thói Quen – Charles Duhigg', 'https://pos.nvncdn.com/fd5775-40602/ps/20240109_WgvTT2bI3N.jpeg', 'active');
-INSERT INTO `images` VALUES (182, 'Quẳng Gánh Lo Đi Và Vui Sống – Dale Carnegie', 'https://pos.nvncdn.com/fd5775-40602/ps/20240621_421uEPwSge.png', 'active');
-INSERT INTO `images` VALUES (183, 'Đi Tìm Lẽ Sống – Viktor E. Frankl', 'https://tiemsach.org/wp-content/uploads/2023/07/Ebook-Di-tim-le-song.jpg', 'active');
-INSERT INTO `images` VALUES (184, '', '', 'active');
-INSERT INTO `images` VALUES (185, '', '', 'active');
-INSERT INTO `images` VALUES (186, '30 Món Ăn Chay Giàu Dinh Dưỡng (Lý Ngân Hoán)', 'https://salt.tikicdn.com/cache/750x750/ts/product/52/0a/e1/498f7ad8c09685ac2a06a55c3807d5b0.jpg.webp', 'active');
-INSERT INTO `images` VALUES (187, '170 Món Ăn Chay (Võ Thị Hòa)', 'https://cdn.hstatic.net/products/200000481913/af9b8c9a-3beb-421a-8ef8-a933808665c3_bd8fc1c3c0024487b63203a11663be7e_master.jpg', 'active');
-INSERT INTO `images` VALUES (188, 'Tuyệt Kỹ 500 Công Thức Nấu Ăn Chay (Đại sứ Trí tuệ Team)', 'https://dilib.vn/img/news/2023/04/larger/13772-tuyet-ky-500-cong-thuc-nau-an-chay-1.jpg?v=2095', 'active');
-INSERT INTO `images` VALUES (189, 'Bánh Tây Phương (Nguyễn Thu Dung - Nguyễn Thị Thanh)', 'https://khosachcu.com/image/cache/data/Nu-Cong-Gia-Chanh/banh-tay-phuong-260x350.jpg', 'active');
-INSERT INTO `images` VALUES (190, 'Các món chè & Bánh Truyền Thống (Kim Phượng)', 'https://cdn1.fahasa.com/media/catalog/product/8/9/8935095620654.jpg', 'active');
-INSERT INTO `images` VALUES (191, 'Món Ngon Chế BIến Từ Chocolate (Lê Thanh Xuân)', 'https://nxbphunu.com.vn/wp-content/uploads/2018/09/mon-ngon-tu-chocolate-bia-1.jpg', 'active');
-INSERT INTO `images` VALUES (192, '120 Món Súp Bổ Dưỡng Cho Trẻ Em Và Người Bệnh (Mỹ Hạnh)', 'https://nxbphunu.com.vn/wp-content/uploads/2018/09/120-mon-sup-bo-duong.jpg', 'active');
-INSERT INTO `images` VALUES (193, '150 Món Ăn Ngon Của Bé (Tạ Ngọc Ái - Phạm Quốc Bảo)', 'https://1.bp.blogspot.com/-jKuNA6bsEQc/Xs3hAAq5AuI/AAAAAAAASAI/VeDsixL1_bcXFewhAOJbE6S90qkyApKzgCK4BGAsYHg/150-mon-an-ngon-cho-be.jpg', 'active');
-INSERT INTO `images` VALUES (194, 'Ăn Dặm Bé Chỉ Huy (Gill Rapley & Tracey Murkett)', 'https://product.hstatic.net/1000217031/product/bia_pp-an-dam-be-chi-huy_6.2.2014-01.jpg', 'active');
-INSERT INTO `images` VALUES (195, 'Ăn Dặm Không Nước Mắt (Nguyễn Thị Ninh - Mẹ Xoài)', 'https://salt.tikicdn.com/cache/750x750/ts/product/28/6d/b5/33fcfb0a58a447e511f0b94588bff174.jpg.webp', 'active');
-INSERT INTO `images` VALUES (196, 'Ăn Dặm Kiểu Nhật (Mẹ Ổi Mít)', 'https://salt.tikicdn.com/ts/upload/12/e2/4a/c5226426ee9429b0050449ae5403c9cf.png', 'active');
-INSERT INTO `images` VALUES (197, 'Sổ Tay Ăn Dặm Của Mẹ (BS. Lê Thị Hải)', 'https://salt.tikicdn.com/ts/upload/12/e2/4a/c5226426ee9429b0050449ae5403c9cf.png', 'active');
-INSERT INTO `images` VALUES (198, '100 Món Ăn Ngon Christine Hà (Cristine Hà - Vua Đầu Bếp  Mỹ 2012)', 'https://drive.google.com/file/d/1p4QHeHXzgduScDHHUujjSLOtVz03J6o_/view', 'active');
-INSERT INTO `images` VALUES (199, '555 Món Ăn Việt Nam - Kỹ Thuật Chế Biến Và Giá Trị Dinh Dưỡng (Trường Đại Học Thương Mại Hà Nội)', 'https://salt.tikicdn.com/cache/750x750/media/catalog/product/5/5/555-mon-an-vn.jpg.webp', 'active');
-INSERT INTO `images` VALUES (200, 'Chế Biến Món Ăn Bằng Lò Vi Sóng - Món Bò, Gà, Lợn (Thu Thủy)', 'https://drive.google.com/file/d/14FH9xITpqM3Vt0o6I7cmZ-cDD43jPSO5/view', 'active');
-INSERT INTO `images` VALUES (201, 'Chế Biến Món Ăn Bằng Lò Vi Sóng - Món Điểm Tâm (Thu Thủy)', 'https://salt.tikicdn.com/cache/750x750/media/catalog/product/m/_/m_n_i_m_t_m-ch_bi_n_m_n_n_b_ng_l_vi_s_ng.jpg.webp', 'active');
-INSERT INTO `images` VALUES (202, 'Chế Biến Món Ăn Bằng Lò Vi Sóng - Hải Sản, Rau, Canh (Thu Thủy)', 'https://vietlib-hcm.sgp1.digitaloceanspaces.com/Uploads/THU_VIEN/shcm/2/2640/UserImages/7.4.-thumb-Che-bien-mon-an-bang-lo-vi-song-mon-hai-san-rau-canh-500x554-0ec91ef7-fb7c-4b97-90e4-306f61125db2.jpg?w=2048', 'active');
-INSERT INTO `images` VALUES (203, 'Giáo Trình Thực Hành Chế Biến Món Ăn (Nguyễn Thị Tuyết - Uông Thị Toan)', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-giao-trinh-thuc-hanh-che-bien-mon-an.jpg', 'active');
-INSERT INTO `images` VALUES (204, 'Kỹ Thuật Chế Biến 300 Món Ăn Ngon (Nhiều tác giả. Biên dịch: Thùy Linh)', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-ky-thuat-che-bien-300-mon-an-ngon.jpg', 'active');
-INSERT INTO `images` VALUES (205, 'Kỹ Thuật Nấu Ăn Toàn Tập (Triệu Thị Chơi)', 'https://cdn1.fahasa.com/media/catalog/product/k/y/ky_thuat_nau_an_toan_tap_1_2018_08_03_14_05_04.jpg', 'active');
-INSERT INTO `images` VALUES (206, 'Kỹ Thuật Chế Biến Các Món Lẩu Sốt Xúp (Lê Thanh Xuân)', 'https://salt.tikicdn.com/cache/750x750/media/catalog/product/i/m/img844_3.jpg.webp', 'active');
-INSERT INTO `images` VALUES (207, 'Món Ngon Dễ Làm (Minh Thư)', 'https://dilib.vn/img/news/2023/04/larger/13776-mon-ngon-de-lam-1.jpg?v=4783', 'active');
-INSERT INTO `images` VALUES (208, 'Quick & Easy (Ngọc Linh)', 'https://dilib.vn/img/news/2023/04/larger/13778-huong-dan-nau-an-quick-easy-don-gian-ma-ngon-1.jpg?v=3178', 'active');
-INSERT INTO `images` VALUES (209, 'Hướng Dẫn Nấu Ăn 200 Món Truyền Thống (Nhiều tác giả)', 'https://www.hoteljob.vn/files/Anh-HTJ-Hong/ebook-huong-dan-nau-an-200-mon-truyen-thong-sach-hay-cho-dau-bep-viet-2.jpg', 'active');
-INSERT INTO `images` VALUES (210, '84 Món Nhậu Độc Đáo Việt Nam (Vua Đầu Bếp)', 'https://metaisach.com/_ipx/_/https://media.metaisach.com/2025/02/84-mon-nhau-doc-dao-nhat-cua-viet-nam-e37070b6.jpeg', 'active');
-INSERT INTO `images` VALUES (211, 'Kỹ Thuật Chế Biến Trái Cây (Từ Triệu Hải - Cao Tích Vĩnh)', 'https://metaisach.com/_ipx/_/https://media.metaisach.com/2025/02/ky-thuat-che-bien-trai-cay-82fdb97b.jpeg', 'active');
-INSERT INTO `images` VALUES (212, 'Nấu Ăn Cho Người Già (Tần Trúc)', 'https://i.ebayimg.com/images/g/IPsAAOSwlxNlIb7g/s-l1600.webp', 'active');
-INSERT INTO `images` VALUES (213, 'Nấu Món Ăn Hàn Quốc Thật Dễ (Tổng cục du lịch Hàn Quốc)', 'https://dokumen.pub/img/200x200/nau-mon-an-han-quoc-that-de.jpg', 'active');
-INSERT INTO `images` VALUES (214, 'Nghệ Thuật Nấu Ăn Vui Khỏe (Lima Ohsawa - Diệu Hạnh)', 'https://down-vn.img.susercontent.com/file/vn-11134258-820l4-mg6eq199baq1e5', 'active');
-INSERT INTO `images` VALUES (215, 'Sách Nấu Ăn Dưỡng Sinh Ohsawa (Nguyễn  Thị Thu Ba)', 'https://sachhuyenhoc.info/wp-content/uploads/2022/01/Sach-Nau-An-Duong-Sinh-Ohsawa.jpg', 'active');
-INSERT INTO `images` VALUES (217, 'Ông và Cháu', 'https://ebookvie.com/wp-content/uploads/2025/06/ong-va-chau-tu-mo.jpg', 'active');
-INSERT INTO `images` VALUES (218, 'Lộc Biếc', 'https://ebookvie.com/wp-content/uploads/2025/06/loc-biec-nhieu-tac-gia.jpg', 'active');
-INSERT INTO `images` VALUES (219, 'Xứ Nevermoor Diệu Kỳ 3 - Morrigan Và Lời Triệu', 'https://ebookvie.com/wp-content/uploads/2025/04/cover-72.jpg', 'active');
-INSERT INTO `images` VALUES (220, 'Xứ Nevermoor Diệu Kỳ 1 – Morrigan Và Những Thử Thách Gay Cấn', 'https://ebookvie.com/wp-content/uploads/2025/04/cover-70.jpg', 'active');
-INSERT INTO `images` VALUES (221, 'Xứ Nevermoor Diệu Kỳ 2 – Morrigan Và Dịch Bệnh Trống Rỗng', 'https://ebookvie.com/wp-content/uploads/2025/04/cover-71.jpg', 'active');
-INSERT INTO `images` VALUES (222, 'Lô Bô Chúa tể vùng Ca Răm Pô (Lobo Chúa Tể Currumpaw)', 'https://ebookvie.com/wp-content/uploads/2024/12/lo-bo-chua-te-vung-carompo.jpg', 'active');
-INSERT INTO `images` VALUES (223, 'Tôi là Coriander', 'https://ebookvie.com/wp-content/uploads/2024/12/toi-la-coriander-sally-gardner.jpg', 'active');
-INSERT INTO `images` VALUES (224, 'Nha Sĩ Yêu Quái', 'https://ebookvie.com/wp-content/uploads/2025/01/Nha-Si-Yeu-Quai.webp', 'active');
-INSERT INTO `images` VALUES (225, 'Lại thằng nhóc Emil', 'https://ebookvie.com/wp-content/uploads/2025/01/Lai-Thang-Nhoc-Emil.jpg', 'active');
-INSERT INTO `images` VALUES (226, 'Những Tấm Lòng Cao Cả', 'https://ebookvie.com/wp-content/uploads/2024/12/Nhung-Tam-Long-Cao-Ca.jpg', 'active');
-INSERT INTO `images` VALUES (227, 'Bà Ngoại Phù Thủy Và Mùa Hè Tập Sự', 'https://ebookvie.com/wp-content/uploads/2024/12/Ba-Ngoai-Phu-Thuy-Va-Mua-He-Tap-Su.jpg', 'active');
-INSERT INTO `images` VALUES (228, 'Charlie Và Nhà Máy Chocolate', 'https://ebookvie.com/wp-content/uploads/2024/12/Charlie-Va-Nha-May-Chocolate.webp', 'active');
-INSERT INTO `images` VALUES (229, 'Thay mẹ cha gánh vác sơn hà', 'https://ebookvie.com/wp-content/uploads/2024/12/Thay-Me-Cha-Ganh-Vac-Son-Ha.jpg', 'active');
-INSERT INTO `images` VALUES (230, 'Công Chúa Nhỏ Chăn Cừu', 'https://ebookvie.com/wp-content/uploads/2024/12/Cong-Chua-Nho-Chan-Cuu.jpg', 'active');
-INSERT INTO `images` VALUES (231, 'Bông Hồng Trên Ngọn Đồi Xanh', 'https://ebookvie.com/wp-content/uploads/2024/12/bong-hong-tren-ngon-doi-xanh-louisa-may-alcott-quach-cam-phuong-dich.jpg', 'active');
-INSERT INTO `images` VALUES (232, 'Người Bạn Phi Thường', 'https://ebookvie.com/wp-content/uploads/2024/08/nguoi-ban-phi-thuong-elena-ferrante-nguyen-minh-nguyet-dich.jpg', 'active');
-INSERT INTO `images` VALUES (233, 'Đếm Sao - Lois Lowry', 'https://ebookvie.com/wp-content/uploads/2024/07/Dem-Sao.jpg', 'active');
-INSERT INTO `images` VALUES (234, 'Cô Bé Uống Ánh Trăng', 'https://ebookvie.com/wp-content/uploads/2024/07/Co-Be-Uong-Anh-Trang.jpg', 'active');
-INSERT INTO `images` VALUES (235, 'Crenshaw: Chú Mèo Lướt Ván', 'https://ebookvie.com/wp-content/uploads/2024/07/Crenshaw-Chu-Meo-Luot-Van.jpg', 'active');
-INSERT INTO `images` VALUES (236, 'Gấu Pooh Xinh Xắn', 'https://ebookvie.com/wp-content/uploads/2024/07/gau-pooh-xinh-xan-a-a-milne-nguyen-tam-dich.jpg', 'active');
-INSERT INTO `images` VALUES (237, 'Bức Chúc Thư Bằng Mật Mã ', 'https://ebookvie.com/wp-content/uploads/2024/07/buc-chuc-thu-bang-mat-ma-paul-jacques-bonzon-doan-dien-dich.jpg', 'active');
-INSERT INTO `images` VALUES (238, 'Những Cuộc Phiêu Lưu Của Tom Sawyer', 'https://ebookvie.com/wp-content/uploads/2024/07/nhung-cuoc-phieu-luu-cua-tom-sawyer.jpg', 'active');
-INSERT INTO `images` VALUES (239, 'Biển Niên Sử Linh Thú Huyền Thoại: Tập 4 - Mê Cung Ma Thuật', 'https://ebookvie.com/wp-content/uploads/2024/07/Bien-Nien-Su-Linh-Thu-Huyen-Thoai-Tap-4-Me-Cung-Ma-Thuat.jpg', 'active');
-INSERT INTO `images` VALUES (240, 'Biên Niên Sử Linh Thú Huyền Thoại: Tập 3 - Khúc Hải Ca Dữ Dội', 'https://ebookvie.com/wp-content/uploads/2024/07/Bien-Nien-Su-Linh-Thu-Huyen-Thoai-Tap-3-Khuc-Hai-Ca-Du-Doi.jpg', 'active');
-INSERT INTO `images` VALUES (241, 'Biên Niên Sử Linh Thú Huyền Thoại: Tập 2 - Lang Âm Và Nhạc Khí', 'https://ebookvie.com/wp-content/uploads/2024/07/Bien-Nien-Su-Linh-Thu-Huyen-Thoai-Tap-2-Lang-Am-Va-Nhac-Khi.jpg', 'active');
-INSERT INTO `images` VALUES (242, 'Biên Niên Sử Linh Thú Huyền Thoại: Tập 1 - Đụng Độ Thần Thú', 'https://ebookvie.com/wp-content/uploads/2024/07/Bien-Nien-Su-Linh-Thu-Huyen-Thoai-Tap-1-%E2%80%93-Dung-Do-Than-Thu.jpg', 'active');
-INSERT INTO `images` VALUES (243, 'Alice Lạc Vào Xứ Sở Diệu Kỳ Và Đi Qua Tấm Gương', 'https://ebookvie.com/wp-content/uploads/2024/06/Alice-Lac-Vao-Xu-So-Dieu-Ky-Va-Di-Qua-Tam-Guong.jpg', 'active');
-INSERT INTO `images` VALUES (244, 'Tự Truyện Một Con Heo', 'https://ebookvie.com/wp-content/uploads/2024/06/Tu-Truyen-Mot-Con-Heo.jpg', 'active');
-INSERT INTO `images` VALUES (245, 'Mắt Sói - Daniel Pennac', 'https://ebookvie.com/wp-content/uploads/2024/06/Mat-Soi-Daniel-Pennac.jpg', 'active');
-INSERT INTO `images` VALUES (246, 'Truyện Cổ Dân Gian Nga', 'https://ebookvie.com/wp-content/uploads/2024/04/Truyen-Co-Dan-Gian-Nga.jpg', 'active');
-INSERT INTO `images` VALUES (247, 'HEIDI - Johanna Spyri', 'https://ebookvie.com/wp-content/uploads/2024/04/HEIDI-Johanna-Spyri.jpg', 'active');
-INSERT INTO `images` VALUES (248, 'Năm Đứa Trẻ Và Nó', 'https://ebookvie.com/wp-content/uploads/2024/04/Nam-Dua-Tre-Va-No.jpg', 'active');
-INSERT INTO `images` VALUES (249, 'Công Chúa Cá', 'https://ebookvie.com/wp-content/uploads/2023/12/cong-chua-ca.jpg', 'active');
-INSERT INTO `images` VALUES (250, 'Chiếc Rìu - Gary Paulsen ', 'https://ebookvie.com/wp-content/uploads/2023/12/chiec-riu.jpg', 'active');
-INSERT INTO `images` VALUES (251, 'Chó Xanh Lông Dài', 'https://ebookvie.com/wp-content/uploads/2023/12/cho-xanh-long-dai.jpg', 'active');
-INSERT INTO `images` VALUES (253, 'Tuổi Thơ Dữ Dội', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-tuoi-tho-du-doi.jpg', 'active');
-INSERT INTO `images` VALUES (254, 'Chị Em Khác Mẹ', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-chi-em-khac-me.jpg', 'active');
-INSERT INTO `images` VALUES (255, 'Ranh Giới', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-ranh-gioi.jpg', 'active');
-INSERT INTO `images` VALUES (256, 'Chiếc Ngai Vàng', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-chiec-ngai-vang.jpg', 'active');
-INSERT INTO `images` VALUES (257, 'Dứt Tình', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-dut-tinh.jpg', 'active');
-INSERT INTO `images` VALUES (258, 'Ván Bài Lật Ngửa', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-van-bai-lat-ngua.jpg', 'active');
-INSERT INTO `images` VALUES (259, 'Đốc Rác Cũ - Trọn Bộ', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-dong-rac-cu-tron-bo.jpg', 'active');
-INSERT INTO `images` VALUES (260, 'Quân Khu Nam Đồng', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-quan-khu-nam-dong.jpg', 'active');
-INSERT INTO `images` VALUES (261, 'Sau Cành Violet', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-sau-canh-violet.jpg', 'active');
-INSERT INTO `images` VALUES (262, 'Cuộc Đời Ngoài Cửa', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-cuoc-doi-ngoai-cua.jpg', 'active');
-INSERT INTO `images` VALUES (263, 'Những Ngã Tư Và Những Cái Cột Đèn', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-nhung-nga-tu-va-nhung-cot-den.jpg', 'active');
-INSERT INTO `images` VALUES (264, 'Ngày Vui', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-ngay-vui.jpg', 'active');
-INSERT INTO `images` VALUES (265, 'Tuyển Tập Truyện Ngắn Vũ Trọng Phụng', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-tuyen-tap-truyen-ngan-vu-trong-phung.jpg', 'active');
-INSERT INTO `images` VALUES (266, 'Con Hoang', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-con-hoang.jpg', 'active');
-INSERT INTO `images` VALUES (267, 'Đoạn Tình', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-doan-tinh.jpg', 'active');
-INSERT INTO `images` VALUES (268, 'Một Đứa Con Đã Khôn Ngoan', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-mot-dua-con-da-khon-ngoan.jpg', 'active');
-INSERT INTO `images` VALUES (269, 'Những Mảnh Đời Đen Trắng', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-nhung-manh-doi-den-trang.jpg', 'active');
-INSERT INTO `images` VALUES (270, 'Ăn Mày Dĩ Vãng', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-an-may-di-vang.jpg', 'active');
-INSERT INTO `images` VALUES (271, 'Đời Callboy', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-doi-callboy.jpg', 'active');
-INSERT INTO `images` VALUES (272, 'Đêm Hội Long Trì', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-dem-hoi-long-tri.jpg', 'active');
-INSERT INTO `images` VALUES (273, 'Cạm Bẫy Người ', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-cam-bay-nguoi.jpg', 'active');
-INSERT INTO `images` VALUES (274, 'Bỉ Vỏ ', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-bi-vo.jpg', 'active');
-INSERT INTO `images` VALUES (275, 'Làm Đĩ', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-lam-di.jpg', 'active');
-INSERT INTO `images` VALUES (276, 'Cuộc Đời Dài Lắm', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-cuoc-doi-dai-lam.jpg', 'active');
-INSERT INTO `images` VALUES (277, 'Nhiều Cách Sống', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-nhieu-cach-song.jpg', 'active');
-INSERT INTO `images` VALUES (278, 'Nỗi Buồn Chiến Tranh', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-noi-buon-chien-tranh.jpg', 'active');
-INSERT INTO `images` VALUES (279, 'Lều Chõng', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-leu-chong.jpg', 'active');
-INSERT INTO `images` VALUES (280, 'Vết Thù Hằn Trên Lưng Ngựa Hoang', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-vet-thu-han-tren-lung-ngua-hoang.jpg', 'active');
-INSERT INTO `images` VALUES (281, 'Hương Sắc Trong Vườn Văn', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-huong-sac-trong-vuon-van.jpg', 'active');
-INSERT INTO `images` VALUES (282, 'Đời Viết Văn Của Tôi', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-doi-viet-van-cua-toi.jpg', 'active');
-INSERT INTO `images` VALUES (283, 'Đời Nghệ SĨ', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-doi-nghe-si.jpg', 'active');
-INSERT INTO `images` VALUES (284, 'Tuyển Tập Nguyễn Hiến Lê - Tập 4: Văn Học', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-tuyen-tap-nguyen-hien-le-tap-4-van-hoc.jpg', 'active');
-INSERT INTO `images` VALUES (285, 'Điều Bí Mật', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-dieu-bi-mat-2.jpg', 'active');
-INSERT INTO `images` VALUES (286, 'Cơ Hội Của Chúa', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-co-hoi-cua-chua.jpg', 'active');
-INSERT INTO `images` VALUES (287, 'Khách Nợ ', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-khach-no.jpg', 'active');
-INSERT INTO `images` VALUES (288, 'Vu Quy', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-vu-quy.jpg', 'active');
-INSERT INTO `images` VALUES (289, 'Trúng Số Độc Đắc', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-trung-so-doc-dac.jpg', 'active');
-INSERT INTO `images` VALUES (290, 'Một Chủ Nhật Khác', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-mot-chu-nhat-khac.jpg', 'active');
-INSERT INTO `images` VALUES (291, 'Bên Kia Bờ Ảo Vọng', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-ben-kia-bo-ao-vong.jpg', 'active');
-INSERT INTO `images` VALUES (292, 'Thềm Hoang', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-them-hoang.jpg', 'active');
+INSERT INTO `images` VALUES (1, 'Clean Code — Robert C. Martin (Uncle Bob)', 'https://m.media-amazon.com/images/I/51E2055ZGUL._SY522_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728511/phgnn1hqztcbqijkqrys.jpg');
+INSERT INTO `images` VALUES (2, 'The Pragmatic Programmer — Andrew Hunt & David Thomas', 'https://imagery.pragprog.com/products/59/tpp_xlargecover.jpg?1339433898', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728514/nkv3dahjunruqsesif7l.jpg');
+INSERT INTO `images` VALUES (3, 'Design Patterns: Elements of Reusable Object-Oriented Software — Gamma et al.', 'https://m.media-amazon.com/images/I/51JYkEpbhzL.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728516/h1dpzsuerevs2cyrwrfs.jpg');
+INSERT INTO `images` VALUES (4, 'Refactoring — Martin Fowler', 'https://tse3.mm.bing.net/th/id/OIP.jFhqZJDmGkihlnRAfHlDEQHaJM?rs=1&pid=ImgDetMain&o=7&rm=3', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780755823/ayjfvx8vnv4glcymmtg9.webp');
+INSERT INTO `images` VALUES (5, 'Code Complete — Steve McConnell', 'https://m.media-amazon.com/images/I/71CjT0N23ML.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728519/jglq4hx8vjly9zjswwe3.jpg');
+INSERT INTO `images` VALUES (6, 'Continuous Delivery — Jez Humble & David Farley', 'https://m.media-amazon.com/images/I/61URM5B90LL._UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728521/jpls1llhz0ajfer3qj6n.jpg');
+INSERT INTO `images` VALUES (7, 'Release It! — Michael T. Nygard', 'https://ts2.mm.bing.net/th?id=OIP.5Ur3yVkuXYMBD_y0lmrRLAAAAA&pid=15.1', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728523/l3kyy5i5wlzjn8e7iowk.jpg');
+INSERT INTO `images` VALUES (8, 'Designing Data-Intensive Applications — Martin Kleppmann', 'https://m.media-amazon.com/images/I/91YfNb49PLL._AC_UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728525/jtoonbos0kxnjchxuidr.jpg');
+INSERT INTO `images` VALUES (9, 'Site Reliability Engineering (SRE) — Google (tập hợp bài viết)', 'https://m.media-amazon.com/images/I/814nAGmpAGL._AC_UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728528/lwo9mebyxayozzin7bpr.jpg');
+INSERT INTO `images` VALUES (10, 'The Phoenix Project — Gene Kim, Kevin Behr, George Spafford', 'https://m.media-amazon.com/images/I/71NMJeBW1AL._AC_UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728530/p8bbwdxlduki0nf7z3fy.jpg');
+INSERT INTO `images` VALUES (11, 'The DevOps Handbook — Gene Kim et al.', 'https://m.media-amazon.com/images/I/71mhqEw8LcL._AC_UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728532/nrnh61unfab7p3q49o9x.jpg');
+INSERT INTO `images` VALUES (12, 'Introduction to Algorithms — Cormen, Leiserson, Rivest, Stein', 'https://m.media-amazon.com/images/I/61Mw06x2XcL._AC_UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728535/fqjwjieti4qwc0lcjgxy.jpg');
+INSERT INTO `images` VALUES (13, 'Algorithms (Robert Sedgewick & Kevin Wayne)', 'https://m.media-amazon.com/images/I/61-8ZU7X3UL._AC_UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728537/io9cizz786ygvzjdlptc.jpg');
+INSERT INTO `images` VALUES (14, 'Database System Concepts — Silberschatz, Korth, Sudarshan', 'https://m.media-amazon.com/images/I/918%2BJZbmWLL._UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728540/f7rvnbk3gbgipenedlv3.jpg');
+INSERT INTO `images` VALUES (15, 'Designing Distributed Systems — Brendan Burns', 'https://m.media-amazon.com/images/I/91CxhyACrlL._AC_UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728542/wpnnzqaebfu0xnk2nsdn.jpg');
+INSERT INTO `images` VALUES (16, 'Operating Systems: Three Easy Pieces — Remzi & Andrea Arpaci-Dusseau. UW Computer Sciences', 'https://m.media-amazon.com/images/I/81dYVXSuEOL._UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728545/zkfz0iq5wzoyopqegpua.jpg');
+INSERT INTO `images` VALUES (17, 'Computer Networks — Andrew S. Tanenbaum / Kurose & Ross', 'https://m.media-amazon.com/images/I/81dYVXSuEOL._UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728547/zfejd1cwcqr0lcapqkpj.jpg');
+INSERT INTO `images` VALUES (18, 'TCP/IP Illustrated (Vol 1) — W. Richard Stevens', 'https://m.media-amazon.com/images/I/51hobElGJaL._AC_UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728549/gma2vx4l7nmli2grec8h.jpg');
+INSERT INTO `images` VALUES (19, 'The Linux Programming Interface — Michael Kerrisk', 'https://m.media-amazon.com/images/I/71kj6C0TNdL._AC_UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728551/vjc7rrblz5hzlmnwwccl.jpg');
+INSERT INTO `images` VALUES (20, 'Practical Object-Oriented Design in Ruby (or equivalent SOLID patterns)', 'https://images.squarespace-cdn.com/content/v1/5527cdbae4b0ee7b897c2111/1530279450483-K5BJ5TZGMYSWYA3QQA63/POODR_2e_cover_low_res.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728553/nuxvhvcvdsvgvrkcnq16.jpg');
+INSERT INTO `images` VALUES (21, 'Patterns of Enterprise Application Architecture — Martin Fowler', 'https://m.media-amazon.com/images/I/61yNt%2BjcM0L._AC_UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728555/butmjb7qllcchg06hckr.jpg');
+INSERT INTO `images` VALUES (22, 'Domain-Driven Design — Eric Evans', 'https://m.media-amazon.com/images/I/81ykBjVaUjL._AC_UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728557/nl9ugmzlpdns6fkercpt.jpg');
+INSERT INTO `images` VALUES (23, 'Head First Design Patterns — Eric Freeman et al.', 'https://m.media-amazon.com/images/I/91bobQSPQrL._AC_UF350%2C350_QL50_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728560/cjypgyl5cdumkjz2bh3u.jpg');
+INSERT INTO `images` VALUES (24, 'Modern Operating Systems — Andrew S. Tanenbaum', 'https://m.media-amazon.com/images/I/9162thPPL%2BL._AC_UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728562/jl8ejz98qtgwuwn4xfsi.jpg');
+INSERT INTO `images` VALUES (25, 'High Performance Browser Networking — Ilya Grigorik', 'https://m.media-amazon.com/images/I/91UPPjIl2SL._AC_UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728564/ip2ehjxmbw96zizlhtii.jpg');
+INSERT INTO `images` VALUES (26, 'Systems Performance — Brendan Gregg', 'https://m.media-amazon.com/images/I/71kKbm9LEqL._AC_UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728566/alfpagpqkomn0dk3aaga.jpg');
+INSERT INTO `images` VALUES (27, 'Effective Java — Joshua Bloch', 'https://m.media-amazon.com/images/I/7167aaVxs3L._AC_UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728568/vvkyzirnwdv0s379hplq.jpg');
+INSERT INTO `images` VALUES (28, 'Programming Pearls — Jon Bentley', 'https://m.media-amazon.com/images/I/61biXaIiAGL._SL1400_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780755825/mra8qi3nrvwdwtvwmz4u.jpg');
+INSERT INTO `images` VALUES (29, 'Fundamentals of Database Systems — Elmasri & Navathe', 'https://m.media-amazon.com/images/I/71ocXCxUQVL._AC_UF1000%2C1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728571/pftisvgub4ypcrc8vakm.jpg');
+INSERT INTO `images` VALUES (30, 'Pattern Recognition and Machine Learning — Christopher M. Bishop', 'https://m.media-amazon.com/images/I/71fqxXDY2ZL._AC_UF1000,1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728573/lwlup8y0uhiuy6gl04b8.jpg');
+INSERT INTO `images` VALUES (31, 'Machine Learning: A Probabilistic Perspective — Kevin P. Murphy', 'https://m.media-amazon.com/images/I/61NfFcHXGxL._AC_UF1000,1000_QL80_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728575/zqd8dwpycf2yprpbxcit.jpg');
+INSERT INTO `images` VALUES (32, 'Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow — urélien Géron', 'https://tse3.mm.bing.net/th/id/OIP.RirFCsaxo4WrlgK5OgDUkQHaJQ?rs=1&pid=ImgDetMain&o=7&rm=3', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780755827/inuwztul0bi9duktwixr.webp');
+INSERT INTO `images` VALUES (33, 'Reinforcement Learning: An Introduction — Richard S. Sutton & Andrew G. arto.', 'https://m.media-amazon.com/images/I/81FZm0T01AL._SL1500_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780755828/omz02g3a67nu30n4dx6x.jpg');
+INSERT INTO `images` VALUES (34, 'Probabilistic Graphical Models — Daphne Koller.', 'https://th.bing.com/th/id/R.fdfb8c3e8f7bec43d2067d8bf586633e?rik=HQqhHoqlo%2feutQ&pid=ImgRaw&r=0', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780755831/v1wgklqtgr2ny6brudsj.jpg');
+INSERT INTO `images` VALUES (35, 'Bayesian Reasoning and Machine Learning — David Barber (lecture notes / book)', 'https://tse3.mm.bing.net/th/id/OIP.uIv3qDp9lFvsju3iB_OzBQHaLO?rs=1&pid=ImgDetMain&o=7&rm=3', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728579/fc0psyoorg6fltzllvcu.webp');
+INSERT INTO `images` VALUES (36, 'Neural Networks and Deep Learning — Michael Nielsen (online book)', 'https://tse1.mm.bing.net/th/id/OIP.6mp5eV0OrS_i3DTcAxb-5AHaJJ?rs=1&pid=ImgDetMain&o=7&rm=3', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728581/qvjm65gpskorfoorwdkf.webp');
+INSERT INTO `images` VALUES (37, 'Natural Language Processing with Transformers — (practical guides)', 'https://tse1.mm.bing.net/th/id/OIP.6mp5eV0OrS_i3DTcAxb-5AHaJJ?rs=1&pid=ImgDetMain&o=7&rm=3', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728583/vdpnjdujok6lm1nptun8.webp');
+INSERT INTO `images` VALUES (38, 'Speech and Language Processing — Jurafsky & Martin', 'OIP.UntDTX1rJXylUgGfj6vb4QAAAA (378×500)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (39, 'Deep Reinforcement Learning Hands-On — Maxim Lapan', 'OIP.sjkWhD27vpln6Ehji-xTTgAAAA (194×238)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (40, 'Computer Vision: Algorithms and Applications — Richard Szeliski (ebook vailable from author/site)', '61cyQ3OIp6L._SL1099_.jpg (827×1099)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (41, 'Practical Statistics for Data Scientists — Peter Bruce, Andrew Bruce', 'OIP.JMvnnnAWvwpFV77mrnhM7AHaJu (474×622)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (42, 'The Elements of Statistical Learning — Hastie, Tibshirani, Friedman', 'OIP.C3PB3BRzKp9SvddEP86rbQHaLd (474×733)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (43, 'Introduction to Statistical Learning — Gareth James et al. ', 'OIP.SBMvQ-zu8MBRTOU4XiLJZgHaLJ (474×713)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (44, 'Applied Predictive Modeling — Max Kuhn & Kjell Johnson', 'OIP.rmmyI0Sn2JoCILuyu9kMTgHaLh (474×737)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (45, 'Mathematics for Machine Learning — Marc Peter Deisenroth, A. Aldo Faisal, Cheng Soon Ong.', 'R.68f355fd2c309cb39921608df9e9cb09 (419×630)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (46, 'Deep Learning for Computer Vision — Adrian Rosebrock (practical)', 'R.1747c68e50a972d54f2c04f4cbeb9a3a (529×751)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (47, 'Generative Deep Learning — David Foster', 'Generative_Deep_Learning-_David_Foster-14729-435798.jpg (260×372)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (48, 'Reinforcement Learning by Example — (various practical books)', 'OIP.Rf6Ad_UK6rwtaOyiBPjaSwAAAA (185×270)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (49, 'Bayesian Data Analysis — Gelman et al.', 'bda_cover.jpg (1014×1304)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (50, 'Feature Engineering for Machine Learning — (various)', '31393737.jpg (500×656)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (51, 'Machine Learning Yearning — Andrew Ng (free ebook/notes)', 'OIP.fxy5-bUKrgCVIKa5hGTbZgHaG1 (474×437)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (52, 'Hands-On Reinforcement Learning with Python — (practical)', 'OIP.la1mX0PucurbOsfgdwuuVQHaJJ (474×585)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (53, 'Applied Deep Learning — Umberto Michelucci (or similar)', '41NqkuSQOUL._SY445_SX342_.jpg (312×445)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (54, 'Introduction to Information Retrieval — Manning, Raghavan, Schütze.', 'OIP.oQnPcWb0uAGMYLze1lY_-QAAAA (342×452)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (55, 'Algorithms for Optimization — (useful for ML)', 'R.30ad018aedc5c497f188e7d15b117bf7 (1536×1738)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (56, 'Foundations of Machine Learning — Mohri, Rostamizadeh, Talwalkar', '81UXzHp99PL._SL1500_.jpg (1106×1500)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (57, 'An Introduction to Statistical Learning with Applications in R.', '61XlRprVVML.jpg (827×1246)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (58, 'Practical Deep Learning for Cloud, Mobile, and Edge.', 'OIP.fM_EXcRBaJsbYO4kH-vJsQHaJu (474×622)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (59, 'University Physics (OpenStax) — Giải tích/đại cương\n', '312hMnXmhKL._SL1300___01704.1626879093.500.500.jpg (386×500)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (60, 'College Physics (OpenStax).\n', '9781711470825-uk.jpg (387×500)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (61, 'A Brief History of Time — Stephen Hawking.\n', '81pQPZAFWbL.jpg (1531×2409)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (62, 'The Selfish Gene — Richard Dawkins.\n', '9110Cakvr1L._SL1500_.jpg (991×1500)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (63, 'The Gene: An Intimate History — Siddhartha Mukherjee\n', 'OIP.SGtmvzNfOSNuNmHdRLworwHaL4 (474×760)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (64, 'Principles of Neural Science — Kandel et al.', 'm058onl59c9ee1o1tdkrqicz7vi8 (358×500)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (65, 'Molecular Biology of the Cell — Alberts et al.\n', '171284.jpg (960×1261)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (66, 'Physical Chemistry — Atkins (textbook)\n', '180852.jpg (1060×1209)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (67, 'The Structure of Scientific Revolutions — Thomas S. Kuhn\n', 'The-Structure-of-Scientific-Revolutions_-by-Thomas-S.-Kuhn.jpg (1410×2150)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (68, 'Chaos: Making a New Science — James Gleick\n', '91ErIwnnlSL.jpg (1650×2531)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (69, 'Six Easy Pieces — Richard Feynman (free/part of Feynman Lectures)\n', 'OIP.6YAnkS78_dVTYuG-jZf7cQHaLP (474×719)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (70, 'Conceptual Physics — Paul G. Hewitt\n', 'OIP.0l_ZDDxC20U7azqlXvNCMgHaJh (474×609)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (71, 'Theoretical Minimum series — Leonard Susskind (modern physics primers)\n', 'OIP.EYSE1iRBScGhayEuxr7gawHaLZ (474×729)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (72, 'Statistical Mechanics — Kerson Huang (textbook)\n', '81MR-Y0qbWL._SL1500_.jpg (986×1500)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (73, 'Introduction to Electrodynamics — David J. Griffiths\n', 'OIP.-HzS_OzYp9XhSvr0zHoBSwHaJw (474×624)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (74, 'Classical Mechanics — John R. Taylor\n', 'R.56fc6673d5be0b1954c0999dcb1108b3 (317×475)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (75, 'Evolution: The Modern Synthesis — Julian Huxley (or modern equivalents)', '9780045750184-us.jpg (309×500)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (76, 'On the Origin of Species — Charles Darwin.', 'on-the-origin-of-species-9781645178644_hr.jpg (1399×2065)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (77, 'The Double Helix — James D. Watson.\n', '31427976746.jpg (1500×2000)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (78, 'The Immortal Life of Henrietta Lacks — Rebecca Skloot.\n', 'The-immortal-life-of-Henrietta-Lacks-By-Rebecca-Skloot-Book-PDF-873x1536.jpg (873×1536)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (79, 'Biochemistry — Berg, Tymoczko, Stryer.\n', '9781464126109.BI.0.x.jpg (780×1000)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (80, 'Astronomy: Principles and Practice — (various textbooks).\n', 'OIP.uhw6039BlnGrgR7dhy92DgHaJk (474×612)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (81, 'The Physics of Star Trek — Lawrence Krauss (popular science)\n', '9780465002047.jpg (1721×2600)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (82, 'Physical Biology of the Cell — Rob Phillips et al.\n', '5941151.jpg (314×400)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (83, 'Introduction to Quantum Mechanics — David J. Griffiths (textbook)\n', 'R.c47078275b8abb780d3ef348c7011511 (318×442)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (84, ' Transport Phenomena — Bird, Stewart, Lightfoot (engineering text)\n', '9780470088289-us-300.jpg (378×500)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (85, 'General Chemistry — OpenStax (PDF available)\n', 'R.2d12087d89ca3793dc06dc80ce044909 (680×901)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (86, 'Common Science & other historical science texts — available at Project \n', '516FZ5CPZFL._SX342_SY445_.jpg (342×428)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (87, 'Science: A Collection Of Quotes From Albert Einstein, Carl Sagan, Charles Darwin, Michio Kaku, Neil deGrasse Tyson, Nikola Tesla, Richard Dawkins, Richard Feynman, Stephen Hawking And Many More!', '9781370229123_200x_science-a-collection-of-quotes-from-albert-einstein-carl-sagan-charles-darwin-michio-kaku-neil-degrasse-tyson-nikola-tesla-richard-dawkins-richard-feynman-stephen-hawking-and-many-more_e-bok (200×297)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (88, 'Special Relativity and Classical Field Theory The Theoretical Minimum', 'OIP.nXPR4zK0BI3FwnCI_NiXDAAAAA (289×445)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (89, 'Introduction to Statistical Physics', '9780429110115.jpg (180×295)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (90, 'Classical Mechanics: A Modern Perspective', '41TeiyIWlgL._SY445_SX342_.jpg (296×445)', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (91, 'Pons General Reference – Trilingual Visual Dictionary', 'https://images.openai.com/thumbnails/url/vsrrInicDclbEkJQAADQFSFMwkzTIOSR8ppLPwbXs3Bxy2hR7afd1Pk930-NMZpFiir6fFoRLiCBs54hqxmnuMnJfOiouR4QavrqMO7_J0oOFPTcHSPB0diKaLUplHjfZDjPvpUv3r8SVbtYuzheQ6_Z6LMhD0crS6w0QAbqYgZEy5n1JQMCrNJxVAeZe3moMGS5qXx6QN7S4N35bgDGPhttqFxXc72XSnkikuYH1LU9fA', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728613/youxzjhnsysnuaabcjl9.webp');
+INSERT INTO `images` VALUES (92, 'Vietnamese‑English Dictionary', 'https://images.openai.com/static-rsc-1/X454v00welQ0vpjoJkMycjtqZnw2siAYHYGC-Z4R1qcDFniwiFbtXqEALKDXRl9hmDKy3XqfIhx-820wxn87JMjA0-DnsvuqMQMjRLUEa4T2dHXgYvoL0i7BqEQIStHD_1fizw3wkVQ36PEFJBmJZkt_7DYZI7c4TpORkfmZ_hp60wIW7R-i1zCpK6YgxThT9BnO-9rxQtnVrFJG-nSiz_owAoAatdZsBDuU-nPXy_zlgRQZCjohv3u1byJjGtgM', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728615/evpbcam1o5uhcctr0vst.webp');
+INSERT INTO `images` VALUES (93, 'A History of the Vietnamese', 'https://images.openai.com/static-rsc-1/w_JZCklOpxu7ibdVJjtS0tPvEqzi7mAjLTq1ohbtWKmytoJFRGbuhzjXTIkFbD4f8DDO14Y9yM2V9qaUE7hqxIIMO0iMBoNFiu4F4AJu0plch3FRoDuUmdDfkXiBWBJDBNeB06Zr2e6_SIdYtHlxNWy741rxnScPJxbvY00OXlDJd0idwY2SPuOKMwMSpiZmNNgJ-EyzbQZ7Wlju8NV5iJ08R2Smbpl41KLB88jtxjUhdz802CdNR-9WsbPiQN0MFYrCV5M-1CmWSqYb4fGhMQ', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728617/y5x3wg0mjxhlqrtvwan0.webp');
+INSERT INTO `images` VALUES (94, 'Collins Vietnamese Dictionary Essential Edition', 'https://images.openai.com/static-rsc-1/ZtHzCxNPOSldGnQ8CE6MI0l5yahrsdtvFHrsyBOQFfT8xlPL7RBqngnqyBynDpNj5V5UKoeP2fdRO5C4_DfqZHRkOqYcT1UKaEhDctiNnLEzTmeGCyykNcz3QTzdyTvyhbKe3UfXmEBpwl5RI8oWgHHNRmWZvaF6pyMEnoLgn19yvxnhk4k6DbcAqV83a8NQwwlVbcVQvrZtI8FkakCW8Zp4rrlJCodZRhOTaq9CWGEMRlCcZzVCRXUpnbGsbH9q', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728619/phddwvev8i9qyah4vudj.webp');
+INSERT INTO `images` VALUES (95, 'The Rough Guide to Vietnam: Travel Guide with eBook', 'https://images.openai.com/static-rsc-1/ajP3G6-h9Qt2cUEdeTYjoBvnNTjPsd7dGywzecuEgHoUqyUh_PJOdH0aOkEZH7wI1zgJp5WL-y-y5iOIDMV59_Xd-vEfnFR1fuU0_3VNkURPjO6poFf2kHYfl1KV0sKnMhkMDlneZqPsyskH3-x2lXbM6LvOcpEtNLU0qy6NC6_QAGKtjvitzscHp_Tjbv9_vyyViN-y3nequx-m3ft1QtVXXsP8ZFTitVfumCjfMVzhbfNuc8gs9fgM2gCCxePB', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728622/enn5ytryxbxyqs9klauu.webp');
+INSERT INTO `images` VALUES (96, 'Pons General Reference ‑ Trilingual Visual Dictionary', 'https://images.openai.com/static-rsc-1/Qo5oSjmRfro3mlKIF_zEAgKa81plK-awqI4fQoSsuY27u6cNN8oejDTYxXnMFqyiNhwncaPH4ExzvyCclxQv-stQmnnCOPK_mUw9pBx1hC22Qc76S4jrlrwQRmcl3Z8Hg5gZuMSi5q0dS63ECmH-YX2Nd8B-xUFLuHA_n5cAUoGTOCywp6TyqCjn4K7VHke599wWWIJwwDrSek3hnaftpSwxIlAjuCRTaAAszTqaykXvQUK3ZWW2IJCnxpAV5-y0NjlyFBkCCykQfW5rbBoLoA', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728624/ztf4kafxkua5iv43aoef.webp');
+INSERT INTO `images` VALUES (97, 'The Elements of Style', 'https://salt.tikicdn.com/cache/750x750/ts/product/09/07/67/5064320710412cde00d4af4228614b71.jpg.webp', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728627/biegub4hiezzgb13lejq.webp');
+INSERT INTO `images` VALUES (98, 'Introduction to Algorithms (CLRS)', 'https://salt.tikicdn.com/cache/750x750/ts/product/94/92/a9/97f7be7d4a130dec8e6f7f8fce5530f4.jpg.webp', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728630/nu5nfe670a4jsn0jcpgy.webp');
+INSERT INTO `images` VALUES (99, 'How to Solve It – George Pólya', 'https://th.bing.com/th/id/OIP.N-Y26oPcUF589RHjca3kFwHaLW?w=115&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728632/mngncimphrcxr4cefese.webp');
+INSERT INTO `images` VALUES (100, 'Oxford English Dictionary', 'https://th.bing.com/th/id/OIP.gFK47UBT8m34Im9JnlRUWgHaJv?w=128&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728634/ij8s5h4psmdbcnh2y8hr.webp');
+INSERT INTO `images` VALUES (101, 'Oxf Essential Dictionary (3rd Edition)', 'https://cdn1.fahasa.com/media/catalog/product/9/7/9780194419215.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728639/htq2ponq0pb7ln5lsocq.jpg');
+INSERT INTO `images` VALUES (102, 'Oxford Phrasal Verbs Dictionary', 'https://cdn1.fahasa.com/media/catalog/product/9/7/9780194317214_1_1.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728643/uwpgpfoepk7wsqeuoviw.jpg');
+INSERT INTO `images` VALUES (103, 'Oxford Basic English Dictionary 5th Edition', 'https://cdn1.fahasa.com/media/catalog/product/9/7/9780194419208.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728647/gtwl79qsyeg1djz8uvj6.jpg');
+INSERT INTO `images` VALUES (104, 'Oxford Learner\'s Spanish Dictionary', 'https://cdn1.fahasa.com/media/catalog/product/9/7/9780198407966.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728651/ysxeczsxcwrphb56wuzv.jpg');
+INSERT INTO `images` VALUES (105, 'Macmillan Dictionary Vietnam ED', 'https://cdn1.fahasa.com/media/catalog/product/m/s/msd_cover_600-400x550.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728654/eto3a9xvscc5xfaj0gep.jpg');
+INSERT INTO `images` VALUES (106, 'My First Picture Dictionary', 'https://cdn1.fahasa.com/media/catalog/product/i/m/image_195509_1_22122.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728658/vwdw7iw1pdls7burojks.jpg');
+INSERT INTO `images` VALUES (107, 'Oxford Essential Dictionary - New Ed - W/CD-Rom', 'https://cdn1.fahasa.com/media/catalog/product/i/m/image_195509_1_22650.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728661/ydrljwqabyir2xmimlj8.jpg');
+INSERT INTO `images` VALUES (108, 'Oxford Picture Dictionary Third Edition: English - Vietnamese Edition', 'https://cdn1.fahasa.com/media/catalog/product/i/m/image_193948.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728665/ss8c7irymfue1ufzvovs.jpg');
+INSERT INTO `images` VALUES (109, 'Global Success - Tiếng Anh 12 - Sách Học Sinh (2024)', 'https://cdn1.fahasa.com/media/catalog/product/9/7/9786040393708.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728668/ew3skxbc5n45qbeo4ki3.jpg');
+INSERT INTO `images` VALUES (110, '500 Bài Toán Cơ Bản Và Nâng Cao Lớp 5', 'https://sachhoc.com/image/cache/catalog/LuyenThi/Lop1-5/500-bai-toan-co-ban-va-nang-cao-lop-5-500x554.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728671/rzsqbvznspqdesdosxtq.jpg');
+INSERT INTO `images` VALUES (111, 'Principles of Mathematical Analysis — Walter Rudin', 'https://tse1.mm.bing.net/th/id/OIP.JdGIgVnrrwAsmtRzJkJE6QHaLS?pid=Api&P=0&h=180', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728673/tmheacosxos47pcunk8z.jpg');
+INSERT INTO `images` VALUES (112, 'Advanced Engineering Mathematics', 'https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9781118165096.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728677/ut3s7oucgs2zj791dpgc.jpg');
+INSERT INTO `images` VALUES (113, 'Artificial Intelligence: A Modern Approach — Russell & Norvig', 'https://m.media-amazon.com/images/I/61-6TTTBZeL._SL1000_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728679/etm1hm0lofflvyf8pdyi.jpg');
+INSERT INTO `images` VALUES (114, 'The Lean Startup – Eric Ries', 'https://theinnovationandstrategyblog.com/wp-content/uploads/2020/07/the-lean-startup-eric-ries.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728682/s9rjtkkeki0qx2zrirwe.jpg');
+INSERT INTO `images` VALUES (115, 'Principles – Ray Dalio', 'https://d28hgpri8am2if.cloudfront.net/book_images/onix/interior_spreads/9781501124020/principles-9781501124020.in17.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728684/j72idp3kztqrnqztbnm9.jpg');
+INSERT INTO `images` VALUES (116, 'Thinking, Fast and Slow – Daniel Kahneman', 'https://indianbookstore.co.in/wp-content/uploads/2024/04/Thinking-Fast-and-Slow-by-Daniel-Kahneman.webp', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728687/kol3skew2iuaf2b6mktn.webp');
+INSERT INTO `images` VALUES (117, 'Physics for Scientists and Engineers – Serway & Jewett', 'https://m.media-amazon.com/images/I/81I-xVcTh2L._SL1500_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728689/cjmbdjjpkgbd4hiy85yq.jpg');
+INSERT INTO `images` VALUES (118, 'Campbell Biology – Reece et al.', 'https://m.media-amazon.com/images/I/81hfAehMpxL._SL1500_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728692/tyovhdw9yvuqvs6bugpg.jpg');
+INSERT INTO `images` VALUES (119, 'Mechanics of Materials – Hibbeler', 'https://gioumeh.com/wp-content/uploads/2021/04/Solution-Manual-of-Mechanics-of-materials-by-Hibbeler-11th-edition-solutions.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728694/jlsdalgicwyi16izrgog.jpg');
+INSERT INTO `images` VALUES (120, 'Pedagogy of the Oppressed – Paulo Freire', 'https://cdn.shopify.com/s/files/1/0423/2901/4428/products/IMG_3815_1200x.jpg?v=1653761304', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728696/j1drlrb4du6qulnufovt.jpg');
+INSERT INTO `images` VALUES (121, 'Atomic Habits – James Clear', 'https://i.pinimg.com/originals/03/5f/87/035f871609ba334ee7bd3766ccdc3f62.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728699/z78p66zrskuhbu1odumg.jpg');
+INSERT INTO `images` VALUES (122, 'Merriam‑Webster’s Advanced Learner’s English Dictionary   ', 'https://tse4.mm.bing.net/th/id/OIP.Jk7ihMqqxsnvJUBCu1Do6AHaHa?pid=Api&P=0&h=180', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728701/nxidj1cb2yjyqryhm8vj.jpg');
+INSERT INTO `images` VALUES (123, 'Macmillan English Dictionary for Advanced Learners   ', 'https://cdn1.kingstone.com.tw/english/images/product/5462/9780230025462.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728704/kyk5pzbcznawpg5hqqzo.jpg');
+INSERT INTO `images` VALUES (124, 'English Vocabulary in Use Upper‑Intermediate 3rd Edition  \n', 'https://ise.edu.vn/wp-content/uploads/2023/01/english-vocabulary-in-use-upper-intermediate.jpg ', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728711/jmvxqrcisbcrjhizyjnt.jpg');
+INSERT INTO `images` VALUES (125, 'Advanced Grammar in Use with Answers  \n', 'https://cdn1.ozone.ru/s3/multimedia-1-t/c600/7021477973.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728715/h7nqiv8i4smgoeywjkos.jpg');
+INSERT INTO `images` VALUES (126, 'Essential Grammar in Use with Answers  ', 'https://i.zst.com.br/thumbs/12/2d/2c/1458073494.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728717/ihecnafbdt1icr8cli3s.jpg');
+INSERT INTO `images` VALUES (127, 'English For Everyone English Grammar Guide & Practice Book  ', 'https://m.media-amazon.com/images/I/71afN2UmUxL._SL1500_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728719/yp3zfo4yq6cx1wdrqgid.jpg');
+INSERT INTO `images` VALUES (128, 'The English Grammar Workbook for Adults   ', 'https://cdn1.ozone.ru/s3/multimedia-b/c600/6819428207.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728722/ohphoxno5bxh9touqkj0.jpg');
+INSERT INTO `images` VALUES (129, 'Fluent Forever: How to Learn Any Language Fast and Never Forget It   ', 'https://img01.yzcdn.cn/upload_files/2020/02/12/FjU1ynWs-yBrDfv2poxS5GSQCz-D.jpg!middle.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728725/yt1ovanutjcganvwmcem.jpg');
+INSERT INTO `images` VALUES (130, 'English Grammar in Use: Book with Answers', 'https://images.openai.com/static-rsc-1/VRtCCyAJE2PiFn8SDddiiL_eW6sBOt9gvqSkE5av7hEyoPzGcQ7Wnz3KcAt8NKlVQ85zNsJ-Ll2jvsa2bP7EvUrQOTlPSoZDlWxd16ZELQHuh02ByonYCIuGjL7j7AEM67_gX-QBVpcHqB4_Gpe94j34MEz80p8A4FsOstjafwTWVZN_bZXWl5tla9WiVVMBFVo8MyVQ_w5iB-0J85smT-Tq1pqRk6ovRfwM0YRlL0IoVb8Gz0Ms7n_0D69uyzCEA6bZcWQuq5_NMdBcNYKSXQ', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728727/q66eu2unzg2llgyntxdj.webp');
+INSERT INTO `images` VALUES (131, 'Practical English Grammar & Composition', 'https://images.openai.com/static-rsc-1/ZsTH2D-tslfM87yp4_7hwgqg7v24qWsIJXgYwrbxGqpnRLKSZDOzP7RAlhMLerhdKumUTi3ideq-J04k02g87jdIvJ-bpzMqv6eqUZ8Rm0QNZYdraO4x79XTymWOPOh16IA740Q_yn3Q1dgGZT3xsr0PUGhChtemNeLSYjoHf7tCusPUERjBdLOJkszau9Sl8cKX6s9InJBhh1xOvWQo_3NmcNWxbtlA6iyqME8PVdnGkhbsUF2UN9D7PMiYxaghTY71pgFn2Rd5lKuKYJfxYA', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728729/lgx2h4xf4adyzl9mxucb.webp');
+INSERT INTO `images` VALUES (132, 'The Dictionary of Lost Words', 'https://images.openai.com/thumbnails/url/G98sUnicDcnbDkMwAADQL3JJSBuSZWEuWwTTDKsXoUWFUTS7fc7-an-zndfz_TAh-GYqSjOR9cVFQyVRT5rcbaISPZHJfFM2NnPeT91-2f3PtCJq-ASpgRtLS4shzyiAG4xO3MUDAknDBt1xfAGS7D4GsBiZEepZiuywRvDhcYyF1A40Z-k1KI9l-Dy0VX6OhxSFFsiXoowuXo-J9V5XW9Xe8AcHOjkZ', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728732/txh8dvzglmblu8tn3zqk.webp');
+INSERT INTO `images` VALUES (133, 'Practical English Usage — Michael Swan', 'https://tse1.mm.bing.net/th/id/OIP.hMx1-YNbhF2pts-rtETnGgHaFr?pid=Api&P=0&h=180', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728734/kdyzkzsomnjzgtrxowtb.jpg');
+INSERT INTO `images` VALUES (134, 'English Idioms in Use — Cambridge (Intermediate)', 'https://down-my.img.susercontent.com/file/vn-11134201-7r98o-ls9okmjdshguc2', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728738/r2uoo6rwp0rtkhum9bmo.jpg');
+INSERT INTO `images` VALUES (135, 'Phrasal Verbs in Use — Cambridge', 'https://cdn.ketabkonkour.com/uploads/2023/07/English-Phrasal-Verb-in-Use-Intermediate.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (136, 'Oxford Word Skills (Advanced) — Stuart Redman', 'https://dkstatics-public.digikala.com/digikala-products/be8302fd6e6c1b1b5cdf82beb504679f35031611_1604050887.jpg?x-oss-process=image/resize,m_lfit,h_800,w_800/quality,q_90', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (137, 'Cambridge Academic English (Course for Students)', 'https://englishbooks.cz/12531-home_default/cambridge-academic-english-intermediate-student-s-book.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728805/ndi50qngalibh5o0a2l3.jpg');
+INSERT INTO `images` VALUES (138, 'Academic Writing for Graduate Students — Swales & Feak', 'https://rahnamapress.com/wp-content/uploads/2018/10/Academic-Writing-for-Graduate-Students-3rd-Edition.webp', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (139, 'Collins COBUILD Advanced Learner’s Dictionary', 'https://down-th.img.susercontent.com/file/th-11134207-7r992-lns4yufdw300d4', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728830/ojb7atszjn1rmw50qdxh.jpg');
+INSERT INTO `images` VALUES (140, 'Longman Dictionary of Contemporary English', 'https://ir.ozone.ru/s3/multimedia-w/c1000/6813920588.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728834/dmalaeksuozvvfg84dmq.jpg');
+INSERT INTO `images` VALUES (141, 'English Pronunciation in Use (Advanced) — Cambridge', 'https://kolbezabanpub.com/wp-content/uploads/2024/05/Cambridge-English-Pronunciation-in-Use-Advanced-1.webp', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (142, 'Ship or Sheep? — Minimal Pairs Practice for Pronunciation', 'https://bizweb.dktcdn.net/100/351/397/products/21067451420617153-ship-or-sheep-an-intermediate-pronunciation-course-jpeg.jpg?v=1553845949583', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728860/fwprgh4a4uzklhz4yzpy.jpg');
+INSERT INTO `images` VALUES (143, 'Clear Speech — Pronunciation and Listening Comprehension in North American English', 'https://m.media-amazon.com/images/I/51-FvaZWIxL.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728862/xt6ciagjm0n1fftbolhj.jpg');
+INSERT INTO `images` VALUES (144, 'Speakout (Upper-Intermediate) Course Book', 'https://productimages.hepsiburada.net/s/2/500/9574640451634.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728865/jrvl2zl39edciwhw3ntz.jpg');
+INSERT INTO `images` VALUES (145, 'New Headway (Upper-Intermediate) — Coursebook', 'https://www.libroidiomas.com/5819-large_default/headway-upper-intermediate-workbook-with-key-ed-oxford.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728868/wclc2wiqoulq42s8petv.jpg');
+INSERT INTO `images` VALUES (146, 'Official Cambridge Guide to IELTS', 'https://m.media-amazon.com/images/I/717pCgE8WKL._SL1500_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728871/kubxkw07gbmosvkm8h0m.jpg');
+INSERT INTO `images` VALUES (147, 'Cambridge IELTS Trainer (with answers)', 'https://haenglish.edu.vn/wp-content/uploads/2023/06/cambridge-ielts-trainer.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728875/khaiu4qtmydxxycxbaqn.jpg');
+INSERT INTO `images` VALUES (148, 'Barron’s TOEFL iBT (with online audio)', 'https://target.scene7.com/is/image/Target/GUEST_83a80f18-d67b-44dd-90ce-a5c33ff7422e', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728877/rgucgzqycvbitqp0n4sh.jpg');
+INSERT INTO `images` VALUES (149, 'The Practice of English Language Teaching — Jeremy Harmer', 'https://carti-bune.ro/site_img/products/400/2018/07/the-practice-of-english-language-teaching-with-dvd-fifth-edition-harmer-jeremy-longman.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728880/jaxmdyohomp5ufkizaad.jpg');
+INSERT INTO `images` VALUES (150, 'Dictionary of Phrasal Verbs', 'https://cdn.slidesharecdn.com/ss_thumbnails/cambridgeinternationaldictionaryofphrasalverbsphotocop-240702162431-a499e9dd-thumbnail.jpg?width=640&height=640&fit=bounds', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728882/nzdd6zmetrohmdkqeug2.jpg');
+INSERT INTO `images` VALUES (151, '1100 Words You Need to Know', 'https://ak-asset.jarir.com/akeneo-prod/asset/m1images/5/0/506187.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728884/qggig2ibsetoamup3gjo.jpg');
+INSERT INTO `images` VALUES (152, 'English Collocations in Use (Intermediate / Advanced)', 'https://down-vn.img.susercontent.com/file/vn-11134201-7ras8-m403ufubahn38e', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728887/vlatk15uz3pfxt8ap2ys.jpg');
+INSERT INTO `images` VALUES (153, 'Getting Things Done: The Art of Stress‑Free Productivity', 'https://images.openai.com/static-rsc-1/KjYfs1T0jUzvBUJgwrq_Kzd6MWroQr4Y0lfkvVNQvXhnWpJj613727bcDuKktoecZRbDEoyLN--WpoIDoI-6vcikmsgCPQG-r0e0-FV7MeWQMWR5DaUrQSBxB3nByIqjgyhMhLdbJE0iKbhfg8aj6la4znocavrw6C-IMdTv2eYpkEu1T1BxcZ6gCCKdElW_2W8ZZjdQfF9cNgz5FWmfmWtsOM2__AvmCW7GIRma7B7Jbf9O_1lY0ehsDLtd3uH-', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728889/jvt11khsxhk9he5k0kko.webp');
+INSERT INTO `images` VALUES (154, 'The Genius of Empathy: Practical Skills to Heal Your Sensitive Self', 'https://images.openai.com/static-rsc-1/wHQNU6fFBVDMMnQAT4vq-ddxHU3bRQ_sWShw6JrsXktlF1JfF0kUmZcG3bsUaIE5rV4bW997OHDGVk1Qej_AQic2w9rOTn2ByqTYvueZ_ceNZeQAItL6-p_1SZovXl0KkblSi_Umf8pwpvr9KLiNGJDqx72CNm5dkLsDfgwrfTawEFtX7z4boT3nvgQksi9vc6BhTmpT2t8qNipLTLrIfbPExOcq1hzYuA17_nygnN8', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728891/ifnc9u0zgozvmgbl0lzq.webp');
+INSERT INTO `images` VALUES (155, 'Life Skills for Teenage Boys: Practical Advice for Personal Growth', 'https://images.openai.com/static-rsc-1/DwCM2hXUtRyWBwlpmMImXd5uOH-V7eh8m0qixbkGZzvF2W2rn0H3d5UgzWgzcezTOk6TSH8_EpAVFgapAYXOLRGBLsw9Q9Pq7S5g2FAzYwOB258iPbsWkacLpMBfsPfhPuO13gVXPWSLjk1Ch3_O-FIkwimXUnk7OHWauiP6ViLg5FTstL6tGpvetKy20vptXSRDqAQLBgn3ll6bWO8kwNm_kcBndduwpc5EjvQng6YYN5SqLTN8eXLyzqxzJuZt', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728893/lcginko1sjrksmf85jpq.webp');
+INSERT INTO `images` VALUES (156, 'Essential Life Skills for Boys', 'https://images.openai.com/static-rsc-1/w6N6uNfMCrjb40vkcoOFAf6wRHBXqq9OhvEYQZzdYrs_SBF1q70lROTSV6FVPQbgMeUb-0d9rnKBHpdfnjKHM4L08bbQx-xiwciAtByn3KFw4-b-6NVMLyXCXXsP4Qhjo5L46Ycxo3_a6VP3BYY7dZAgL_Xm9SDz3shcXWu0aHT6eMGY1Oci0Qdc_iIvx-a8db7HCn3-2S4UYtIHHnQh9TA3Sw-6bA495poPx_5SXREZhQdDszFxrYxisXQA9KHq3CUAc_dLEkEeXXHwXV1v3w', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728895/xwii7yjo2ixnsczwlh7a.webp');
+INSERT INTO `images` VALUES (157, 'Practical Life Skills Big Book Gr. 9‑12+ eBook', 'https://images.openai.com/static-rsc-1/c3U4opEC8Lq_DzXfWOXS5816pdJoqBszbZkHjZhgKVg5hNwfznXkOX79pRfZdEMqwHDIc9HUTtvTE7QOLatuvGWvQznMVeIPC2kXaBvvYOpRkLA_igHNctAqS5NYsyNztce6pf-xNX8wEiaoKNKKsYzSFLPWeuRQtZBADCnLGOp1bsup-hDbAZ9dQcED3LuCJNnVVhqD1VWqYIyYdtTXg0VrrvhfuqOhSFBwSODipFp9_0BTYO2X9ls5reos5_Uw', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728897/kkoipgyyefmdijlvru6q.webp');
+INSERT INTO `images` VALUES (158, 'Real World Life Skills‑Self Sustainability Skills Gr. 6‑12 eBook', 'https://images.openai.com/static-rsc-1/JSQqMw1rZNigryQQZ41kR7D9vLQpdWP5CXErOUs7DoyXUmAcOIqdrxCXQovCiks34JTedymt6VhWrLr_S5PlgUmVBLiQ9xIT3j6mB9lKXskY_kty1HDYz0vajTNS0t1vtvsTaEM8EP6YMksePv0j-tfwIR31HL9xYl7iYKJi-aCJsJG883F9caHrrO50rBM_', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728900/bsrtnwahyyuaww2lano8.jpg');
+INSERT INTO `images` VALUES (159, 'Life Skills for Kids', 'https://images.openai.com/static-rsc-1/78x095k2LbxunbA13fBtlAh_MNEjisnQNbgYlTWvzr3HfVMYLSfwf8Oxv2OEBGxPYGVT-EP2BUKUgBgbSPzT93d_goEl5RCP56LvA1UwDqgwdoJasZR9IqgpTcUQ0wGO1oFHhKFrru4YG4zpjFpfiwr7hzWLHx4qZhpID3m1H3giBU10rJ3AuGPCz1J14rXaWXriov1mQdCeM4qm0bLAlHfhnX05nuru7Yu4jEyuJd4mhT6zAd7_e3vCf0-jnVRX', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728902/chhovaexz7vvgnk1wlt3.webp');
+INSERT INTO `images` VALUES (160, 'Life Skills by Julia Laflin', 'https://images.openai.com/static-rsc-1/UKOZBe1niJXMPnqBsmcOK9GaTn-10svkJnhO91TQE0Cfns8VTUGkXNVc-o7Hj2lyDLlpvLMiXfE2BcwWiVkEl4k2p1DRp8OH-R5Ho_DSWEaXJjMzgb6KYR05MsiXkyuoE2lDK2YbjOe0_RydthXDBt-RfbM2KTk5SpdjtmCEqBtvqGW4TyqRYyJYNaDuL4D_jMIdbW0DLXJvfbCGzXtwL_3dTkZjdpVKujQe6rxsgayMOavxsZLoJ0REjI-_Apxg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728904/donvv9bf4oqq3x1ghqqi.webp');
+INSERT INTO `images` VALUES (161, 'Life Skills Leveled Daily Curriculum (LEVEL 1)', 'https://images.openai.com/static-rsc-1/ioWrQxCoAcuRFcuqESGldVjU1_huQFQB_d__-h7mPf9b7RtTYBtMHF2YVZnG9b8UxCJoh9uMzN8SZMuN-GTNGv8KDy3y_2O88HQh7HfjpuLlU-VDaBpEPl6nuk9QlYWST2HR0IdanCsO0EHEyKQlOrfW-D5Dus_C5eipKcb1bRB8SkKssFrAxAwuhoXj2WoHhinpj5jsXvXW2FscxnKR2VmgGRLMmqEdkJXM-xV_krFaU2K9ttpLLiRiULgztSoWwdC3ysfOQ_Dp2NXh0O2F-w', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728907/l8smlvuykybtpf1pmnzb.webp');
+INSERT INTO `images` VALUES (162, 'You Can (People Skills for Life)', 'https://images.openai.com/static-rsc-1/-mUtXEmloU0PY7A4Y4RGS3rYuO2186EL7vWaZdT8v_ICUx5CghzceTvQI-SXzrZZzOD3JkDecmUTZhAgHFTuyiSHBINqrlVXADB0p7hb41bNslLBK4gnppdqr4mC_ZDhf0dK6ri5a2W9vQW8alIxNtcrsUxdyQj1QLr_wxqFFsK8KS_fsfNTQEeHFJMdQ_q272lm-IFKlqcmOfIOGEjjCg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728909/s5qcypicjfmdewhmb8wb.jpg');
+INSERT INTO `images` VALUES (163, 'Lifeskills: 8 Simple Ways to Build Stronger Relationships…', 'https://images.openai.com/static-rsc-1/pn3iEcXEYQWPdq3r0dRkGBtWhO-jBWsURoQ_l7Pv_qXjwYQHWpYfCv9D6sunEKnRirWSrrFH8Az-LooQfk8ubyFCrp3yEwn_iCCrxHkZHh6YDUuhBYQDhI0u79OYsl6LMLIpxB6Dn7J_z5tWfQnyuwjQq1Zlmjw8FyScH33VD2dI8jgdoOqxGGgeyyedXKHvGSTw8Bxq-cXrAxJn-qQ5BCwrjcicwZCC2nKlsr5HsS-0BYxO_95HyUUVuMGdhPKDBDtU9qspwZT0pVzVWU8faQ', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728911/rftbudbpsd9vmtucyxzz.webp');
+INSERT INTO `images` VALUES (164, 'Life Skills', 'https://images.openai.com/static-rsc-1/MY5msjAr7Ym6IXr783YCOBu_4JmkJpUvEpJyRjioG9LxnblpAvTwGFE_OY4ZMgMWuqjXwl0GWJ-s1PwkxsWnIoOvoiG8iGAbkNsgMxYab-UjtqVXnj8zf1Pa7LO4Z1zdJ14jk16FYYF-MS27gqCS4apf7_x42l4bo1KgSykoj0XCukjd4l7Tb8wrt-iuKYa5L0vaUtJELRn1kgkVCTCRK8VAfbLubm_wn-5p73-WpBEgcmwHtPWX2oXYyuXbH8v4', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728913/ksdrybd5wiexc5rezjbd.webp');
+INSERT INTO `images` VALUES (165, 'Life Skills: How to Chop Wood, Avoid a Lightning Strike …', 'https://images.openai.com/static-rsc-1/NYKoa3RXZ-TvXfRQQKC3e6hh6Us6Zk3AQO10gqyBQ5lxFCwkM0kVHkr1Q3nTqYOVsKmuDXMMH7taNawrPU8wJDzuyj2bNhY5gDHTUVWVF3WKYWCcwbl2DbDjgSAVkwBa6jMpiGuh7Ool-FP_edPbaN8D971jPfAA3covpXzxPtL9uJXoPSeu7RiQUtULx7Y_RDZisYHw7GmCmOKeDmlokDJLBHI78ahumAKpcweRSY-3v-o5-LGPET-gtJHdNR_D', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728915/n7319vxyhsrqzwqstgd6.webp');
+INSERT INTO `images` VALUES (166, 'The Little Book of Life Skills: How to Deal with Dinner…', 'https://images.openai.com/static-rsc-1/gzJnmOCGbYSM0JwvK-kOjQI4Y7Z-4Lt9oZkRyfoQuev797lkrmAY25x-0DWeOKNGUWAeMcWOqiS12LjO_s8sWilKW9oLl7VqBP90i9cju7RBEu_wUcdW23CyhYEJ1M3oNCcn77QB-PvXQa35bSyDPaLw_h_QjLckGw1jaWxBm_s8Z4x93W6tH4kPfmkkYoNWV5fS1AFGqbbwaFiyKl31kcpzXCrX2uR8dwTgZyDshBQuacipi9uBpaM0HDJKhEju', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728918/cj77gvcay4attijjmlqk.webp');
+INSERT INTO `images` VALUES (167, 'Life Skills: How to Cook, Clean, Manage Money, Fix Your Car…', 'https://images.openai.com/static-rsc-1/oo_Wv6sylUhSOtDYvu89UmtdNuN6ylStTU90NhrItev6fnKCtEXoftav4tHuX4AmIoVYMnC_TekzO1msr6DM77RDBWxoU11mJErvE8ZV0Kjtcxx5_CLMSefEUfta6LLYkScXpV7B4ZuA2cIwwCoYHOaBR2AMQugHqR3WfRZH4C5dogWyo5nLgIOZVE6t3VTA1gGZLrfg-swrB-JfcVF1zEDpFDH2yR5Uk3UxX49nwTmz33KDm8YatZwxOosS3gzv6eiAIs2oPSF5uNXw_n1Q2g', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728920/eojhy4vxefak5hbttbqd.webp');
+INSERT INTO `images` VALUES (168, 'The Power of Now', 'https://images.openai.com/static-rsc-1/uv2mkcawi4hHcOSCzxAJg4x5ypciL-z92U6ZfJzonI0Z-W8m3s0hFm_l5_AOKF5Z-6Ey6RL8RLgwYINnoG7aYC6zcmWY0xP7mCyKIaeOfWHlKw5qoS2Ggne7KIEvXD1MvkqTh9uuuw8nM1d85yyrDCHlzC8hezCOe9SW8bPZhOloo4rxNCwkFzS7l1t8qPY00RklS_coXkXrZwYx4DduU7F-E13T1eCJihU4WBr9RPGbBM7Yg9fRIJ5wLqvCcSW_I5LdEx6QNwr92NBEbKjAJg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728922/zceoausry0s5jl9wowug.webp');
+INSERT INTO `images` VALUES (169, 'Man’s Search for Meaning', 'https://covers.shakespeareandcompany.com/97818460/9781846042843.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728925/dzmyozelfcotfk5tksm9.jpg');
+INSERT INTO `images` VALUES (170, 'Mindset: The New Psychology of Success', 'https://images.openai.com/static-rsc-1/0BpN6s-pQyGDno7nqrupLG7HDewehcQ2GLLICAVKITLrDGQ0PwI285j0-wXye1T3HEFIA3Zz4QCf4yEyvVkHI9sl8g8oA01fKohRlx1HuMJSrLwUTq_QyP7C7KAIoop8hrTRKSyhzQzSg60s-32-T5R849XoH91sOFJjs4YhehrR5dp_1jZyEGRzoEkH5ral0YdVzt4TBS8U1ezQvaIYsWaHdDecuOECO4D_B8ev0YZkxO9bvL9QtGu4Ull3YelG', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728927/h9ibjz1dif0yy9f6ryby.webp');
+INSERT INTO `images` VALUES (171, 'The 7 Habits of Highly Effective People – Stephen R. Covey', 'https://cssbooks.net/wp-content/uploads/2022/06/The-7-Habits-of-Highly-Effective-People-By-Stephen-R.-Covey.png', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728929/tsvgkjsmgvei7ppaj9zf.png');
+INSERT INTO `images` VALUES (172, 'How to Win Friends and Influence People – Dale Carnegie', 'https://m.media-amazon.com/images/I/71rjriZD+qL._SL1500_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728932/duw4etuerbpxcdgale7k.jpg');
+INSERT INTO `images` VALUES (173, 'The Subtle Art of Not Giving a F*ck – Mark Manson', 'https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1516608004i/38120201._UY630_SR1200,630_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728934/fuuwlas3zhwlibcq7dtz.jpg');
+INSERT INTO `images` VALUES (174, 'Deep Work – Cal Newport', 'https://tse2.mm.bing.net/th/id/OIP.IUVt53fcwXP23-Snmv6SfAHaG1?pid=Api&P=0&h=180', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728936/wfcj33kwom3s8u1ypyt0.jpg');
+INSERT INTO `images` VALUES (175, 'Can’t Hurt Me – David Goggins', 'https://n3.sdlcdn.com/imgs/h/2/7/Can-t-Hurt-Me-Master-SDL461428142-1-3c4a5.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728939/pmgj0jyiujhols9mxjtn.jpg');
+INSERT INTO `images` VALUES (176, 'The Four Agreements – Don Miguel Ruiz', 'https://tse3.mm.bing.net/th/id/OIP.vg_jWjn6hEIOjIBAwk_IygHaHa?pid=Api&P=0&h=180', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728942/buob78yqzpenjzhqy2hc.jpg');
+INSERT INTO `images` VALUES (177, 'Đắc Nhân Tâm – Dale Carnegie', 'https://pos.nvncdn.com/fd5775-40602/ps/20240406_eLnSJ8HdxS.jpeg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728944/awcvvcieqqqyomqr10t9.jpg');
+INSERT INTO `images` VALUES (178, 'Tư Duy Tích Cực – Norman Vincent Peale', 'https://cafebiz.cafebizcdn.vn/2017/3-1512617724858.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728948/vygrz5yzn9eb6fv57srh.jpg');
+INSERT INTO `images` VALUES (179, 'Bí Mật Của May Mắn – Alex Rovira & Fernando Trías de Bes', 'https://m.media-amazon.com/images/I/71KbjtRTw6L._SL1500_.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728950/mqtz5ucyyrjpfulzeugz.jpg');
+INSERT INTO `images` VALUES (180, 'Khéo Ăn Nói Sẽ Có Được Thiên Hạ – Trác Nhã', 'https://www.vietbookalley.com.au/cdn/shop/products/kheo-an-noi_900x.webp?v=1669373347', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728953/ap4yxazr8oxdosdolvik.png');
+INSERT INTO `images` VALUES (181, 'Sức Mạnh Của Thói Quen – Charles Duhigg', 'https://pos.nvncdn.com/fd5775-40602/ps/20240109_WgvTT2bI3N.jpeg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728955/lcbb5la4xak1lstmrr3o.jpg');
+INSERT INTO `images` VALUES (182, 'Quẳng Gánh Lo Đi Và Vui Sống – Dale Carnegie', 'https://pos.nvncdn.com/fd5775-40602/ps/20240621_421uEPwSge.png', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728958/lrfvcijrdol0vfjaav6l.png');
+INSERT INTO `images` VALUES (183, 'Đi Tìm Lẽ Sống – Viktor E. Frankl', 'https://tiemsach.org/wp-content/uploads/2023/07/Ebook-Di-tim-le-song.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728961/cacuwo3owt66g2k3rrxv.jpg');
+INSERT INTO `images` VALUES (184, '', '', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (185, '', '', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (186, '30 Món Ăn Chay Giàu Dinh Dưỡng (Lý Ngân Hoán)', 'https://salt.tikicdn.com/cache/750x750/ts/product/52/0a/e1/498f7ad8c09685ac2a06a55c3807d5b0.jpg.webp', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728966/mavevbb4xba7hgaumxvr.webp');
+INSERT INTO `images` VALUES (187, '170 Món Ăn Chay (Võ Thị Hòa)', 'https://cdn.hstatic.net/products/200000481913/af9b8c9a-3beb-421a-8ef8-a933808665c3_bd8fc1c3c0024487b63203a11663be7e_master.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728969/nq7u1cknfu5he2i0axsm.jpg');
+INSERT INTO `images` VALUES (188, 'Tuyệt Kỹ 500 Công Thức Nấu Ăn Chay (Đại sứ Trí tuệ Team)', 'https://dilib.vn/img/news/2023/04/larger/13772-tuyet-ky-500-cong-thuc-nau-an-chay-1.jpg?v=2095', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728972/x1oipbmpzp2ew6hjr8mn.jpg');
+INSERT INTO `images` VALUES (189, 'Bánh Tây Phương (Nguyễn Thu Dung - Nguyễn Thị Thanh)', 'https://khosachcu.com/image/cache/data/Nu-Cong-Gia-Chanh/banh-tay-phuong-260x350.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728976/if4tlthxn3ejgwpc9c2y.jpg');
+INSERT INTO `images` VALUES (190, 'Các món chè & Bánh Truyền Thống (Kim Phượng)', 'https://cdn1.fahasa.com/media/catalog/product/8/9/8935095620654.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728980/ja5wb3kv7hlbvftjqu4p.jpg');
+INSERT INTO `images` VALUES (191, 'Món Ngon Chế BIến Từ Chocolate (Lê Thanh Xuân)', 'https://nxbphunu.com.vn/wp-content/uploads/2018/09/mon-ngon-tu-chocolate-bia-1.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728984/uyt7uz9uulch5cshmz6a.jpg');
+INSERT INTO `images` VALUES (192, '120 Món Súp Bổ Dưỡng Cho Trẻ Em Và Người Bệnh (Mỹ Hạnh)', 'https://nxbphunu.com.vn/wp-content/uploads/2018/09/120-mon-sup-bo-duong.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728988/zh3zjswgoabjwuu93jbz.jpg');
+INSERT INTO `images` VALUES (193, '150 Món Ăn Ngon Của Bé (Tạ Ngọc Ái - Phạm Quốc Bảo)', 'https://1.bp.blogspot.com/-jKuNA6bsEQc/Xs3hAAq5AuI/AAAAAAAASAI/VeDsixL1_bcXFewhAOJbE6S90qkyApKzgCK4BGAsYHg/150-mon-an-ngon-cho-be.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728991/nrhoh4wchirqllaxpbmc.jpg');
+INSERT INTO `images` VALUES (194, 'Ăn Dặm Bé Chỉ Huy (Gill Rapley & Tracey Murkett)', 'https://product.hstatic.net/1000217031/product/bia_pp-an-dam-be-chi-huy_6.2.2014-01.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728993/rsvdd0w4ee0qax7uybkl.jpg');
+INSERT INTO `images` VALUES (195, 'Ăn Dặm Không Nước Mắt (Nguyễn Thị Ninh - Mẹ Xoài)', 'https://salt.tikicdn.com/cache/750x750/ts/product/28/6d/b5/33fcfb0a58a447e511f0b94588bff174.jpg.webp', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728996/ifvvlttldmx34sooxxvd.webp');
+INSERT INTO `images` VALUES (196, 'Ăn Dặm Kiểu Nhật (Mẹ Ổi Mít)', 'https://salt.tikicdn.com/ts/upload/12/e2/4a/c5226426ee9429b0050449ae5403c9cf.png', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728999/ej3ozc82utsu76mgtnfk.png');
+INSERT INTO `images` VALUES (197, 'Sổ Tay Ăn Dặm Của Mẹ (BS. Lê Thị Hải)', 'https://salt.tikicdn.com/ts/upload/12/e2/4a/c5226426ee9429b0050449ae5403c9cf.png', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780729002/e7cmtxx3q94c9vlazrbr.png');
+INSERT INTO `images` VALUES (198, '100 Món Ăn Ngon Christine Hà (Cristine Hà - Vua Đầu Bếp  Mỹ 2012)', 'https://drive.google.com/file/d/1p4QHeHXzgduScDHHUujjSLOtVz03J6o_/view', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (199, '555 Món Ăn Việt Nam - Kỹ Thuật Chế Biến Và Giá Trị Dinh Dưỡng (Trường Đại Học Thương Mại Hà Nội)', 'https://salt.tikicdn.com/cache/750x750/media/catalog/product/5/5/555-mon-an-vn.jpg.webp', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780729008/nhox05nyc9wuofctcpae.webp');
+INSERT INTO `images` VALUES (200, 'Chế Biến Món Ăn Bằng Lò Vi Sóng - Món Bò, Gà, Lợn (Thu Thủy)', 'https://drive.google.com/file/d/14FH9xITpqM3Vt0o6I7cmZ-cDD43jPSO5/view', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (201, 'Chế Biến Món Ăn Bằng Lò Vi Sóng - Món Điểm Tâm (Thu Thủy)', 'https://salt.tikicdn.com/cache/750x750/media/catalog/product/m/_/m_n_i_m_t_m-ch_bi_n_m_n_n_b_ng_l_vi_s_ng.jpg.webp', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780729013/xujeu9mhlpxe9sbtmnzh.webp');
+INSERT INTO `images` VALUES (202, 'Chế Biến Món Ăn Bằng Lò Vi Sóng - Hải Sản, Rau, Canh (Thu Thủy)', 'https://vietlib-hcm.sgp1.digitaloceanspaces.com/Uploads/THU_VIEN/shcm/2/2640/UserImages/7.4.-thumb-Che-bien-mon-an-bang-lo-vi-song-mon-hai-san-rau-canh-500x554-0ec91ef7-fb7c-4b97-90e4-306f61125db2.jpg?w=2048', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780729016/amlrec1unaqlpvze2s5r.jpg');
+INSERT INTO `images` VALUES (203, 'Giáo Trình Thực Hành Chế Biến Món Ăn (Nguyễn Thị Tuyết - Uông Thị Toan)', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-giao-trinh-thuc-hanh-che-bien-mon-an.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (204, 'Kỹ Thuật Chế Biến 300 Món Ăn Ngon (Nhiều tác giả. Biên dịch: Thùy Linh)', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-ky-thuat-che-bien-300-mon-an-ngon.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (205, 'Kỹ Thuật Nấu Ăn Toàn Tập (Triệu Thị Chơi)', 'https://cdn1.fahasa.com/media/catalog/product/k/y/ky_thuat_nau_an_toan_tap_1_2018_08_03_14_05_04.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780729024/bntnyajq9hbjm28fyzst.jpg');
+INSERT INTO `images` VALUES (206, 'Kỹ Thuật Chế Biến Các Món Lẩu Sốt Xúp (Lê Thanh Xuân)', 'https://salt.tikicdn.com/cache/750x750/media/catalog/product/i/m/img844_3.jpg.webp', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780729028/q8uiwwffetcmdozs3f5x.webp');
+INSERT INTO `images` VALUES (207, 'Món Ngon Dễ Làm (Minh Thư)', 'https://dilib.vn/img/news/2023/04/larger/13776-mon-ngon-de-lam-1.jpg?v=4783', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780729031/vlogej0ovd9nskxhmrpp.jpg');
+INSERT INTO `images` VALUES (208, 'Quick & Easy (Ngọc Linh)', 'https://dilib.vn/img/news/2023/04/larger/13778-huong-dan-nau-an-quick-easy-don-gian-ma-ngon-1.jpg?v=3178', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780729035/cao0xuffmgco8qtbevti.jpg');
+INSERT INTO `images` VALUES (209, 'Hướng Dẫn Nấu Ăn 200 Món Truyền Thống (Nhiều tác giả)', 'https://www.hoteljob.vn/files/Anh-HTJ-Hong/ebook-huong-dan-nau-an-200-mon-truyen-thong-sach-hay-cho-dau-bep-viet-2.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780729074/izvohdqrr5sdwqdtc3kh.png');
+INSERT INTO `images` VALUES (210, '84 Món Nhậu Độc Đáo Việt Nam (Vua Đầu Bếp)', 'https://metaisach.com/_ipx/_/https://media.metaisach.com/2025/02/84-mon-nhau-doc-dao-nhat-cua-viet-nam-e37070b6.jpeg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780729077/lr5yitegbrqqjdcvirgz.jpg');
+INSERT INTO `images` VALUES (211, 'Kỹ Thuật Chế Biến Trái Cây (Từ Triệu Hải - Cao Tích Vĩnh)', 'https://metaisach.com/_ipx/_/https://media.metaisach.com/2025/02/ky-thuat-che-bien-trai-cay-82fdb97b.jpeg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780729081/babodgyz4mde8psqxpdk.jpg');
+INSERT INTO `images` VALUES (212, 'Nấu Ăn Cho Người Già (Tần Trúc)', 'https://i.ebayimg.com/images/g/IPsAAOSwlxNlIb7g/s-l1600.webp', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780729083/urjtr0tw0w72qhfg2ae9.webp');
+INSERT INTO `images` VALUES (213, 'Nấu Món Ăn Hàn Quốc Thật Dễ (Tổng cục du lịch Hàn Quốc)', 'https://dokumen.pub/img/200x200/nau-mon-an-han-quoc-that-de.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (214, 'Nghệ Thuật Nấu Ăn Vui Khỏe (Lima Ohsawa - Diệu Hạnh)', 'https://down-vn.img.susercontent.com/file/vn-11134258-820l4-mg6eq199baq1e5', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780729087/ib7nhtzernymj6hze8aj.png');
+INSERT INTO `images` VALUES (215, 'Sách Nấu Ăn Dưỡng Sinh Ohsawa (Nguyễn  Thị Thu Ba)', 'https://sachhuyenhoc.info/wp-content/uploads/2022/01/Sach-Nau-An-Duong-Sinh-Ohsawa.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780729092/jj5izjc6ghzgupdekhb4.jpg');
+INSERT INTO `images` VALUES (217, 'Ông và Cháu', 'https://ebookvie.com/wp-content/uploads/2025/06/ong-va-chau-tu-mo.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (218, 'Lộc Biếc', 'https://ebookvie.com/wp-content/uploads/2025/06/loc-biec-nhieu-tac-gia.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (219, 'Xứ Nevermoor Diệu Kỳ 3 - Morrigan Và Lời Triệu', 'https://ebookvie.com/wp-content/uploads/2025/04/cover-72.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (220, 'Xứ Nevermoor Diệu Kỳ 1 – Morrigan Và Những Thử Thách Gay Cấn', 'https://ebookvie.com/wp-content/uploads/2025/04/cover-70.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (221, 'Xứ Nevermoor Diệu Kỳ 2 – Morrigan Và Dịch Bệnh Trống Rỗng', 'https://ebookvie.com/wp-content/uploads/2025/04/cover-71.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (222, 'Lô Bô Chúa tể vùng Ca Răm Pô (Lobo Chúa Tể Currumpaw)', 'https://ebookvie.com/wp-content/uploads/2024/12/lo-bo-chua-te-vung-carompo.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (223, 'Tôi là Coriander', 'https://ebookvie.com/wp-content/uploads/2024/12/toi-la-coriander-sally-gardner.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (224, 'Nha Sĩ Yêu Quái', 'https://ebookvie.com/wp-content/uploads/2025/01/Nha-Si-Yeu-Quai.webp', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (225, 'Lại thằng nhóc Emil', 'https://ebookvie.com/wp-content/uploads/2025/01/Lai-Thang-Nhoc-Emil.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (226, 'Những Tấm Lòng Cao Cả', 'https://ebookvie.com/wp-content/uploads/2024/12/Nhung-Tam-Long-Cao-Ca.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (227, 'Bà Ngoại Phù Thủy Và Mùa Hè Tập Sự', 'https://ebookvie.com/wp-content/uploads/2024/12/Ba-Ngoai-Phu-Thuy-Va-Mua-He-Tap-Su.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (228, 'Charlie Và Nhà Máy Chocolate', 'https://ebookvie.com/wp-content/uploads/2024/12/Charlie-Va-Nha-May-Chocolate.webp', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (229, 'Thay mẹ cha gánh vác sơn hà', 'https://ebookvie.com/wp-content/uploads/2024/12/Thay-Me-Cha-Ganh-Vac-Son-Ha.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (230, 'Công Chúa Nhỏ Chăn Cừu', 'https://ebookvie.com/wp-content/uploads/2024/12/Cong-Chua-Nho-Chan-Cuu.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (231, 'Bông Hồng Trên Ngọn Đồi Xanh', 'https://ebookvie.com/wp-content/uploads/2024/12/bong-hong-tren-ngon-doi-xanh-louisa-may-alcott-quach-cam-phuong-dich.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (232, 'Người Bạn Phi Thường', 'https://ebookvie.com/wp-content/uploads/2024/08/nguoi-ban-phi-thuong-elena-ferrante-nguyen-minh-nguyet-dich.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (233, 'Đếm Sao - Lois Lowry', 'https://ebookvie.com/wp-content/uploads/2024/07/Dem-Sao.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (234, 'Cô Bé Uống Ánh Trăng', 'https://ebookvie.com/wp-content/uploads/2024/07/Co-Be-Uong-Anh-Trang.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (235, 'Crenshaw: Chú Mèo Lướt Ván', 'https://ebookvie.com/wp-content/uploads/2024/07/Crenshaw-Chu-Meo-Luot-Van.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (236, 'Gấu Pooh Xinh Xắn', 'https://ebookvie.com/wp-content/uploads/2024/07/gau-pooh-xinh-xan-a-a-milne-nguyen-tam-dich.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (237, 'Bức Chúc Thư Bằng Mật Mã ', 'https://ebookvie.com/wp-content/uploads/2024/07/buc-chuc-thu-bang-mat-ma-paul-jacques-bonzon-doan-dien-dich.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (238, 'Những Cuộc Phiêu Lưu Của Tom Sawyer', 'https://ebookvie.com/wp-content/uploads/2024/07/nhung-cuoc-phieu-luu-cua-tom-sawyer.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (239, 'Biển Niên Sử Linh Thú Huyền Thoại: Tập 4 - Mê Cung Ma Thuật', 'https://ebookvie.com/wp-content/uploads/2024/07/Bien-Nien-Su-Linh-Thu-Huyen-Thoai-Tap-4-Me-Cung-Ma-Thuat.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (240, 'Biên Niên Sử Linh Thú Huyền Thoại: Tập 3 - Khúc Hải Ca Dữ Dội', 'https://ebookvie.com/wp-content/uploads/2024/07/Bien-Nien-Su-Linh-Thu-Huyen-Thoai-Tap-3-Khuc-Hai-Ca-Du-Doi.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (241, 'Biên Niên Sử Linh Thú Huyền Thoại: Tập 2 - Lang Âm Và Nhạc Khí', 'https://ebookvie.com/wp-content/uploads/2024/07/Bien-Nien-Su-Linh-Thu-Huyen-Thoai-Tap-2-Lang-Am-Va-Nhac-Khi.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (242, 'Biên Niên Sử Linh Thú Huyền Thoại: Tập 1 - Đụng Độ Thần Thú', 'https://ebookvie.com/wp-content/uploads/2024/07/Bien-Nien-Su-Linh-Thu-Huyen-Thoai-Tap-1-%E2%80%93-Dung-Do-Than-Thu.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (243, 'Alice Lạc Vào Xứ Sở Diệu Kỳ Và Đi Qua Tấm Gương', 'https://ebookvie.com/wp-content/uploads/2024/06/Alice-Lac-Vao-Xu-So-Dieu-Ky-Va-Di-Qua-Tam-Guong.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (244, 'Tự Truyện Một Con Heo', 'https://ebookvie.com/wp-content/uploads/2024/06/Tu-Truyen-Mot-Con-Heo.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (245, 'Mắt Sói - Daniel Pennac', 'https://ebookvie.com/wp-content/uploads/2024/06/Mat-Soi-Daniel-Pennac.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (246, 'Truyện Cổ Dân Gian Nga', 'https://ebookvie.com/wp-content/uploads/2024/04/Truyen-Co-Dan-Gian-Nga.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (247, 'HEIDI - Johanna Spyri', 'https://ebookvie.com/wp-content/uploads/2024/04/HEIDI-Johanna-Spyri.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (248, 'Năm Đứa Trẻ Và Nó', 'https://ebookvie.com/wp-content/uploads/2024/04/Nam-Dua-Tre-Va-No.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (249, 'Công Chúa Cá', 'https://ebookvie.com/wp-content/uploads/2023/12/cong-chua-ca.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (250, 'Chiếc Rìu - Gary Paulsen ', 'https://ebookvie.com/wp-content/uploads/2023/12/chiec-riu.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (251, 'Chó Xanh Lông Dài', 'https://ebookvie.com/wp-content/uploads/2023/12/cho-xanh-long-dai.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (253, 'Tuổi Thơ Dữ Dội', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-tuoi-tho-du-doi.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (254, 'Chị Em Khác Mẹ', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-chi-em-khac-me.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (255, 'Ranh Giới', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-ranh-gioi.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (256, 'Chiếc Ngai Vàng', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-chiec-ngai-vang.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (257, 'Dứt Tình', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-dut-tinh.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (258, 'Ván Bài Lật Ngửa', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-van-bai-lat-ngua.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (259, 'Đốc Rác Cũ - Trọn Bộ', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-dong-rac-cu-tron-bo.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (260, 'Quân Khu Nam Đồng', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-quan-khu-nam-dong.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (261, 'Sau Cành Violet', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-sau-canh-violet.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (262, 'Cuộc Đời Ngoài Cửa', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-cuoc-doi-ngoai-cua.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (263, 'Những Ngã Tư Và Những Cái Cột Đèn', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-nhung-nga-tu-va-nhung-cot-den.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (264, 'Ngày Vui', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-ngay-vui.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (265, 'Tuyển Tập Truyện Ngắn Vũ Trọng Phụng', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-tuyen-tap-truyen-ngan-vu-trong-phung.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (266, 'Con Hoang', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-con-hoang.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (267, 'Đoạn Tình', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-doan-tinh.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (268, 'Một Đứa Con Đã Khôn Ngoan', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-mot-dua-con-da-khon-ngoan.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (269, 'Những Mảnh Đời Đen Trắng', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-nhung-manh-doi-den-trang.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (270, 'Ăn Mày Dĩ Vãng', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-an-may-di-vang.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (271, 'Đời Callboy', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-doi-callboy.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (272, 'Đêm Hội Long Trì', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-dem-hoi-long-tri.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (273, 'Cạm Bẫy Người ', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-cam-bay-nguoi.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (274, 'Bỉ Vỏ ', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-bi-vo.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (275, 'Làm Đĩ', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-lam-di.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (276, 'Cuộc Đời Dài Lắm', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-cuoc-doi-dai-lam.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (277, 'Nhiều Cách Sống', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-nhieu-cach-song.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (278, 'Nỗi Buồn Chiến Tranh', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-noi-buon-chien-tranh.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (279, 'Lều Chõng', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-leu-chong.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (280, 'Vết Thù Hằn Trên Lưng Ngựa Hoang', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-vet-thu-han-tren-lung-ngua-hoang.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (281, 'Hương Sắc Trong Vườn Văn', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-huong-sac-trong-vuon-van.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (282, 'Đời Viết Văn Của Tôi', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-doi-viet-van-cua-toi.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (283, 'Đời Nghệ SĨ', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-doi-nghe-si.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (284, 'Tuyển Tập Nguyễn Hiến Lê - Tập 4: Văn Học', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-tuyen-tap-nguyen-hien-le-tap-4-van-hoc.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (285, 'Điều Bí Mật', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-dieu-bi-mat-2.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (286, 'Cơ Hội Của Chúa', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-co-hoi-cua-chua.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (287, 'Khách Nợ ', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-khach-no.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (288, 'Vu Quy', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-vu-quy.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (289, 'Trúng Số Độc Đắc', 'https://nhasachmienphi.com/images/thumbnail/nhasachmienphi-trung-so-doc-dac.jpg', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (290, 'Một Chủ Nhật Khác', 'https://tse2.mm.bing.net/th/id/OIP.ia3hpeNkhGMIrsxpdZQBlwAAAA?rs=1&pid=ImgDetMain&o=7&rm=3', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780756766/beqiujiq0wx2yurdywpu.webp');
+INSERT INTO `images` VALUES (291, 'Bên Kia Bờ Ảo Vọng', 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1349664066i/16073951.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780756768/e6ymqzldwhze71zimhlq.jpg');
+INSERT INTO `images` VALUES (292, 'Thềm Hoang', 'https://metaisach.com/_ipx/_/https://media.metaisach.com/2025/05/them-hoang-14a6aebd.jpeg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780756771/nih3uc9qezve6hdzdfqr.jpg');
+INSERT INTO `images` VALUES (301, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780763748/r0q21oyaoms6lr7lf8b1.png', 'active', 'PENDING', NULL);
+INSERT INTO `images` VALUES (302, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780764523/tumccrbkwm8ybf1hq6po.jpg', 'active', 'PENDING', NULL);
+INSERT INTO `images` VALUES (303, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780764683/mm2uek58k1wpq0vlcgaz.jpg', 'active', 'PENDING', NULL);
+INSERT INTO `images` VALUES (304, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780764924/jxavyw8i4vugdik76r25.webp', 'active', 'PENDING', NULL);
+INSERT INTO `images` VALUES (305, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780765340/lzgqidev2azixznt9i4c.webp', 'active', 'PENDING', NULL);
+INSERT INTO `images` VALUES (306, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780765647/ytu2rdbynyazepwurgb8.jpg', 'active', 'PENDING', NULL);
+INSERT INTO `images` VALUES (307, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780765682/znj9dbcjed4qfig82kny.png', 'active', 'PENDING', NULL);
+INSERT INTO `images` VALUES (308, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780765708/z7tbnrcfxz2lueii59nm.jpg', 'active', 'PENDING', NULL);
 
 -- ----------------------------
 -- Table structure for passwordreset
@@ -7849,15 +7936,14 @@ CREATE TABLE `users`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `userName`(`userName` ASC) USING BTREE,
   UNIQUE INDEX `email`(`email` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of users
 -- ----------------------------
 INSERT INTO `users` VALUES (1, 'Mulessin', 'ledainhan05@gmail.com', '0354300906', '$2a$10$e2OS92pMEo3vGDlSswuKGuGU.v78H4nOLZx767nIbM9uSGKeCSNJe', 'admin', '2026-01-26 22:48:04', NULL, NULL);
 INSERT INTO `users` VALUES (2, 'osamabinladen', 'nakroth1504@gmail.com', '0332536386', '$2a$10$gE2jZh8QH3d8uQde/8MxfOxLwZZrUb0osvvtqXRVFAuzYC3mtESJK', 'user', '2026-03-20 18:16:55', 'google', '103579025452917514428');
-INSERT INTO `users` VALUES (3, 'osamabilade', '23130023@st.hcmuaf.edu.vn', '0332536386', '$2a$10$Vm0EsL0OHdwwqjFDaOoTfuT/9wN9opn2oxmFutg2yIdcENtvamkLO', 'user', '2026-03-30 22:42:45', 'google', '105327686192281554397');
-INSERT INTO `users` VALUES (4, 'cris Phan', '15042005rin@gmail.com', NULL, '', 'user', '2026-05-28 17:01:24', 'google', '117167560067558544239');
+INSERT INTO `users` VALUES (3, 'osamabilade', '23130023@st.hcmuaf.edu.vn', '0332536386', '$2a$10$Vm0EsL0OHdwwqjFDaOoTfuT/9wN9opn2oxmFutg2yIdcENtvamkLO', 'admin', '2026-03-30 22:42:45', 'google', '105327686192281554397');
 
 -- ----------------------------
 -- Table structure for wishlist
@@ -7870,7 +7956,7 @@ CREATE TABLE `wishlist`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `userID`(`userID` ASC) USING BTREE,
   CONSTRAINT `wishlist_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of wishlist
@@ -7878,7 +7964,6 @@ CREATE TABLE `wishlist`  (
 INSERT INTO `wishlist` VALUES (1, 1, '2026-01-26 22:48:37');
 INSERT INTO `wishlist` VALUES (2, 2, '2026-03-20 18:16:57');
 INSERT INTO `wishlist` VALUES (3, 3, '2026-05-28 11:29:39');
-INSERT INTO `wishlist` VALUES (4, 4, '2026-05-28 17:01:28');
 
 -- ----------------------------
 -- Table structure for wishlistdetail

@@ -34,6 +34,7 @@
         <a href="${pageContext.request.contextPath}/admin-news">Tin tức</a>
         <a href="${pageContext.request.contextPath}/admin-review">Review</a>
         <a href="${pageContext.request.contextPath}/admin-feedback">Feedback</a>
+        <a href="${pageContext.request.contextPath}/admin-discount">Giảm giá</a>
         <a href="${pageContext.request.contextPath}/admin-logs">
             System Logs
         </a>

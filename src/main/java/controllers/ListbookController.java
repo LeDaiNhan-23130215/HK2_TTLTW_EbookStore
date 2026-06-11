@@ -5,6 +5,8 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import models.Category;
+import services.DiscountResult;
+import services.DiscountService;
 import services.EbookService;
 
 import java.io.IOException;
@@ -14,6 +16,7 @@ import java.util.*;
 public class ListbookController extends HttpServlet {
 
     private final EbookService ebookService = new EbookService();
+    private final DiscountService discountService = new DiscountService();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -123,6 +126,7 @@ public class ListbookController extends HttpServlet {
 
         // ===== GET DATA =====
         PageView<EbookProductCardView> pageView = ebookService.getBooks(page, filter);
+        enrichWithDiscount(pageView.getItems());
 
         // ===== SET ATTRIBUTES =====
         request.setAttribute("pageView", pageView);
@@ -199,5 +203,15 @@ public class ListbookController extends HttpServlet {
         }
 
         return sb.toString();
+    }
+    private void enrichWithDiscount(List<EbookProductCardView> list) {
+        if (list == null) return;
+        for (EbookProductCardView eb : list) {
+            DiscountResult r = discountService.calculateBestDiscount(eb.getId(), eb.getPrice());
+            if (r.hasDiscount()) {
+                eb.applyDiscount(r.getFinalPrice(),
+                        discountService.getDiscountLabel(r.getBestDiscount()));
+            }
+        }
     }
 }
