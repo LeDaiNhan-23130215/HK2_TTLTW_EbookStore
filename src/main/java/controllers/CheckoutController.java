@@ -1,5 +1,6 @@
 package controllers;
 
+import DAO.VoucherDAO;
 import DTO.CartItem;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -7,10 +8,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import models.Cart;
-import models.Checkout;
-import models.PaymentMethod;
-import models.User;
+import models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.BookshelfService;
@@ -97,7 +95,7 @@ public class CheckoutController extends HttpServlet {
         for (CartItem ci : cartItems) {
             totalPrice += ci.getPriceAtADD();
         }
-
+        session.setAttribute("checkoutTotal", totalPrice);
         req.setAttribute("cart", cart);
         req.setAttribute("cartItems", cartItems);
         req.setAttribute("totalPrice", totalPrice);
@@ -156,6 +154,13 @@ public class CheckoutController extends HttpServlet {
             totalPrice += ci.getPriceAtADD();
         }
 
+        Voucher voucher = (Voucher) session.getAttribute("voucher");
+        Double discount = (Double) session.getAttribute("discount");
+
+        if (discount != null) {
+            totalPrice -= discount;
+        }
+
         Checkout checkout = new Checkout(userId, paymentMethodID, totalPrice, "Pending");
 
         logger.debug("{} Executing core invoice database transaction persist sequence for User ID {}. Aggregate Total: {}",
@@ -167,6 +172,11 @@ public class CheckoutController extends HttpServlet {
         if (result) {
             logger.info("{} INVOICE CONFIRMED: Payment processing transaction verified successfully for User ID {}. Total Paid: {}",
                     LOG_PREFIX, userId, totalPrice);
+
+            if(voucher != null) {
+                VoucherDAO voucherDAO = new VoucherDAO();
+                voucherDAO.increaseUsedCount(voucher.getId());
+            }
 
             try {
                 BookshelfService bookshelfService = new BookshelfService();
@@ -193,6 +203,10 @@ public class CheckoutController extends HttpServlet {
 
                 session.removeAttribute(SESSION_CHECKOUT_MODE);
                 session.removeAttribute(SESSION_CHECKOUT_BOOK_ID);
+                session.removeAttribute("voucher");
+                session.removeAttribute("discount");
+                session.removeAttribute("finalPrice");
+                session.removeAttribute("checkoutTotal");
 
             } catch (Exception e) {
                 logger.error("{} Structural failure encountered during post-payment digital asset synchronization allocations for User ID {}: ",
