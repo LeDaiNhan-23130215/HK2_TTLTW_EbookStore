@@ -1,12 +1,14 @@
 package DTO;
 
 import models.Ebook;
-import models.Image;
 
 public class CartItem {
     private int cartDetailID;
     private Ebook ebook;
     private double priceAtADD;
+
+    private Double originalPrice;
+    private String discountLabel;
 
     public CartItem() {
     }
@@ -39,5 +41,27 @@ public class CartItem {
 
     public void setPriceAtADD(double priceAtADD) {
         this.priceAtADD = priceAtADD;
+    }
+
+    public Double getOriginalPrice() {
+        return originalPrice;
+    }
+
+    public void setOriginalPrice(Double originalPrice) {
+        this.originalPrice = originalPrice;
+    }
+
+    public String getDiscountLabel() {
+        return discountLabel;
+    }
+
+    public void setDiscountLabel(String discountLabel) {
+        this.discountLabel = discountLabel;
+    }
+
+    public boolean isDiscounted() {
+        return originalPrice != null
+                && discountLabel != null
+                && priceAtADD < originalPrice;
     }
 }

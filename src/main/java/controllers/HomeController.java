@@ -10,6 +10,8 @@ import jakarta.servlet.annotation.*;
 import models.Banner;
 import models.Category;
 import models.Ebook;
+import services.DiscountResult;
+import services.DiscountService;
 import services.EbookService;
 import services.WishlistService;
 
@@ -22,11 +24,13 @@ public class  HomeController extends HttpServlet {
     private WishlistService wishlistService;
     private CategoryDAO ctDAO = new CategoryDAO();
     private BannerDAO bannerDAO = new BannerDAO();
+    private DiscountService discountService;
     @Override
     public void init() throws ServletException {
         ebookService = new EbookService();
         wishlistService = new WishlistService();
         System.out.println("HOME CONTROLLER LOADED");
+        discountService  = new DiscountService();
     }
 
     @Override
@@ -39,12 +43,15 @@ public class  HomeController extends HttpServlet {
         request.setAttribute("randomCategory", randomCategory);
 
         List<EbookProductCardView> newEBooks = ebookService.getNewEbookProductCards();
+        enrichWithDiscount(newEBooks);
         request.setAttribute("newEBooks", newEBooks);
 
         List<EbookProductCardView> topSaleEbooks = ebookService.getTopSaleEbookProductCards();
+        enrichWithDiscount(newEBooks);
         request.setAttribute("topSaleEBooks", topSaleEbooks);
 
         List<EbookProductCardView> randomEbook = ebookService.getRandomEbook();
+        enrichWithDiscount(newEBooks);
         request.setAttribute("randomEbook", randomEbook);
 
         String imgRandom1 = randomEbook.get(0).getImageLink();
@@ -79,6 +86,16 @@ public class  HomeController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+    }
+    private void enrichWithDiscount(List<EbookProductCardView> list) {
+        if (list == null) return;
+        for (EbookProductCardView eb : list) {
+            DiscountResult r = discountService.calculateBestDiscount(eb.getId(), eb.getPrice());
+            if (r.hasDiscount()) {
+                eb.applyDiscount(r.getFinalPrice(),
+                        discountService.getDiscountLabel(r.getBestDiscount()));
+            }
+        }
     }
 
 

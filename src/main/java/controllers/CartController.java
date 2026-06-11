@@ -13,6 +13,8 @@ import models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.CartService;
+import services.DiscountResult;
+import services.DiscountService;
 
 import java.io.IOException;
 import java.util.*;
@@ -20,18 +22,20 @@ import java.util.*;
 @WebServlet(name = "CartController", value = "/cart")
 public class CartController extends HttpServlet {
 
-    private CartService  cartService;
-    private BookshelfDAO bookshelfDAO;
-    private EbookDAO     ebookDAO;
+    private CartService     cartService;
+    private BookshelfDAO    bookshelfDAO;
+    private EbookDAO        ebookDAO;
+    private DiscountService discountService;
     private static final Logger logger     = LoggerFactory.getLogger(CartController.class);
     private static final String LOG_PREFIX = "[CART_CONTROLLER]";
     public static final String GUEST_CART_KEY = "guestCart";
 
     @Override
     public void init() throws ServletException {
-        cartService  = new CartService();
-        bookshelfDAO = new BookshelfDAO();
-        ebookDAO     = new EbookDAO();
+        cartService     = new CartService();
+        bookshelfDAO    = new BookshelfDAO();
+        ebookDAO        = new EbookDAO();
+        discountService = new DiscountService();
     }
 
     @Override
@@ -54,11 +58,14 @@ public class CartController extends HttpServlet {
                 }
             }
 
+            enrichCartItems(guestItems, -1, guestCart, session);
+
+            double guestTotal = guestCart.values().stream().mapToDouble(Double::doubleValue).sum();
+
             req.setAttribute("guestCart",   guestCart);
             req.setAttribute("guestItems",  guestItems);
             req.setAttribute("isGuest",     true);
-            req.setAttribute("totalPrice",
-                    guestCart.values().stream().mapToDouble(Double::doubleValue).sum());
+            req.setAttribute("totalPrice",  guestTotal);
             req.getRequestDispatcher("/WEB-INF/views/cart.jsp").forward(req, resp);
             return;
         }
@@ -66,6 +73,9 @@ public class CartController extends HttpServlet {
         int userId = user.getId();
         Cart cart  = getOrCreateCart(userId);
         List<CartItem> cartItems = cartService.getCartItemsByCartID(userId, cart.getId());
+
+        enrichCartItems(cartItems, cart.getId(), null, null);
+
         double totalPrice = cartItems.stream().mapToDouble(CartItem::getPriceAtADD).sum();
 
         req.setAttribute("cart",       cart);
@@ -154,6 +164,64 @@ public class CartController extends HttpServlet {
         }
 
         resp.sendRedirect(req.getContextPath() + "/cart");
+    }
+
+    private void enrichCartItems(List<CartItem> items,
+                                 int cartId,
+                                 Map<Integer, Double> guestCart,
+                                 HttpSession session) {
+        if (items == null) return;
+        for (CartItem item : items) {
+            Ebook ebook = item.getEbook();
+            if (ebook == null || ebook.getPrice() <= 0) continue;
+
+            double originalPrice = ebook.getPrice();
+
+            double currentPrice;
+            String discountLabel = null;
+            try {
+                DiscountResult result =
+                        discountService.calculateBestDiscount(ebook.getId(), originalPrice);
+                currentPrice = result.getFinalPrice().doubleValue();
+                if (result.hasDiscount()) {
+                    discountLabel = discountService.getDiscountLabel(result.getBestDiscount());
+                }
+            } catch (Exception e) {
+                logger.warn("{} calculateBestDiscount failed for ebookId={}, dùng giá gốc",
+                        LOG_PREFIX, ebook.getId(), e);
+                currentPrice = originalPrice;
+            }
+
+            double paidPrice = item.getPriceAtADD();
+            if (Math.abs(currentPrice - paidPrice) > 0.001) {
+                logger.info("{} Cập nhật giá ebookId={}: {} -> {}",
+                        LOG_PREFIX, ebook.getId(), paidPrice, currentPrice);
+
+                item.setPriceAtADD(currentPrice);
+
+                if (cartId > 0) {
+                    cartService.updatePrice(cartId, ebook.getId(), currentPrice);
+                } else if (guestCart != null && session != null) {
+                    // Guest: update session map
+                    guestCart.put(ebook.getId(), currentPrice);
+                    session.setAttribute(GUEST_CART_KEY, guestCart);
+                }
+            }
+
+            if (currentPrice < originalPrice) {
+                item.setOriginalPrice(originalPrice);
+                if (discountLabel != null) {
+                    item.setDiscountLabel(discountLabel);
+                } else {
+                    long savedPct = Math.round((1 - currentPrice / originalPrice) * 100);
+                    item.setDiscountLabel("-" + savedPct + "%");
+                }
+            }
+            else {
+                item.setOriginalPrice(null);
+                item.setDiscountLabel(null);
+            }
+        }
     }
 
     private void addToGuestCart(HttpSession session, int bookId, double price) {

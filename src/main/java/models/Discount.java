@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 public class Discount implements Serializable {
 
     private static final DateTimeFormatter DISPLAY_FMT =
-            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
     private static final DateTimeFormatter INPUT_FMT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
