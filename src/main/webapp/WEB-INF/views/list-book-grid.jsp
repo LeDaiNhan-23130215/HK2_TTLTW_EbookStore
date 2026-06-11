@@ -1,16 +1,13 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
-
 <fmt:setLocale value="vi_VN"/>
 
 <div class="product-grid">
-
     <c:if test="${not empty newEBooks}">
         <c:forEach var="eb" items="${newEBooks}">
             <div class="product-card" title="${eb.title}">
 
-                <!-- WISHLIST -->
                 <c:choose>
                     <c:when test="${sessionScope.user != null}">
                         <form action="${pageContext.request.contextPath}/wishlist" method="post">
@@ -32,49 +29,49 @@
                         </form>
                     </c:when>
                     <c:otherwise>
-                        <button type="button"
-                                class="favorite-btn"
-                                data-guest-wishlist="true">
+                        <button type="button" class="favorite-btn" data-guest-wishlist="true">
                             <i class="fa-regular fa-heart"></i>
                         </button>
                     </c:otherwise>
                 </c:choose>
 
-                <!-- IMAGE -->
-                <div class="img-wrapper">
-                    <img src="${eb.imageLink}"
-                         alt="ebook"
-                         onerror="this.onerror=null; this.src='${pageContext.request.contextPath}/assets/img/default-book.png';">
-                </div>
+                <a href="${pageContext.request.contextPath}/bookdetail?id=${eb.id}">
+                    <div class="img-wrapper">
+                        <img src="${eb.imageLink}" alt="ebook"
+                             onerror="this.onerror=null; this.src='${pageContext.request.contextPath}/assets/img/default-book.png';">
+                    </div>
+                </a>
 
-                <!-- TITLE -->
-                <p>${eb.title}</p>
+                <p>
+                    <a href="${pageContext.request.contextPath}/bookdetail?id=${eb.id}">${eb.title}</a>
+                </p>
 
                 <div>
-
-                    <!-- PRICE -->
-                    <c:if test="${eb.price != null and eb.price gt 0}">
-                        <span class="price">
-                            <fmt:formatNumber value="${eb.price}" type="currency"/>
-                        </span>
-                    </c:if>
-
-                    <c:if test="${eb.price eq 0}">
-                        <span>Free!!!</span>
-                    </c:if>
-
-                    <!-- ADD TO CART -->
+                    <c:choose>
+                        <c:when test="${eb.price eq 0}">
+                            <span class="price--free">Free!!!</span>
+                        </c:when>
+                        <c:when test="${eb.hasDiscount}">
+                            <span class="price--final"><fmt:formatNumber value="${eb.finalPrice}" type="number"/>đ</span>
+                        </c:when>
+                        <c:otherwise>
+                            <span class="price"><fmt:formatNumber value="${eb.price}" type="number"/>đ</span>
+                        </c:otherwise>
+                    </c:choose>
                     <form action="${pageContext.request.contextPath}/cart" method="post" class="add-to-cart-form">
                         <input type="hidden" name="action" value="add"/>
                         <input type="hidden" name="bookId" value="${eb.id}"/>
-                        <input type="hidden" name="price" value="${eb.price}"/>
-
-                        <button type="submit" class="add-to-cart-btn">
-                            <i class="fa-solid fa-cart-plus"></i>
-                        </button>
+                        <input type="hidden" name="price" value="${eb.hasDiscount ? eb.finalPrice : eb.price}"/>
+                        <button type="submit" class="add-to-cart-btn"><i class="fa-solid fa-cart-plus"></i></button>
                     </form>
-
                 </div>
+                <c:if test="${eb.hasDiscount}">
+                    <div class="card-row-2">
+                        <span class="price--original"><del><fmt:formatNumber value="${eb.price}" type="number"/>đ</del></span>
+                        <span class="badge-discount">${eb.discountLabel}</span>
+                    </div>
+                </c:if>
+
             </div>
         </c:forEach>
     </c:if>
@@ -82,32 +79,17 @@
     <c:if test="${empty newEBooks}">
         <p>Không tìm thấy kết quả!!!</p>
     </c:if>
-
 </div>
 
-
-<!-- PAGINATION -->
 <div class="pagination">
-
     <c:if test="${currentPage > 1}">
-        <a class="nav-btn"
-           href="list-book?page=${currentPage - 1}<c:if test='${not empty queryString}'>&${queryString}</c:if>">
-            «
-        </a>
+        <a class="nav-btn" href="list-book?page=${currentPage - 1}<c:if test='${not empty queryString}'>&${queryString}</c:if>">«</a>
     </c:if>
-
     <c:forEach begin="1" end="${totalPages}" var="i">
         <a class="page-btn ${i == currentPage ? 'active' : ''}"
-           href="list-book?page=${i}<c:if test='${not empty queryString}'>&${queryString}</c:if>">
-                ${i}
-        </a>
+           href="list-book?page=${i}<c:if test='${not empty queryString}'>&${queryString}</c:if>">${i}</a>
     </c:forEach>
-
     <c:if test="${currentPage < totalPages}">
-        <a class="nav-btn"
-           href="list-book?page=${currentPage + 1}<c:if test='${not empty queryString}'>&${queryString}</c:if>">
-            »
-        </a>
+        <a class="nav-btn" href="list-book?page=${currentPage + 1}<c:if test='${not empty queryString}'>&${queryString}</c:if>">»</a>
     </c:if>
-
 </div>

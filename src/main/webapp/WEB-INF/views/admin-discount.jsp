@@ -40,7 +40,7 @@
     function confirmDelete(id, name) {
       if (confirm('Xóa chương trình "' + name + '"?')) {
         window.location.href =
-          '${pageContext.request.contextPath}/admin-discount?action=delete&id=' + id;
+                '${pageContext.request.contextPath}/admin-discount?action=delete&id=' + id;
       }
     }
   </script>
@@ -94,73 +94,71 @@
       <h3>Danh sách chương trình giảm giá</h3>
       <table id="discountTable" class="table table-bordered table-hover">
         <thead class="table-dark">
-          <tr>
-            <th>#</th>
-            <th>Tên chương trình</th>
-            <th>Loại giảm</th>
-            <th>Mức giảm</th>
-            <th>Bắt đầu</th>
-            <th>Kết thúc</th>
-            <th>Trạng thái</th>
-            <th>Thao tác</th>
-          </tr>
+        <tr>
+          <th>#</th>
+          <th>Tên chương trình</th>
+          <th>Loại giảm</th>
+          <th>Mức giảm</th>
+          <th>Bắt đầu</th>
+          <th>Kết thúc</th>
+          <th>Trạng thái</th>
+          <th>Thao tác</th>
+        </tr>
         </thead>
         <tbody>
-          <c:forEach var="d" items="${discounts}" varStatus="st">
-            <tr>
-              <td>${st.index + 1}</td>
-              <td><strong>${d.name}</strong>
-                <c:if test="${not empty d.description}">
-                  <br><small class="text-muted">${d.description}</small>
-                </c:if>
-              </td>
-              <td>
-                <c:choose>
-                  <c:when test="${d.discountType eq 'PERCENT'}">Phần trăm (%)</c:when>
-                  <c:otherwise>Cố định (₫)</c:otherwise>
-                </c:choose>
-              </td>
-              <td>
-                <c:choose>
-                  <c:when test="${d.discountType eq 'PERCENT'}">
-                    <strong>${d.discountValue}%</strong>
-                  </c:when>
-                  <c:otherwise>
-                    <%-- discountValue là BigDecimal — fmt:formatNumber hoạt động tốt --%>
-                    <strong><fmt:formatNumber value="${d.discountValue}"
-                                             type="currency" currencySymbol="₫"
-                                             groupingUsed="true"/></strong>
-                  </c:otherwise>
-                </c:choose>
-              </td>
-              <%-- Dùng getter Java thay vì fmt:formatDate (LocalDateTime không tương thích) --%>
-              <td>${d.formattedStartDate}</td>
-              <td>${d.formattedEndDate}</td>
-              <td>
-                <c:choose>
-                  <c:when test="${d.status eq 'ACTIVE'}">
-                    <span class="badge-status active">Đang chạy</span>
-                  </c:when>
-                  <c:when test="${d.status eq 'INACTIVE'}">
-                    <span class="badge-status inactive">Tạm dừng</span>
-                  </c:when>
-                  <c:otherwise>
-                    <span class="badge-status ended">Đã kết thúc</span>
-                  </c:otherwise>
-                </c:choose>
-              </td>
-              <td>
-                <a href="${pageContext.request.contextPath}/admin-discount?action=edit&id=${d.id}"
-                   class="btn btn-sm btn-warning">
-                  <i class="fa-solid fa-pen"></i> Sửa
-                </a>
-                <button type="button" class="btn btn-sm btn-danger"
-                        onclick="confirmDelete(${d.id}, '${d.name}')">
-                  <i class="fa-solid fa-trash"></i> Xóa
-                </button>
-              </td>
-            </tr>
-          </c:forEach>
+        <c:forEach var="d" items="${discounts}" varStatus="st">
+          <tr>
+            <td>${st.index + 1}</td>
+            <td><strong>${d.name}</strong>
+              <c:if test="${not empty d.description}">
+                <br><small class="text-muted">${d.description}</small>
+              </c:if>
+            </td>
+            <td>
+              <c:choose>
+                <c:when test="${d.discountType eq 'PERCENT'}">Phần trăm (%)</c:when>
+                <c:otherwise>Cố định (₫)</c:otherwise>
+              </c:choose>
+            </td>
+            <td>
+              <c:choose>
+                <c:when test="${d.discountType eq 'PERCENT'}">
+                  <strong>${d.discountValue}%</strong>
+                </c:when>
+                <c:otherwise>
+                  <strong><fmt:formatNumber value="${d.discountValue}"
+                                            type="number"
+                                            groupingUsed="true"/> ₫</strong>
+                </c:otherwise>
+              </c:choose>
+            </td>
+            <td>${d.formattedStartDate}</td>
+            <td>${d.formattedEndDate}</td>
+            <td>
+              <c:choose>
+                <c:when test="${d.status eq 'ACTIVE'}">
+                  <span class="badge-status active">Hoạt động</span>
+                </c:when>
+                <c:when test="${d.status eq 'INACTIVE'}">
+                  <span class="badge-status inactive">Tạm dừng</span>
+                </c:when>
+                <c:otherwise>
+                  <span class="badge-status ended">Kết thúc</span>
+                </c:otherwise>
+              </c:choose>
+            </td>
+            <td>
+              <a href="${pageContext.request.contextPath}/admin-discount?action=edit&id=${d.id}"
+                 class="btn btn-sm btn-warning">
+                <i class="fa-solid fa-pen"></i> Sửa
+              </a>
+              <button type="button" class="btn btn-sm btn-danger"
+                      onclick="confirmDelete(${d.id}, '${d.name}')">
+                <i class="fa-solid fa-trash"></i> Xóa
+              </button>
+            </td>
+          </tr>
+        </c:forEach>
         </tbody>
       </table>
     </div>

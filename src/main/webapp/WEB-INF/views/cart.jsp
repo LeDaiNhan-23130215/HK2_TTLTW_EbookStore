@@ -54,8 +54,13 @@
                                             </a>
                                             <div class="cart-infor">
                                                 <div class="cart-name">
-                                                    <a href="${pageContext.request.contextPath}/bookdetail?id=${item.ebook.id}"
-                                                       class="product_name">${item.ebook.title}</a>
+                                                    <div class="cart-name-row">
+                                                        <a href="${pageContext.request.contextPath}/bookdetail?id=${item.ebook.id}"
+                                                           class="product_name">${item.ebook.title}</a>
+                                                        <c:if test="${item.discounted}">
+                                                            <span class="cart-badge-discount">${item.discountLabel}</span>
+                                                        </c:if>
+                                                    </div>
                                                     <form action="${pageContext.request.contextPath}/cart"
                                                           method="post">
                                                         <input type="hidden" name="action" value="buyOne"/>
@@ -78,9 +83,24 @@
                                             </div>
                                         </div>
 
+                                            <%-- Cột Đơn giá --%>
                                         <div class="cart-price">
-                                            <fmt:formatNumber value="${item.priceAtADD}" type="number"/>đ
+                                            <c:choose>
+                                                <c:when test="${item.discounted}">
+                                                    <span class="cart-price-final">
+                                                        <fmt:formatNumber value="${item.priceAtADD}" type="number"/>đ
+                                                    </span>
+                                                    <span class="cart-price-original">
+                                                        <del><fmt:formatNumber value="${item.originalPrice}" type="number"/>đ</del>
+                                                    </span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <fmt:formatNumber value="${item.priceAtADD}" type="number"/>đ
+                                                </c:otherwise>
+                                            </c:choose>
                                         </div>
+
+                                            <%-- Cột Thành tiền --%>
                                         <div class="cart-price cart-subtotal">
                                             <fmt:formatNumber value="${item.priceAtADD}" type="number"/>đ
                                         </div>
@@ -114,8 +134,13 @@
                                             </a>
                                             <div class="cart-infor">
                                                 <div class="cart-name">
-                                                    <a href="${pageContext.request.contextPath}/bookdetail?id=${item.ebook.id}"
-                                                       class="product_name">${item.ebook.title}</a>
+                                                    <div class="cart-name-row">
+                                                        <a href="${pageContext.request.contextPath}/bookdetail?id=${item.ebook.id}"
+                                                           class="product_name">${item.ebook.title}</a>
+                                                        <c:if test="${item.discounted}">
+                                                            <span class="cart-badge-discount">${item.discountLabel}</span>
+                                                        </c:if>
+                                                    </div>
                                                     <form action="${pageContext.request.contextPath}/cart"
                                                           method="post">
                                                         <input type="hidden" name="action" value="buyOne"/>
@@ -139,9 +164,24 @@
                                             </div>
                                         </div>
 
+                                            <%-- Cột Đơn giá --%>
                                         <div class="cart-price">
-                                            <fmt:formatNumber value="${item.priceAtADD}" type="number"/>đ
+                                            <c:choose>
+                                                <c:when test="${item.discounted}">
+                                                    <span class="cart-price-final">
+                                                        <fmt:formatNumber value="${item.priceAtADD}" type="number"/>đ
+                                                    </span>
+                                                    <span class="cart-price-original">
+                                                        <del><fmt:formatNumber value="${item.originalPrice}" type="number"/>đ</del>
+                                                    </span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <fmt:formatNumber value="${item.priceAtADD}" type="number"/>đ
+                                                </c:otherwise>
+                                            </c:choose>
                                         </div>
+
+                                            <%-- Cột Thành tiền --%>
                                         <div class="cart-price cart-subtotal">
                                             <fmt:formatNumber value="${item.priceAtADD}" type="number"/>đ
                                         </div>

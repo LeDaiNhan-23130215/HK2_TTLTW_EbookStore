@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="<c:url value='/assets/css/base.css' />">
   <link rel="stylesheet" href="<c:url value='/assets/css/components.css' />">
   <link rel="stylesheet" href="<c:url value='/assets/css/list-book.css' />">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/discount-price.css"/>
 
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>

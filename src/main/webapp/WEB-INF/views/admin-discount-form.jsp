@@ -101,11 +101,16 @@
 
         <div class="form-row">
           <label>Mức giảm <span style="color:red">*</span></label>
-          <input type="number" name="discountValue" id="discountValue"
-                 required min="0.01" step="0.01"
-                 value="${discount.discountValue}"
-                 placeholder="VD: 20 (cho %) hoặc 50000 (cho ₫)"/>
+          <div class="discount-input-group">
+            <button type="button" class="discount-btn" onclick="stepValue(-1)">−</button>
+            <input type="number" name="discountValue" id="discountValue"
+                   required min="0.01" step="any"
+                   value="${discount.discountValue}"
+                   placeholder="VD: 20 (cho %) hoặc 50000 (cho ₫)"/>
+            <button type="button" class="discount-btn" onclick="stepValue(1)">+</button>
+          </div>
           <small id="valueHint" class="hint"></small>
+          <small id="amountWords" class="hint" style="color:#0396c7;font-style:italic;display:none;"></small>
         </div>
 
         <div class="form-row">
@@ -115,11 +120,11 @@
                     <c:choose>
                       <c:when test="${discount.status eq 'ACTIVE'}">selected</c:when>
                       <c:when test="${empty discount}">selected</c:when>
-                    </c:choose>>Đang chạy</option>
+                    </c:choose>>Hoạt động</option>
             <option value="INACTIVE"
             ${discount.status eq 'INACTIVE' ? 'selected' : ''}>Tạm dừng</option>
             <option value="ENDED"
-            ${discount.status eq 'ENDED' ? 'selected' : ''}>Đã kết thúc</option>
+            ${discount.status eq 'ENDED' ? 'selected' : ''}>Kết thúc</option>
           </select>
         </div>
       </div>
@@ -128,16 +133,10 @@
       <div class="form-section">
         <h4><i class="fa-solid fa-calendar-days"></i> Thời gian áp dụng</h4>
         <p class="hint">Để trống nếu không giới hạn thời gian. Chương trình sẽ tự
-          chuyển sang "Đã kết thúc" khi hết ngày kết thúc.</p>
+          chuyển sang "Kết thúc" khi hết ngày kết thúc.</p>
 
         <div class="form-row">
           <label>Ngày bắt đầu</label>
-          <%--
-            Dùng ${discount.startDateForInput} — getter trong Discount.java trả về
-            chuỗi "yyyy-MM-dd'T'HH:mm" đúng chuẩn của input[type=datetime-local].
-            KHÔNG dùng ${discount.startDate} vì LocalDateTime.toString() có thể
-            có phần giây (2024-06-01T10:00:00) khiến input không nhận giá trị.
-          --%>
           <input type="datetime-local" name="startDate"
                  value="${discount.startDateForInput}"/>
         </div>
@@ -236,43 +235,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/admin-theme.js"></script>
-<script>
-  function switchTab(tab) {
-    ['ebook','category','author'].forEach(t => {
-      document.getElementById('tab-' + t).classList.toggle('show', t === tab);
-    });
-    document.querySelectorAll('.tab-btn').forEach((btn, i) => {
-      btn.classList.toggle('active', ['ebook','category','author'][i] === tab);
-    });
-  }
-
-  function updateValueHint() {
-    const type  = document.getElementById('discountType').value;
-    const input = document.getElementById('discountValue');
-    const hint  = document.getElementById('valueHint');
-    if (type === 'PERCENT') {
-      input.placeholder = 'VD: 20  →  giảm 20%';
-      input.max = 100;
-      hint.textContent  = 'Nhập số từ 0.01 đến 100';
-    } else {
-      input.placeholder = 'VD: 50000  →  giảm 50.000₫';
-      input.removeAttribute('max');
-      hint.textContent  = 'Nhập số tiền giảm (VNĐ)';
-    }
-  }
-
-  document.getElementById('discountForm').addEventListener('submit', function (e) {
-    const type  = document.getElementById('discountType').value;
-    const value = parseFloat(document.getElementById('discountValue').value);
-    if (isNaN(value) || value <= 0) {
-      alert('Mức giảm phải lớn hơn 0.'); e.preventDefault(); return;
-    }
-    if (type === 'PERCENT' && value > 100) {
-      alert('Mức giảm phần trăm không được vượt quá 100%.'); e.preventDefault();
-    }
-  });
-
-  updateValueHint();
-</script>
+<script src="${pageContext.request.contextPath}/assets/js/admin-discount-form.js"></script>
 </body>
 </html>
