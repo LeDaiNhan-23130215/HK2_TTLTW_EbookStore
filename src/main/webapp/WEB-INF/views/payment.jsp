@@ -103,7 +103,6 @@
         </form>
     </div>
 
-    <!-- RIGHT -->
     <div class="checkout-right">
         <div class="label-right">
             Đơn hàng (${fn:length(cartItems)} sản phẩm)
@@ -121,17 +120,77 @@
             </div>
         </c:forEach>
 
+        <div class="voucher-section">
+            <form action="${pageContext.request.contextPath}/apply-voucher"
+                  method="post"
+                  class="voucher-form">
+                <input
+                        type="text"
+                        name="voucherCode"
+                        placeholder="Nhập mã voucher">
+                <button type="submit">
+                    Áp dụng
+                </button>
+            </form>
+            <c:if test="${not empty sessionScope.voucherError}">
+                <div class="voucher-error">
+                        ${sessionScope.voucherError}
+                </div>
+            </c:if>
+
+            <c:if test="${not empty sessionScope.voucher}">
+                <div class="voucher-success">
+                    <i class="fa-solid fa-ticket"></i>
+                    Voucher:
+                    <strong>
+                            ${sessionScope.voucher.code}
+                    </strong>
+                </div>
+            </c:if>
+        </div>
+
         <div class="price">
-            <div class="sub-price-title">Tạm tính</div>
+            <div class="sub-price-title">
+                Tạm tính
+            </div>
             <div class="product-price">
-                <fmt:formatNumber value="${totalPrice}" type="number"/> VND
+                <fmt:formatNumber
+                        value="${totalPrice}"
+                        type="number"/> VND
             </div>
         </div>
 
+        <c:if test="${not empty sessionScope.discount}">
+            <div class="price">
+                <div class="sub-price-title">
+                    Giảm giá
+                </div>
+                <div class="product-price discount-price">
+                    -
+                    <fmt:formatNumber
+                            value="${sessionScope.discount}"
+                            type="number"/> VND
+                </div>
+            </div>
+        </c:if>
+
         <div class="total">
-            <div class="total-price-title">Tổng tiền</div>
+            <div class="total-price-title">
+                Tổng tiền
+            </div>
             <div class="total-price">
-                <fmt:formatNumber value="${totalPrice}" type="number"/> VND
+                <c:choose>
+                    <c:when test="${not empty sessionScope.finalPrice}">
+                        <fmt:formatNumber
+                                value="${sessionScope.finalPrice}"
+                                type="number"/> VND
+                    </c:when>
+                    <c:otherwise>
+                        <fmt:formatNumber
+                                value="${totalPrice}"
+                                type="number"/> VND
+                    </c:otherwise>
+                </c:choose>
             </div>
         </div>
     </div>

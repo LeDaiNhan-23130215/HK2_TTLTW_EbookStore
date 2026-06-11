@@ -4,7 +4,51 @@
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
 }
+.voucher-section{
+    margin: 20px 0;
+}
 
+.voucher-form{
+    display:flex;
+    gap:10px;
+}
+
+.voucher-form input{
+    flex:1;
+    padding:10px;
+    border:1px solid #ccc;
+    border-radius:8px;
+}
+
+.voucher-form button{
+    padding:10px 16px;
+    border:none;
+    background:#111827;
+    color:white;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.voucher-form button:hover{
+    opacity:.9;
+}
+
+.voucher-error{
+    margin-top:10px;
+    color:#dc2626;
+    font-size:14px;
+}
+
+.voucher-success{
+    margin-top:10px;
+    color:#16a34a;
+    font-size:14px;
+}
+
+.discount-price{
+    color:#16a34a;
+    font-weight:bold;
+}
 body{
     background-color: #f4f4f4;
 }
