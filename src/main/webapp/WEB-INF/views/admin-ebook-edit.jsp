@@ -127,8 +127,13 @@
                 </div>
 
                 <div class="form-row">
-                    <label>File ebook:</label>
-                    <input type="text" disabled value="(Chưa hỗ trợ chỉnh sửa)">
+                    <label>File ebook (PDF):</label>
+                    <label>Upload File PDF:</label>
+                    <input type="file" name="pdfFile" accept="pdf/*">
+                    <br>
+                    <br>
+                    <label>Hoặc nhập link file PDF:</label>
+                    <input type="text" name="pdfUrl" placeholder="https://...">
                 </div>
 
                 <div class="form-actions">

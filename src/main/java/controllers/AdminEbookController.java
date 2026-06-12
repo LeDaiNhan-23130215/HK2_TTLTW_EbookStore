@@ -8,6 +8,7 @@ import jakarta.servlet.http.*;
 import models.*;
 import services.AdminServices;
 import services.CloudinaryService;
+import services.FileServices;
 import services.ImageServices;
 
 import java.io.IOException;
@@ -20,17 +21,20 @@ import java.util.stream.Collectors;
 @WebServlet(name = "AdminEbookController", value = "/admin-ebook")
 @MultipartConfig(
         fileSizeThreshold = 1024 * 1024,
-        maxFileSize = 5 * 1024 * 1024
+        maxFileSize = 100 * 1024 * 1024,
+        maxRequestSize = 120 * 1024 * 1024
 )
 public class AdminEbookController extends HttpServlet {
     private ImageServices imageServices;
     private AdminServices adminServices;
     private CloudinaryService cloudinaryService;
+    private FileServices fileServices;
     @Override
     public void init() {
         adminServices = new AdminServices();
         imageServices = new ImageServices();
         cloudinaryService = new CloudinaryService();
+        fileServices = new FileServices();
     }
 
     // ===================== GET =====================
@@ -141,10 +145,12 @@ public class AdminEbookController extends HttpServlet {
         return ids;
     }
 
-    private void updateEbook(HttpServletRequest req, HttpServletResponse resp)
+    private void updateEbook(HttpServletRequest req,
+                             HttpServletResponse resp)
             throws IOException, ServletException {
 
         int id = parseInt(req.getParameter("id"));
+
         Ebook old = adminServices.getEbookByID(id);
 
         if (old == null) {
@@ -155,20 +161,69 @@ public class AdminEbookController extends HttpServlet {
         Part coverFile = req.getPart("coverFile");
         String coverUrl = req.getParameter("coverUrl");
 
+        Part pdfFile = req.getPart("pdfFile");
+        String pdfUrl = req.getParameter("pdfUrl");
+
         Integer newImageId = null;
-        if (coverFile != null && coverFile.getSize() > 0) {
-            String uploadedUrl = cloudinaryService.uploadImageFromFile(coverFile);
-            newImageId = imageServices.createImageAndReturnId(old.getTitle(), uploadedUrl);
-        } else if (coverUrl != null && !coverUrl.isBlank()) {
-            String uploadedUrl = cloudinaryService.uploadImageFromUrl(coverUrl);
-            newImageId = imageServices.createImageAndReturnId(old.getTitle(), uploadedUrl);
+
+        // ===== UPDATE COVER =====
+        if ((coverUrl != null && !coverUrl.isBlank())
+                || (coverFile != null && coverFile.getSize() > 0)) {
+
+            String uploadedUrl =
+                    cloudinaryService.uploadImage(
+                            coverFile,
+                            coverUrl
+                    );
+
+            if (uploadedUrl != null) {
+
+                newImageId =
+                        imageServices.createImageAndReturnId(
+                                old.getTitle(),
+                                uploadedUrl
+                        );
+            }
         }
+
         if (newImageId != null) {
             imageServices.updateCoverImage(id, newImageId);
         }
-        Ebook ebook = buildUpdatedEbook(req, old);
+
+        // ===== UPDATE PDF =====
+        Integer newPdfFileId = null;
+
+        if (pdfFile != null && pdfFile.getSize() > 0) {
+
+            String pdfUploadedUrl =
+                    cloudinaryService.uploadPdfFile(
+                            pdfFile,
+                            pdfUrl
+                    );
+
+            if (pdfUploadedUrl != null) {
+
+                newPdfFileId =
+                        fileServices.createFileAndReturnIdForPdfFile(
+                                pdfFile.getSubmittedFileName(),
+                                pdfFile.getSize(),
+                                pdfUploadedUrl
+                        );
+            }
+        }
+
+        Ebook ebook =
+                buildUpdatedEbook(
+                        req,
+                        old,
+                        newPdfFileId
+                );
+
         adminServices.updateEbook(ebook);
-        resp.sendRedirect(req.getContextPath() + "/admin-ebook");
+
+        resp.sendRedirect(
+                req.getContextPath() + "/admin-ebook"
+        );
     }
 
     private void deleteEbook(HttpServletRequest req, HttpServletResponse resp)
@@ -196,7 +251,7 @@ public class AdminEbookController extends HttpServlet {
         );
     }
 
-    private Ebook buildUpdatedEbook(HttpServletRequest req, Ebook old) {
+    private Ebook buildUpdatedEbook(HttpServletRequest req, Ebook old, Integer newFileId) {
 
         return new Ebook(
                 old.getId(),
@@ -205,7 +260,7 @@ public class AdminEbookController extends HttpServlet {
                 parseDouble(req.getParameter("price")),
                 req.getParameter("description"),
                 parseInt(req.getParameter("categoryId")),
-                old.getFileID(),
+                newFileId == null ? old.getFileID() : newFileId,
                 old.getStatus()
         );
     }

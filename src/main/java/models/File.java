@@ -1,6 +1,8 @@
 package models;
 
-public class File extends Base {
+import java.io.Serializable;
+
+public class File extends Base implements Serializable {
     private String fileName;
     private String fileFormat;
     private long fileSize;
@@ -15,7 +17,14 @@ public class File extends Base {
         this.fileLink = fileLink;
         this.fileStatus = fileStatus;
     }
-
+    public File(int id,String fileName, String fileFormat, long fileSize, String fileLink, String fileStatus) {
+        super(id);
+        this.fileName = fileName;
+        this.fileFormat = fileFormat;
+        this.fileSize = fileSize;
+        this.fileLink = fileLink;
+        this.fileStatus = fileStatus;
+    }
     public File(int id) {
         super(id);
     }

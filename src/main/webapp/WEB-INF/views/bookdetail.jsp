@@ -117,7 +117,7 @@
             </form>
 
             <!-- READ SAMPLE -->
-            <a href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&page=1"
+            <a href="${pageContext.request.contextPath}/readbook?id=${ebook.id}"
                class="btn btn-docthu">
               Đọc thử
             </a>
