@@ -40,3 +40,5 @@ build/
 /src/main/resources/db.properties
 /src/main/resources/cloudinary.properties
 /src/main/resources/oauth.properties
+/src/main/resources/vnpay.properties
+/src/main/resources/vnpay-deploy.properties
