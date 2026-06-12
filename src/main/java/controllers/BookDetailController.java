@@ -35,7 +35,6 @@ public class BookDetailController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // ===== 1. VALIDATE ID =====
         String idParam = request.getParameter("id");
         int ebookId;
         try {
@@ -45,22 +44,16 @@ public class BookDetailController extends HttpServlet {
             return;
         }
 
-        // ===== 2. LOAD EBOOK DETAIL =====
         Ebook ebook = ebookDAO.getEbookById(ebookId);
         if (ebook == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
 
-        // ===== 3. CHECK LOGIN =====
         HttpSession session = request.getSession(false);
-        Integer userID = (session != null) ? (Integer) session.getAttribute("userID") : null;
-        if (userID == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
+        models.User user = (session != null) ? (models.User) session.getAttribute("user") : null;
+        int userID = (user != null) ? user.getId() : 0;
 
-        // ===== 4. LOAD WISHLIST =====
         List<Ebook> wishlist = wishlistService.getWishlistWithDetails(userID);
         List<Integer> wishlistIds = wishlist.stream().map(Ebook::getId).toList();
 
@@ -76,11 +69,9 @@ public class BookDetailController extends HttpServlet {
             }
         }
 
-        // ===== 6. DISCOUNT: ebook chính =====
         DiscountResult discountResult =
                 discountService.calculateBestDiscount(ebook.getId(), ebook.getPrice());
 
-        // ===== 7. DISCOUNT: similar ebooks =====
         Map<Integer, DiscountResult> similarDiscounts = new HashMap<>();
         for (Ebook e : similarEbooks) {
             DiscountResult r = discountService.calculateBestDiscount(e.getId(), e.getPrice());
@@ -89,14 +80,13 @@ public class BookDetailController extends HttpServlet {
             }
         }
 
-        // ===== 8. SET ATTRIBUTES =====
-        request.setAttribute("ebook",            ebook);
-        request.setAttribute("wishlist",         wishlist);
-        request.setAttribute("wishlistIds",      wishlistIds);
-        request.setAttribute("similarEbooks",    similarEbooks);
-        request.setAttribute("discountResult",   discountResult);
-        request.setAttribute("discountService",  discountService);
-        request.setAttribute("similarDiscounts", similarDiscounts);
+        request.setAttribute("ebook",ebook);
+        request.setAttribute("wishlist",wishlist);
+        request.setAttribute("wishlistIds",wishlistIds);
+        request.setAttribute("similarEbooks",similarEbooks);
+        request.setAttribute("discountResult",discountResult);
+        request.setAttribute("discountService",discountService);
+        request.setAttribute("similarDiscounts",similarDiscounts);
 
         // ===== 9. FORWARD =====
         request.getRequestDispatcher("/WEB-INF/views/bookdetail.jsp")

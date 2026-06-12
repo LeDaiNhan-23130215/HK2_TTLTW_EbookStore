@@ -117,9 +117,12 @@
             </form>
 
             <!-- READ SAMPLE -->
-            <a href="${pageContext.request.contextPath}/readbook?id=${ebook.id}"
-               class="btn btn-docthu">
-              Đọc thử
+            <a href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&format=epub">
+              Đọc EPUB
+            </a>
+
+            <a href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&format=pdf">
+              Đọc PDF
             </a>
 
             <!-- ❤️ WISHLIST -->

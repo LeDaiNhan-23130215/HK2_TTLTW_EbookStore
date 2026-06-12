@@ -54,40 +54,22 @@ public class CloudinaryService {
         throw new IllegalArgumentException("No image source provided");
     }
 
-    public String uploadPdfFromUrl(String pdfUrl) {
-        try {
-            Map<?, ?> result = cloudinary.uploader().upload(
-                    pdfUrl,
-                    ObjectUtils.asMap("resource_type", "raw"));
-            return result.get("secure_url").toString();
-
-        } catch (IOException e) {
-            logger.error("{} Upload pdf file failed", LOG_PREFIX, e);
-            throw new RuntimeException("Upload pdf file fail",e);
-        }
-    }
-
-    public String uploadPdfFromFile(Part filePart) {
+    public String uploadRawFile(Part filePart,String fileName) {
         try {
             byte[] fileBytes = filePart.getInputStream().readAllBytes();
             Map<?, ?> result = cloudinary.uploader().upload(
                     fileBytes,
-                    ObjectUtils.asMap("resource_type", "raw")
+                    ObjectUtils.asMap(
+                            "resource_type", "raw",
+                            "public_id", fileName,
+                            "use_filename", true,
+                            "unique_filename", false
+                    )
             );
             return result.get("secure_url").toString();
         } catch (Exception e) {
             logger.error("{} Upload pdf file failed", LOG_PREFIX, e);
             throw new RuntimeException("Upload pdf file failed", e);
         }
-    }
-
-    public String uploadPdfFile(Part filePart, String url) {
-        if (filePart != null && filePart.getSize() > 0) {
-            return uploadPdfFromFile(filePart);
-        }
-        if (url != null && !url.isBlank()) {
-            return uploadPdfFromUrl(url);
-        }
-        throw new IllegalArgumentException("No image source provided");
     }
 }

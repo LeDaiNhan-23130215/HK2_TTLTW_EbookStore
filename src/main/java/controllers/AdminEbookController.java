@@ -6,10 +6,7 @@ import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import models.*;
-import services.AdminServices;
-import services.CloudinaryService;
-import services.FileServices;
-import services.ImageServices;
+import services.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,12 +26,14 @@ public class AdminEbookController extends HttpServlet {
     private AdminServices adminServices;
     private CloudinaryService cloudinaryService;
     private FileServices fileServices;
+    private EbookFileService ebookFileService;
     @Override
     public void init() {
         adminServices = new AdminServices();
         imageServices = new ImageServices();
         cloudinaryService = new CloudinaryService();
         fileServices = new FileServices();
+        ebookFileService = new EbookFileService();
     }
 
     // ===================== GET =====================
@@ -162,26 +161,18 @@ public class AdminEbookController extends HttpServlet {
         String coverUrl = req.getParameter("coverUrl");
 
         Part pdfFile = req.getPart("pdfFile");
-        String pdfUrl = req.getParameter("pdfUrl");
 
         Integer newImageId = null;
 
-        // ===== UPDATE COVER =====
         if ((coverUrl != null && !coverUrl.isBlank())
                 || (coverFile != null && coverFile.getSize() > 0)) {
 
-            String uploadedUrl =
-                    cloudinaryService.uploadImage(
-                            coverFile,
-                            coverUrl
-                    );
-
+            String uploadedUrl = cloudinaryService.uploadImage(coverFile, coverUrl);
             if (uploadedUrl != null) {
 
-                newImageId =
-                        imageServices.createImageAndReturnId(
-                                old.getTitle(),
-                                uploadedUrl
+                newImageId = imageServices.createImageAndReturnId(
+                        old.getTitle(),
+                        uploadedUrl
                         );
             }
         }
@@ -190,34 +181,35 @@ public class AdminEbookController extends HttpServlet {
             imageServices.updateCoverImage(id, newImageId);
         }
 
-        // ===== UPDATE PDF =====
         Integer newPdfFileId = null;
-
         if (pdfFile != null && pdfFile.getSize() > 0) {
-
             String pdfUploadedUrl =
-                    cloudinaryService.uploadPdfFile(
-                            pdfFile,
-                            pdfUrl
-                    );
-
+                    cloudinaryService.uploadRawFile(pdfFile, pdfFile.getSubmittedFileName());
             if (pdfUploadedUrl != null) {
-
-                newPdfFileId =
-                        fileServices.createFileAndReturnIdForPdfFile(
+                newPdfFileId = fileServices.createFileAndReturnIdForPdfFile(
                                 pdfFile.getSubmittedFileName(),
+                                "pdf",
                                 pdfFile.getSize(),
                                 pdfUploadedUrl
                         );
+
+                ebookFileService.addFileToBook(id, newPdfFileId, false);
             }
         }
+        Ebook ebook = buildUpdatedEbook(req, old, newPdfFileId);
 
-        Ebook ebook =
-                buildUpdatedEbook(
-                        req,
-                        old,
-                        newPdfFileId
-                );
+        Part epubFile = req.getPart("epubFile");
+
+        if(epubFile != null && epubFile.getSize() > 0) {
+            String epubUrl = cloudinaryService.uploadRawFile(epubFile, epubFile.getSubmittedFileName());
+
+            int epubFileId = fileServices.createFileAndReturnIdForPdfFile(epubFile.getSubmittedFileName(),
+                    "epub",
+                    epubFile.getSize(),
+                    epubUrl);
+
+            ebookFileService.addFileToBook(id, epubFileId, true);
+        }
 
         adminServices.updateEbook(ebook);
 

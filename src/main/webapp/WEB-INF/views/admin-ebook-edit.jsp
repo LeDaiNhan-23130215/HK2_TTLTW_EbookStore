@@ -126,14 +126,18 @@
                         <input type="text" name="coverUrl" placeholder="https://..."/>
                 </div>
 
-                <div class="form-row">
-                    <label>File ebook (PDF):</label>
-                    <label>Upload File PDF:</label>
-                    <input type="file" name="pdfFile" accept="pdf/*">
-                    <br>
-                    <br>
-                    <label>Hoặc nhập link file PDF:</label>
-                    <input type="text" name="pdfUrl" placeholder="https://...">
+                <div class="form-group">
+                    <label>PDF File</label>
+                    <input type="file"
+                           name="pdfFile"
+                           accept=".pdf">
+                </div>
+
+                <div class="form-group">
+                    <label>EPUB File</label>
+                    <input type="file"
+                           name="epubFile"
+                           accept=".epub">
                 </div>
 
                 <div class="form-actions">

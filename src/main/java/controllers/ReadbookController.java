@@ -25,20 +25,27 @@ public class ReadbookController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         int ebookId = Integer.parseInt(request.getParameter("id"));
         Ebook ebook = adminService.getEbookByID(ebookId);
-
-        if(ebook == null) {
+                if (ebook == null) {
             response.sendError(404);
             return;
         }
 
-        File pdfFile = fileServices.getFileByID(301);
-        System.out.println(pdfFile.getFileLink());
-        request.setAttribute("ebook", ebook);
-        request.setAttribute("pdfFile", pdfFile);
+        String format = request.getParameter("format");
+        if (format == null || format.isBlank()) {
+            response.sendError(400);
+            return;
+        }
 
+        File file = fileServices.getFileByFormat(ebookId, format);
+        if (file == null) {
+            response.sendError(404);
+            return;
+        }
+
+        request.setAttribute("ebook", ebook);
+        request.setAttribute("file", file);
         request.getRequestDispatcher("/WEB-INF/views/readbook.jsp")
                 .forward(request, response);
-
     }
 
     @Override
