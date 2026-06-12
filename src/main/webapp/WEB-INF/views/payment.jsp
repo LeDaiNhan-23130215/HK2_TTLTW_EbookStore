@@ -33,7 +33,6 @@
 
         <div class="label-infor">
             <p>Thông tin nhận hàng</p>
-            <a href="${pageContext.request.contextPath}/contact-information">Thay đổi</a>
         </div>
 
         <!-- USER INFO -->
@@ -59,36 +58,10 @@
 
             <div class="payment-container">
                 <div class="payment-option">
-                    <input type="radio" id="momo" name="paymentMethod" value="momo" checked>
-                    <label for="momo">
-                        <img src="${pageContext.request.contextPath}/assets/img/momo-logo.png"> Momo
-                    </label>
-                </div>
-
-                <div class="payment-option">
-                    <input type="radio" id="vnpay" name="paymentMethod" value="vnpay">
+                    <input type="radio" id="vnpay" name="paymentMethod" value="vnpay" checked>
                     <label for="vnpay">
                         <img src="${pageContext.request.contextPath}/assets/img/vnpay.png"> VNPay
                     </label>
-                </div>
-
-                <div class="payment-option">
-                    <input type="radio" id="zalopay" name="paymentMethod" value="zalopay">
-                    <label for="zalopay">
-                        <img src="${pageContext.request.contextPath}/assets/img/zalo-pay.png"> ZaloPay
-                    </label>
-                </div>
-
-                <div class="payment-option">
-                    <input type="radio" id="qrcode" name="paymentMethod" value="qrcode">
-                    <label for="qrcode">
-                        <i class="fa-solid fa-qrcode"></i> Quét mã QR
-                    </label>
-                </div>
-
-                <div class="qr-container hidden">
-                    <p>Quét mã để thanh toán</p>
-                    <img src="https://cdn.britannica.com/17/155017-050-9AC96FC8/Example-QR-code.jpg">
                 </div>
             </div>
 
@@ -97,7 +70,7 @@
                     <i class="fa-solid fa-arrow-left"></i> Giỏ hàng
                 </a>
                 <button type="submit" class="checkout-btn">
-                    Thanh toán
+                    Xác nhận
                 </button>
             </div>
         </form>
@@ -108,17 +81,19 @@
             Đơn hàng (${fn:length(cartItems)} sản phẩm)
         </div>
 
-        <c:forEach var="item" items="${cartItems}">
-            <div class="product-row">
-                <div class="product-detail">
-                    <img src="${item.ebook.images[0].imgLink}" alt="${item.ebook.title}">
-                    <div class="product-name">${item.ebook.title}</div>
+        <div class="product-list-scroll">
+            <c:forEach var="item" items="${cartItems}">
+                <div class="product-row">
+                    <div class="product-detail">
+                        <img src="${item.ebook.images[0].imgLink}" alt="${item.ebook.title}">
+                        <div class="product-name">${item.ebook.title}</div>
+                    </div>
+                    <div class="product-price">
+                        <fmt:formatNumber value="${item.priceAtADD}" type="number"/>đ
+                    </div>
                 </div>
-                <div class="product-price">
-                    <fmt:formatNumber value="${item.priceAtADD}" type="number"/> VND
-                </div>
-            </div>
-        </c:forEach>
+            </c:forEach>
+        </div>
 
         <div class="voucher-section">
             <form action="${pageContext.request.contextPath}/apply-voucher"
@@ -156,7 +131,7 @@
             <div class="product-price">
                 <fmt:formatNumber
                         value="${totalPrice}"
-                        type="number"/> VND
+                        type="number"/>đ
             </div>
         </div>
 
@@ -169,7 +144,7 @@
                     -
                     <fmt:formatNumber
                             value="${sessionScope.discount}"
-                            type="number"/> VND
+                            type="number"/>đ
                 </div>
             </div>
         </c:if>
@@ -183,18 +158,17 @@
                     <c:when test="${not empty sessionScope.finalPrice}">
                         <fmt:formatNumber
                                 value="${sessionScope.finalPrice}"
-                                type="number"/> VND
+                                type="number"/>đ
                     </c:when>
                     <c:otherwise>
                         <fmt:formatNumber
                                 value="${totalPrice}"
-                                type="number"/> VND
+                                type="number"/>đ
                     </c:otherwise>
                 </c:choose>
             </div>
         </div>
     </div>
-
 </div>
 </body>
 </html>
