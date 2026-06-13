@@ -63,6 +63,54 @@ function numberToWords(n) {
     return result.charAt(0).toUpperCase() + result.slice(1) + ' đồng';
 }
 
+// ── Combo chọn mức giảm có sẵn / tuỳ chỉnh ──
+const PERCENT_PRESETS = [5, 10, 15, 20, 25, 30, 50];
+const FIXED_PRESETS   = [50000, 100000, 150000, 200000, 250000, 300000, 400000, 500000];
+
+function formatVND(n) {
+    return n.toLocaleString('vi-VN');
+}
+
+function rebuildDiscountPresetOptions(selectedValue) {
+    const presetSelect = document.getElementById('discountValuePreset');
+    const customInput  = document.getElementById('discountValue');
+    const customWrap   = document.getElementById('discountValueCustomWrap');
+    if (!presetSelect || !customInput) return;
+
+    const isPercent = document.getElementById('discountType').value === 'PERCENT';
+    const presets = isPercent ? PERCENT_PRESETS : FIXED_PRESETS;
+
+    presetSelect.innerHTML = '';
+    presets.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = String(p);
+        opt.textContent = isPercent ? (p + '%') : (formatVND(p) + ' ₫');
+        presetSelect.appendChild(opt);
+    });
+    const customOpt = document.createElement('option');
+    customOpt.value = 'custom';
+    customOpt.textContent = 'Mức khác...';
+    presetSelect.appendChild(customOpt);
+
+    if (selectedValue !== undefined && selectedValue !== null && selectedValue !== '' && selectedValue !== '0') {
+        const matched = presets.find(p => String(p) === String(selectedValue));
+        if (matched !== undefined) {
+            presetSelect.value = String(matched);
+            customInput.value = matched;
+            customWrap.classList.remove('show');
+        } else {
+            presetSelect.value = 'custom';
+            customInput.value = selectedValue;
+            customWrap.classList.add('show');
+        }
+    } else {
+        presetSelect.selectedIndex = 0;
+        customInput.value = presets[0];
+        customWrap.classList.remove('show');
+    }
+}
+
+
 function updateAmountWords() {
     const type = document.getElementById('discountType').value;
     const val = parseFloat(document.getElementById('discountValue').value);
@@ -94,7 +142,7 @@ function updateAmountWords() {
     }
 }
 
-function updateValueHint() {
+function updateValueHint(resetPreset) {
     const type = document.getElementById('discountType').value;
     const input = document.getElementById('discountValue');
     const hint = document.getElementById('valueHint');
@@ -107,6 +155,9 @@ function updateValueHint() {
         hint.textContent = 'Nhập số tiền giảm, dùng nút +/− để tăng/giảm 50.000₫';
     }
 
+    if (resetPreset) {
+        rebuildDiscountPresetOptions('');
+    }
     updateAmountWords();
 }
 
@@ -135,13 +186,32 @@ document.addEventListener('DOMContentLoaded', function () {
     const discountValue = document.getElementById('discountValue');
     const discountForm = document.getElementById('discountForm');
     const discountType = document.getElementById('discountType');
+    const presetSelect = document.getElementById('discountValuePreset');
+    const customWrap   = document.getElementById('discountValueCustomWrap');
 
     if (discountValue) {
         discountValue.addEventListener('input', updateAmountWords);
     }
 
     if (discountType) {
-        discountType.addEventListener('change', updateValueHint);
+        discountType.addEventListener('change', function () {
+            updateValueHint(true);
+        });
+    }
+
+    if (presetSelect) {
+        presetSelect.addEventListener('change', function () {
+            if (presetSelect.value !== 'custom') {
+                discountValue.value = presetSelect.value;
+                customWrap.classList.remove('show');
+                discountValue.removeAttribute('required');
+            } else {
+                customWrap.classList.add('show');
+                discountValue.setAttribute('required', 'required');
+                discountValue.focus();
+            }
+            updateAmountWords();
+        });
     }
 
     if (discountForm) {
@@ -164,5 +234,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    updateValueHint();
+    const initialValue = discountValue ? discountValue.getAttribute('data-initial-value') || '' : '';
+    rebuildDiscountPresetOptions(initialValue);
+    if (presetSelect && presetSelect.value === 'custom') {
+        discountValue.setAttribute('required', 'required');
+    }
+    updateValueHint(false);
 });

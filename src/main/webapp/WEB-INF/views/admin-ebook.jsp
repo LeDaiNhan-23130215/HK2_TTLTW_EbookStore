@@ -61,6 +61,7 @@
         <a href="${pageContext.request.contextPath}/admin-review">Review</a>
         <a href="${pageContext.request.contextPath}/admin-feedback">Feedback</a>
         <a href="${pageContext.request.contextPath}/admin-discount">Giảm giá</a>
+        <a href="${pageContext.request.contextPath}/admin-voucher">Mã giảm giá</a>
         <a href="${pageContext.request.contextPath}/admin-logs">
             System Logs
         </a>

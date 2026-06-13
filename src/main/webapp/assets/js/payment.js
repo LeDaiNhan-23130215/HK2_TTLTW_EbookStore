@@ -1,27 +1,22 @@
-const checkoutBtn = document.querySelector('.checkout-btn');
-const qrContainer = document.querySelector('.qr-container');
-const paymentRadios = document.querySelectorAll('input[name="paymentMethod"]');
+const secEl = document.getElementById('sec');
+const bar = document.getElementById('bar');
+const homeBtn = document.getElementById('homeBtn');
 
-// Ẩn/hiện QR khi người dùng chọn phương thức
-paymentRadios.forEach(radio => {
-  radio.addEventListener('change', () => {
-    if (radio.value === 'qrcode') {
-      qrContainer.classList.remove('hidden');
-      // nhỏ delay để animation hoạt động
-      setTimeout(() => qrContainer.classList.add('active'), 10);
-    } else {
-      qrContainer.classList.remove('active');
-      setTimeout(() => qrContainer.classList.add('hidden'), 300);
+if (secEl && bar && homeBtn) {
+  const HOME = document.body.dataset.homeUrl;
+  const TOTAL = 30;
+  let remaining = TOTAL;
+
+  const tick = setInterval(() => {
+    remaining--;
+    secEl.textContent = remaining;
+    bar.style.width = ((remaining / TOTAL) * 100) + '%';
+
+    if (remaining <= 0) {
+      clearInterval(tick);
+      window.location.href = HOME;
     }
-  });
-});
+  }, 1000);
 
-function startLoading() {
-  checkoutBtn.textContent = "Đang xử lý...";
-  checkoutBtn.disabled = true;
+  homeBtn.addEventListener('click', () => clearInterval(tick));
 }
-
-checkoutBtn.addEventListener('click', () => {
-  const selectedPayment = document.querySelector('input[name="payment"]:checked')?.value;
-  startLoading()
-});

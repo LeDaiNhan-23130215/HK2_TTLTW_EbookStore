@@ -16,6 +16,7 @@ import services.*;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.UUID;
 
 @WebServlet(name = "CartController", value = "/cart")
 public class CartController extends HttpServlet {
@@ -26,7 +27,8 @@ public class CartController extends HttpServlet {
     private ImageServices imageServices;
     private static final Logger logger     = LoggerFactory.getLogger(CartController.class);
     private static final String LOG_PREFIX = "[CART_CONTROLLER]";
-    public static final String GUEST_CART_KEY = "guestCart";
+    public static final String GUEST_CART_KEY    = "guestCart";
+    public static final String CHECKOUT_TOKEN_KEY = "checkoutNavToken";
 
     @Override
     public void init() throws ServletException {
@@ -92,6 +94,12 @@ public class CartController extends HttpServlet {
         req.setAttribute("totalPrice", totalPrice);
         req.setAttribute("isGuest",    false);
         req.setAttribute("ebookThumbnails", ebookThumbnails);
+
+        // Sinh checkout token 1 lần
+        String checkoutToken = UUID.randomUUID().toString();
+        session.setAttribute(CHECKOUT_TOKEN_KEY, checkoutToken);
+        req.setAttribute("checkoutToken", checkoutToken);
+
         req.getRequestDispatcher("/WEB-INF/views/cart.jsp").forward(req, resp);
     }
 
@@ -158,8 +166,10 @@ public class CartController extends HttpServlet {
             }
             int bookId = Integer.parseInt(req.getParameter("bookId"));
             session.setAttribute("checkoutBookId", bookId);
+            String token = UUID.randomUUID().toString();
+            session.setAttribute(CHECKOUT_TOKEN_KEY, token);
             resp.sendRedirect(req.getContextPath()
-                    + "/checkout?mode=single&bookId=" + bookId);
+                    + "/checkout?token=" + token + "&mode=single&bookId=" + bookId);
             return;
         }
 
@@ -169,7 +179,9 @@ public class CartController extends HttpServlet {
                 resp.sendRedirect(req.getContextPath() + "/login");
                 return;
             }
-            resp.sendRedirect(req.getContextPath() + "/checkout");
+            String token = UUID.randomUUID().toString();
+            session.setAttribute(CHECKOUT_TOKEN_KEY, token);
+            resp.sendRedirect(req.getContextPath() + "/checkout?token=" + token);
             return;
         }
 

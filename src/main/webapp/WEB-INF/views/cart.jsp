@@ -217,12 +217,11 @@
                                     </form>
                                 </c:when>
                                 <c:when test="${not isGuest and not empty cartItems}">
-                                    <form action="${pageContext.request.contextPath}/cart" method="post">
-                                        <input type="hidden" name="action" value="checkout"/>
-                                        <button type="submit" class="checkout-btn">
-                                            <i class="fa-solid fa-credit-card"></i> Thanh toán
-                                        </button>
-                                    </form>
+                                    <%-- Token 1 lần: điều hướng hợp lệ đến /checkout --%>
+                                    <a href="${pageContext.request.contextPath}/checkout?token=${checkoutToken}"
+                                       class="checkout-btn" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                                        <i class="fa-solid fa-credit-card"></i> Thanh toán
+                                    </a>
                                 </c:when>
                             </c:choose>
                             <div class="term">

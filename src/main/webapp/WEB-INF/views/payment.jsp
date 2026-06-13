@@ -24,7 +24,6 @@
 <body>
 <div class="checkout-container">
 
-    <!-- LEFT -->
     <div class="checkout-left">
         <div class="image">
             <img src="${pageContext.request.contextPath}/assets/img/ebook-logo2.png" alt="logo">
@@ -33,71 +32,73 @@
 
         <div class="label-infor">
             <p>Thông tin nhận hàng</p>
-            <a href="${pageContext.request.contextPath}/contact-information">Thay đổi</a>
         </div>
 
-        <!-- USER INFO -->
         <div class="user-information">
             <p>${user.username}</p>
             <p>${user.email}</p>
             <p>${user.phoneNum}</p>
         </div>
 
-        <!-- PAYMENT FORM -->
         <form action="${pageContext.request.contextPath}/checkout"
               method="post"
               class="payment-method">
 
-            <input type="hidden" name="step" value="payment"/>
-
             <c:if test="${singleMode}">
                 <input type="hidden" name="mode" value="single"/>
                 <input type="hidden" name="bookId" value="${singleBookId}"/>
+            </c:if>
+            <c:if test="${!singleMode}">
+                <input type="hidden" name="mode" value="cart"/>
             </c:if>
 
             <p>Phương thức thanh toán</p>
 
             <div class="payment-container">
                 <div class="payment-option">
-                    <input type="radio" id="momo" name="paymentMethod" value="momo" checked>
-                    <label for="momo">
-                        <img src="${pageContext.request.contextPath}/assets/img/momo-logo.png"> Momo
-                    </label>
-                </div>
-
-                <div class="payment-option">
-                    <input type="radio" id="vnpay" name="paymentMethod" value="vnpay">
+                    <input type="radio" id="vnpay" name="paymentMethod" value="vnpay" checked>
                     <label for="vnpay">
                         <img src="${pageContext.request.contextPath}/assets/img/vnpay.png"> VNPay
                     </label>
                 </div>
+            </div>
 
-                <div class="payment-option">
-                    <input type="radio" id="zalopay" name="paymentMethod" value="zalopay">
-                    <label for="zalopay">
-                        <img src="${pageContext.request.contextPath}/assets/img/zalo-pay.png"> ZaloPay
-                    </label>
+            <div class="voucher-section">
+                <div class="voucher-input-row">
+                    <input
+                            type="text"
+                            name="voucherCode"
+                            placeholder="Nhập mã voucher"
+                            value="${voucherCode}"/>
+                    <button type="submit" name="step" value="preview" class="checkout-btn checkout-btn-secondary">
+                        Áp dụng
+                    </button>
                 </div>
 
-                <div class="payment-option">
-                    <input type="radio" id="qrcode" name="paymentMethod" value="qrcode">
-                    <label for="qrcode">
-                        <i class="fa-solid fa-qrcode"></i> Quét mã QR
-                    </label>
-                </div>
+                <c:if test="${not empty voucherError}">
+                    <div class="voucher-error">
+                            ${voucherError}
+                    </div>
+                </c:if>
 
-                <div class="qr-container hidden">
-                    <p>Quét mã để thanh toán</p>
-                    <img src="https://cdn.britannica.com/17/155017-050-9AC96FC8/Example-QR-code.jpg">
-                </div>
+                <c:if test="${not empty appliedVoucher}">
+                    <div class="voucher-success">
+                        <i class="fa-solid fa-ticket"></i>
+                        Voucher:
+                        <strong>
+                                ${appliedVoucher.code}
+                        </strong>
+                    </div>
+                </c:if>
             </div>
 
             <div class="option">
                 <a href="${pageContext.request.contextPath}/cart">
                     <i class="fa-solid fa-arrow-left"></i> Giỏ hàng
                 </a>
-                <button type="submit" class="checkout-btn">
-                    Thanh toán
+
+                <button type="submit" name="step" value="payment" class="checkout-btn">
+                    Xác nhận thanh toán
                 </button>
             </div>
         </form>
@@ -108,49 +109,21 @@
             Đơn hàng (${fn:length(cartItems)} sản phẩm)
         </div>
 
-        <c:forEach var="item" items="${cartItems}">
-            <div class="product-row">
-                <div class="product-detail">
-                    <img src="${ebookThumbnails[item.ebook.id]}"
-                         alt="${item.ebook.title}"
-                    class="thumbnail">
-                    <div class="product-name">${item.ebook.title}</div>
+    <div class="product-list-scroll">
+            <c:forEach var="item" items="${cartItems}">
+                <div class="product-row">
+                    <div class="product-detail">
+                        <img src="${ebookThumbnails[item.ebook.id]}"
+                             alt="${item.ebook.title}"
+                             class="thumbnail">
+                        <div class="product-name">${item.ebook.title}</div>
+                    </div>
+                    <div class="product-price">
+                        <fmt:formatNumber value="${item.priceAtADD}" type="number"/>đ
+                    </div>
                 </div>
-                <div class="product-price">
-                    <fmt:formatNumber value="${item.priceAtADD}" type="number"/> VND
-                </div>
-            </div>
-        </c:forEach>
-
-        <div class="voucher-section">
-            <form action="${pageContext.request.contextPath}/apply-voucher"
-                  method="post"
-                  class="voucher-form">
-                <input
-                        type="text"
-                        name="voucherCode"
-                        placeholder="Nhập mã voucher">
-                <button type="submit">
-                    Áp dụng
-                </button>
-            </form>
-            <c:if test="${not empty sessionScope.voucherError}">
-                <div class="voucher-error">
-                        ${sessionScope.voucherError}
-                </div>
-            </c:if>
-
-            <c:if test="${not empty sessionScope.voucher}">
-                <div class="voucher-success">
-                    <i class="fa-solid fa-ticket"></i>
-                    Voucher:
-                    <strong>
-                            ${sessionScope.voucher.code}
-                    </strong>
-                </div>
-            </c:if>
+            </c:forEach>
         </div>
-
         <div class="price">
             <div class="sub-price-title">
                 Tạm tính
@@ -158,11 +131,11 @@
             <div class="product-price">
                 <fmt:formatNumber
                         value="${totalPrice}"
-                        type="number"/> VND
+                        type="number"/>đ
             </div>
         </div>
 
-        <c:if test="${not empty sessionScope.discount}">
+        <c:if test="${not empty discount}">
             <div class="price">
                 <div class="sub-price-title">
                     Giảm giá
@@ -170,8 +143,8 @@
                 <div class="product-price discount-price">
                     -
                     <fmt:formatNumber
-                            value="${sessionScope.discount}"
-                            type="number"/> VND
+                            value="${discount}"
+                            type="number"/>đ
                 </div>
             </div>
         </c:if>
@@ -181,22 +154,12 @@
                 Tổng tiền
             </div>
             <div class="total-price">
-                <c:choose>
-                    <c:when test="${not empty sessionScope.finalPrice}">
-                        <fmt:formatNumber
-                                value="${sessionScope.finalPrice}"
-                                type="number"/> VND
-                    </c:when>
-                    <c:otherwise>
-                        <fmt:formatNumber
-                                value="${totalPrice}"
-                                type="number"/> VND
-                    </c:otherwise>
-                </c:choose>
+                <fmt:formatNumber
+                        value="${finalPrice}"
+                        type="number"/>đ
             </div>
         </div>
     </div>
-
 </div>
 <script>
     window.ctxPath = "${pageContext.request.contextPath}";

@@ -14,6 +14,7 @@ import java.io.IOException;
         "/userInformation",
         "/your-order",
         "/book-shelf",
+        "/bookdetail",
         "/change-password",
 })
 public class AuthFilter implements Filter {
