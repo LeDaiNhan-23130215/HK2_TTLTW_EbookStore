@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import utils.CloudinaryConfig;
 
+import java.io.IOException;
 import java.util.Map;
 
 public class CloudinaryService {
@@ -24,6 +25,7 @@ public class CloudinaryService {
             );
             return result.get("secure_url").toString();
         } catch (Exception e) {
+            logger.error("{} Upload file failed", LOG_PREFIX, e);
             throw new RuntimeException("Upload image failed", e);
         }
     }
@@ -50,5 +52,24 @@ public class CloudinaryService {
             return uploadImageFromUrl(url);
         }
         throw new IllegalArgumentException("No image source provided");
+    }
+
+    public String uploadRawFile(Part filePart,String fileName) {
+        try {
+            byte[] fileBytes = filePart.getInputStream().readAllBytes();
+            Map<?, ?> result = cloudinary.uploader().upload(
+                    fileBytes,
+                    ObjectUtils.asMap(
+                            "resource_type", "raw",
+                            "public_id", fileName,
+                            "use_filename", true,
+                            "unique_filename", false
+                    )
+            );
+            return result.get("secure_url").toString();
+        } catch (Exception e) {
+            logger.error("{} Upload pdf file failed", LOG_PREFIX, e);
+            throw new RuntimeException("Upload pdf file failed", e);
+        }
     }
 }

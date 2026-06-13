@@ -127,9 +127,18 @@
                         <input type="text" name="coverUrl" placeholder="https://..."/>
                 </div>
 
-                <div class="form-row">
-                    <label>File ebook:</label>
-                    <input type="text" disabled value="(Chưa hỗ trợ chỉnh sửa)">
+                <div class="form-group">
+                    <label>PDF File</label>
+                    <input type="file"
+                           name="pdfFile"
+                           accept=".pdf">
+                </div>
+
+                <div class="form-group">
+                    <label>EPUB File</label>
+                    <input type="file"
+                           name="epubFile"
+                           accept=".epub">
                 </div>
 
                 <div class="form-actions">

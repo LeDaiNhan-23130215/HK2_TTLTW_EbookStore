@@ -109,11 +109,13 @@
             Đơn hàng (${fn:length(cartItems)} sản phẩm)
         </div>
 
-        <div class="product-list-scroll">
+    <div class="product-list-scroll">
             <c:forEach var="item" items="${cartItems}">
                 <div class="product-row">
                     <div class="product-detail">
-                        <img src="${item.ebook.images[0].imgLink}" alt="${item.ebook.title}">
+                        <img src="${ebookThumbnails[item.ebook.id]}"
+                             alt="${item.ebook.title}"
+                             class="thumbnail">
                         <div class="product-name">${item.ebook.title}</div>
                     </div>
                     <div class="product-price">
@@ -122,7 +124,6 @@
                 </div>
             </c:forEach>
         </div>
-
         <div class="price">
             <div class="sub-price-title">
                 Tạm tính
@@ -160,5 +161,9 @@
         </div>
     </div>
 </div>
+<script>
+    window.ctxPath = "${pageContext.request.contextPath}";
+</script>
+<script src="${pageContext.request.contextPath}/assets/js/handleErrorImage.js"></script>
 </body>
 </html>

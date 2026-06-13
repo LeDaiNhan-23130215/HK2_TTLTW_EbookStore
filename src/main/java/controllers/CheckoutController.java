@@ -11,15 +11,12 @@ import jakarta.servlet.http.HttpSession;
 import models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import services.BookshelfService;
-import services.CartService;
-import services.CheckoutService;
-import services.VoucherService;
-import services.WishlistService;
+import services.*;
 import utils.MailUtil;
 import utils.VNPayUtil;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,17 +25,19 @@ import java.util.stream.Collectors;
 public class CheckoutController extends HttpServlet {
 
     private CheckoutService checkoutService;
-    private CartService     cartService;
-    private VoucherService  voucherService;
-    private static final Logger logger= LoggerFactory.getLogger(CheckoutController.class);
-    private static final String LOG_PREFIX= "[CHECKOUT_CONTROLLER]";
+    private CartService cartService;
+    private ImageServices imageServices;
+    private VoucherService voucherService;
+    private static final Logger logger = LoggerFactory.getLogger(CheckoutController.class);
+    private static final String LOG_PREFIX = "[CHECKOUT_CONTROLLER]";
 
 
     @Override
     public void init() throws ServletException {
-        cartService    = new CartService();
+        cartService     = new CartService();
         checkoutService = new CheckoutService();
-        voucherService = new VoucherService(); // THÊM
+        imageServices   = new ImageServices();
+        voucherService  = new VoucherService();
     }
 
     @Override
@@ -88,10 +87,21 @@ public class CheckoutController extends HttpServlet {
             req.setAttribute("singleMode", false);
         }
 
+     Map<Integer, String> ebookThumbnails = new HashMap<>();
+        for (CartItem item : cartItems) {
+            Ebook ebook = item.getEbook();
+            if (ebook != null) {
+                ebookThumbnails.put(ebook.getId(), imageServices.getThumbnailByEbookId(ebook.getId()));
+            }
+        }
+
         double totalPrice = cartItems.stream().mapToDouble(CartItem::getPriceAtADD).sum();
 
-        req.setAttribute("cartItems",  cartItems);
+        session.setAttribute("checkoutTotal", totalPrice);
+        req.setAttribute("cartItems", cartItems);
         req.setAttribute("totalPrice", totalPrice);
+        req.setAttribute("ebookThumbnails", ebookThumbnails);
+
         req.setAttribute("voucherCode",    null);
         req.setAttribute("discount",       null);
         req.setAttribute("finalPrice",     totalPrice);

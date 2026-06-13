@@ -5,6 +5,7 @@ import DAO.ImageDAO;
 import models.Image;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import utils.DBConnection;
 
 import java.util.Collections;
 import java.util.List;
@@ -86,6 +87,10 @@ public class ImageServices {
         ebookImageDAO.clearCoverByEbookId(ebookId);
         ebookImageDAO.linkImageToEbook(ebookId, newImageId);
         ebookImageDAO.setCover(ebookId, newImageId);
+    }
+
+    public String getThumbnailByEbookId(int id) {
+        return imageDAO.getThumbnailByEbookId(id);
     }
 
 }

@@ -253,7 +253,6 @@
         img.src = url;
         img.style.display = "block";
 
-        // nếu link lỗi → ẩn ảnh
         img.onerror = () => {
             img.style.display = "none";
         };

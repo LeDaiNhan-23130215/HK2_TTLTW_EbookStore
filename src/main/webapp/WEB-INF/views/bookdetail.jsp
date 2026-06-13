@@ -24,6 +24,7 @@
 
   <script>
     function showTab(index) {
+
       const buttons = document.querySelectorAll(".tab-btn");
       const contents = document.querySelectorAll(".tab-content");
 
@@ -41,11 +42,11 @@
 
   <div class="container">
     <div class="product-wrapper">
-
       <!-- LEFT: IMAGE -->
       <div class="col-left gallery-section">
         <div class="main-image-box">
-          <img src="${ebook.images[0].imgLink} alt="${ebook.title}">
+          <img src="${thumbnail}" alt="${ebook.title}"
+          class="thumbnail">
         </div>
       </div>
 
@@ -117,10 +118,27 @@
             </form>
 
             <!-- READ SAMPLE -->
-            <a href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&page=1"
-               class="btn btn-docthu">
-              Đọc thử
+            <c:choose>
+            <c:when test="${isOwned}">
+            <a href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&format=epub">
+              Đọc EPUB
             </a>
+
+            <a href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&format=pdf">
+              Đọc PDF
+            </a>
+            </c:when>
+
+            <c:otherwise>
+              <a href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&format=epub">
+                Đọc thử EPUB
+              </a>
+
+              <a href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&format=pdf">
+                Đọc thử PDF
+              </a>
+            </c:otherwise>
+            </c:choose>
 
             <!-- ❤️ WISHLIST -->
             <c:choose>
@@ -159,9 +177,9 @@
       <div class="similar-list">
         <c:forEach items="${similarEbooks}" var="e">
           <a class="similar-item"
-             href="${pageContext.request.contextPath}/bookdetail?id=${e.id}">
-
-            <img src="${e.images[0].imgLink}" alt="${e.title}">
+             href="${pageContext.request.contextPath}/bookdetail?id=${e.id}"
+          >
+            <img src="${similarThumbnails[e.id]}" alt="${e.title}" class="thumbnail">
 
             <div class="similar-info">
               <span class="title">${e.title}</span>
@@ -243,5 +261,6 @@
   <script src="${pageContext.request.contextPath}/assets/js/cart.js"></script>
   <script src="${pageContext.request.contextPath}/assets/js/product-card.js"></script>
   <script src="${pageContext.request.contextPath}/assets/js/bookdetail.js"></script>
+  <script src="${pageContext.request.contextPath}/assets/js/handleErrorImage.js"></script>
   </body>
   </html>

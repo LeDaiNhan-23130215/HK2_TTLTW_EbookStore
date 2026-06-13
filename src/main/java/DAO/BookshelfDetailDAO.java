@@ -44,7 +44,6 @@ public class BookshelfDetailDAO {
 
     public boolean exists(int bookshelfId, int ebookId) {
         logger.debug("{} Checking if ebookId {} exists in bookshelfId {}", LOG_PREFIX, ebookId, bookshelfId);
-        // Lưu ý: Trong code gốc của bạn có thể có nhầm lẫn giữa 'id' và 'bsID' ở câu WHERE, tôi đã sửa lại thành bsID để logic hợp lý hơn.
         String sql = """
             SELECT 1 FROM bookshelfdetail
             WHERE bsID = ? AND eBookID = ?
@@ -159,5 +158,30 @@ public class BookshelfDetailDAO {
             logger.error("{} Error removing ebook {} from bookshelf {}: {}", LOG_PREFIX, ebookId, bookshelfId, e.getMessage());
         }
         return false;
+    }
+
+    public List<Integer> getBookIdsOfUserId(int userId) {
+        String sql = """
+                SELECT e.id
+                FROM bookshelfdetail bd
+                JOIN bookshelf b ON bd.bsID = b.id
+                JOIN ebook e ON bd.ebookID = e.id
+                WHERE b.userID = ?
+                """;
+        List<Integer> result = new ArrayList<>();
+
+        try (Connection con = DBConnection.getConnection();
+        PreparedStatement ps = con.prepareStatement(sql);) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()) {
+                result.add(rs.getInt(1));
+            }
+        } catch (Exception e) {
+            logger.error("{} Can't get owned ebook's ids for user id: {}", LOG_PREFIX, userId);
+            throw new RuntimeException("Can't get owned ebook's ids for user id: " + userId, e);
+        }
+        return result;
     }
 }

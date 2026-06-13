@@ -49,8 +49,9 @@
                                         <div class="cart-product">
                                             <a href="${pageContext.request.contextPath}/bookdetail?id=${item.ebook.id}"
                                                class="cart-img">
-                                                <img src="${item.ebook.images[0].imgLink}"
-                                                     alt="${item.ebook.title}"/>
+                                                <img src="${ebookThumbnails[item.ebook.id]}"
+                                                     alt="${item.ebook.title}"
+                                                class="thumbnail"/>
                                             </a>
                                             <div class="cart-infor">
                                                 <div class="cart-name">
@@ -129,8 +130,9 @@
                                         <div class="cart-product">
                                             <a href="${pageContext.request.contextPath}/bookdetail?id=${item.ebook.id}"
                                                class="cart-img">
-                                                <img src="${item.ebook.images[0].imgLink}"
-                                                     alt="${item.ebook.title}"/>
+                                                <img src="${ebookThumbnails[item.ebook.id]}"
+                                                     alt="${item.ebook.title}"
+                                                     class="thumbnail"/>
                                             </a>
                                             <div class="cart-infor">
                                                 <div class="cart-name">
@@ -255,5 +257,6 @@
 <jsp:include page="/WEB-INF/views/footer.jsp"/>
 <script src="${pageContext.request.contextPath}/assets/js/component.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/cart.js"></script>
+<script src="${pageContext.request.contextPath}/assets/js/handleErrorImage.js"></script>
 </body>
 </html>

@@ -47,6 +47,10 @@ public class BookshelfService {
         return bookshelfDetailDAO.getBooksByUser(userId);
     }
 
+    public List<Integer> getBookIdsOfUserId(int userId) {
+        return bookshelfDetailDAO.getBookIdsOfUserId(userId);
+    }
+
     public boolean userOwnsBook(int userId, int ebookId) {
         Bookshelf bookshelf = bookshelfDAO.getByUserId(userId);
         if (bookshelf == null) return false;
