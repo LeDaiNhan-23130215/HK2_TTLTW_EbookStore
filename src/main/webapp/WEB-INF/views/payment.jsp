@@ -198,6 +198,9 @@
     </div>
 
 </div>
+<script>
+    window.ctxPath = "${pageContext.request.contextPath}";
+</script>
 <script src="${pageContext.request.contextPath}/assets/js/handleErrorImage.js"></script>
 </body>
 </html>
