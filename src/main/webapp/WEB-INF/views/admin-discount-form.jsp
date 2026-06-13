@@ -38,6 +38,7 @@
     <a href="${pageContext.request.contextPath}/admin-review">Review</a>
     <a href="${pageContext.request.contextPath}/admin-feedback">Feedback</a>
     <a href="${pageContext.request.contextPath}/admin-discount" class="active">Giảm giá</a>
+    <a href="${pageContext.request.contextPath}/admin-voucher">Mã giảm giá</a>
     <a href="${pageContext.request.contextPath}/admin-logs">System Logs</a>
     <hr>
     <a href="${pageContext.request.contextPath}/admin-login" class="logout">Đăng xuất</a>
@@ -101,13 +102,21 @@
 
         <div class="form-row">
           <label>Mức giảm <span style="color:red">*</span></label>
-          <div class="discount-input-group">
-            <button type="button" class="discount-btn" onclick="stepValue(-1)">−</button>
-            <input type="number" name="discountValue" id="discountValue"
-                   required min="0.01" step="any"
-                   value="${discount.discountValue}"
-                   placeholder="VD: 20 (cho %) hoặc 50000 (cho ₫)"/>
-            <button type="button" class="discount-btn" onclick="stepValue(1)">+</button>
+          <div class="combo-with-custom">
+            <select id="discountValuePreset">
+              <%-- Các option sẽ được JS sinh động dựa theo loại giảm giá --%>
+            </select>
+            <div class="custom-input-wrap" id="discountValueCustomWrap">
+              <div class="discount-input-group">
+                <button type="button" class="discount-btn" onclick="stepValue(-1)">−</button>
+                <input type="number" name="discountValue" id="discountValue"
+                       required min="0.01" step="any"
+                       data-initial-value="${discount.discountValue}"
+                       value="${discount.discountValue}"
+                       placeholder="VD: 20 (cho %) hoặc 50000 (cho ₫)"/>
+                <button type="button" class="discount-btn" onclick="stepValue(1)">+</button>
+              </div>
+            </div>
           </div>
           <small id="valueHint" class="hint"></small>
           <small id="amountWords" class="hint" style="color:#0396c7;font-style:italic;display:none;"></small>

@@ -4,51 +4,73 @@
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
 }
+
 .voucher-section{
     margin: 20px 0;
 }
 
-.voucher-form{
-    display:flex;
-    gap:10px;
+.voucher-input-row {
+    display: flex;
+    gap: 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+    max-width: 100%;
+    width: fit-content;
+    min-width: 320px;
 }
 
-.voucher-form input{
-    flex:1;
-    padding:10px;
-    border:1px solid #ccc;
-    border-radius:8px;
+.voucher-input-row:focus-within {
+    border-color: #0396c7;
 }
 
-.voucher-form button{
-    padding:10px 16px;
-    border:none;
-    background:#111827;
-    color:white;
-    border-radius:8px;
-    cursor:pointer;
+.voucher-input-row input {
+    flex: 1;
+    padding: 10px 14px;
+    border: none;
+    outline: none;
+    font-size: 0.95rem;
+    background: #fff;
+    min-width: 0;
 }
 
-.voucher-form button:hover{
-    opacity:.9;
+.voucher-input-row .checkout-btn-secondary {
+    padding: 10px 20px;
+    border: none;
+    border-left: 1px solid #ccc;
+    background: #e8f6fb;
+    color: #0396c7;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 0;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background-color 0.3s ease;
+}
+
+.voucher-input-row .checkout-btn-secondary:hover {
+    background: #d0eef8;
 }
 
 .voucher-error{
-    margin-top:10px;
-    color:#dc2626;
-    font-size:14px;
+    margin-top: 8px;
+    color: #dc2626;
+    font-size: 14px;
 }
 
 .voucher-success{
-    margin-top:10px;
-    color:#16a34a;
-    font-size:14px;
+    margin-top: 8px;
+    color: #16a34a;
+    font-size: 14px;
 }
 
 .discount-price{
-    color:#16a34a;
-    font-weight:bold;
+    color: #16a34a;
+    font-weight: bold;
 }
+
 body{
     background-color: #f4f4f4;
 }
@@ -134,10 +156,10 @@ body .checkout-container .checkout-left form p{
 }
 
 body .checkout-container .checkout-left form .payment-container {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 15px;
 }
 
 body .checkout-container .checkout-left form .payment-container .payment-option{
@@ -312,9 +334,8 @@ body .checkout-container .checkout-right .total{
     justify-content: space-between;
     align-items: center;
 }
-/* ==== Responsive cho màn hình ≤ 900px ==== */
+
 @media (max-width: 900px) {
-    /* Container chuyển sang cột dọc */
     body .checkout-container {
         flex-direction: column;
         align-items: stretch;
@@ -323,43 +344,36 @@ body .checkout-container .checkout-right .total{
         margin: 20px auto;
     }
 
-    /* Hai cột full width */
     body .checkout-container .checkout-left,
     body .checkout-container .checkout-right {
         width: 100%;
     }
 
-    /* Ảnh logo nhỏ hơn */
     body .checkout-container .checkout-left .image img {
         width: 120px;
     }
 
-    /* Form option button full width */
     body .checkout-container .checkout-left .option button {
         padding: 10px;
         width: 50%;
     }
 
-    /* Product row trong checkout-right xếp dọc */
     body .checkout-container .checkout-right .product-row {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
     }
 
-    /* Chi tiết sản phẩm xếp hàng ngang nhưng vừa container */
     body .checkout-container .checkout-right .product-row .product-detail {
         flex-direction: row;
         align-items: center;
         gap: 10px;
     }
 
-    /* Ảnh sản phẩm nhỏ hơn */
     body .checkout-container .checkout-right .product-row .product-detail img {
         width: 60px;
     }
 
-    /* Giá và tổng xếp dọc */
     body .checkout-container .checkout-right .price,
     body .checkout-container .checkout-right .total {
         flex-direction: column;
@@ -367,7 +381,6 @@ body .checkout-container .checkout-right .total{
         gap: 5px;
     }
 
-    /* Payment container full width */
     body .checkout-container .checkout-left form .payment-container .payment-option {
         flex-direction: row;
         align-items: center;
@@ -382,14 +395,17 @@ body .checkout-container .checkout-right .total{
         height: 140px;
     }
 }
+
 .product-list-scroll {
-    max-height: 264px;
+    max-height: 396px;
     overflow-y: auto;
     padding-right: 4px;
 }
+
 .product-list-scroll::-webkit-scrollbar {
     width: 6px;
 }
+
 .product-list-scroll::-webkit-scrollbar-thumb {
     background: #c5c5c5;
     border-radius: 3px;

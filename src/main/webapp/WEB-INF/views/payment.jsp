@@ -24,7 +24,6 @@
 <body>
 <div class="checkout-container">
 
-    <!-- LEFT -->
     <div class="checkout-left">
         <div class="image">
             <img src="${pageContext.request.contextPath}/assets/img/ebook-logo2.png" alt="logo">
@@ -35,23 +34,22 @@
             <p>Thông tin nhận hàng</p>
         </div>
 
-        <!-- USER INFO -->
         <div class="user-information">
             <p>${user.username}</p>
             <p>${user.email}</p>
             <p>${user.phoneNum}</p>
         </div>
 
-        <!-- PAYMENT FORM -->
         <form action="${pageContext.request.contextPath}/checkout"
               method="post"
               class="payment-method">
 
-            <input type="hidden" name="step" value="payment"/>
-
             <c:if test="${singleMode}">
                 <input type="hidden" name="mode" value="single"/>
                 <input type="hidden" name="bookId" value="${singleBookId}"/>
+            </c:if>
+            <c:if test="${!singleMode}">
+                <input type="hidden" name="mode" value="cart"/>
             </c:if>
 
             <p>Phương thức thanh toán</p>
@@ -65,12 +63,42 @@
                 </div>
             </div>
 
+            <div class="voucher-section">
+                <div class="voucher-input-row">
+                    <input
+                            type="text"
+                            name="voucherCode"
+                            placeholder="Nhập mã voucher"
+                            value="${voucherCode}"/>
+                    <button type="submit" name="step" value="preview" class="checkout-btn checkout-btn-secondary">
+                        Áp dụng
+                    </button>
+                </div>
+
+                <c:if test="${not empty voucherError}">
+                    <div class="voucher-error">
+                            ${voucherError}
+                    </div>
+                </c:if>
+
+                <c:if test="${not empty appliedVoucher}">
+                    <div class="voucher-success">
+                        <i class="fa-solid fa-ticket"></i>
+                        Voucher:
+                        <strong>
+                                ${appliedVoucher.code}
+                        </strong>
+                    </div>
+                </c:if>
+            </div>
+
             <div class="option">
                 <a href="${pageContext.request.contextPath}/cart">
                     <i class="fa-solid fa-arrow-left"></i> Giỏ hàng
                 </a>
-                <button type="submit" class="checkout-btn">
-                    Xác nhận
+
+                <button type="submit" name="step" value="payment" class="checkout-btn">
+                    Xác nhận thanh toán
                 </button>
             </div>
         </form>
@@ -95,35 +123,6 @@
             </c:forEach>
         </div>
 
-        <div class="voucher-section">
-            <form action="${pageContext.request.contextPath}/apply-voucher"
-                  method="post"
-                  class="voucher-form">
-                <input
-                        type="text"
-                        name="voucherCode"
-                        placeholder="Nhập mã voucher">
-                <button type="submit">
-                    Áp dụng
-                </button>
-            </form>
-            <c:if test="${not empty sessionScope.voucherError}">
-                <div class="voucher-error">
-                        ${sessionScope.voucherError}
-                </div>
-            </c:if>
-
-            <c:if test="${not empty sessionScope.voucher}">
-                <div class="voucher-success">
-                    <i class="fa-solid fa-ticket"></i>
-                    Voucher:
-                    <strong>
-                            ${sessionScope.voucher.code}
-                    </strong>
-                </div>
-            </c:if>
-        </div>
-
         <div class="price">
             <div class="sub-price-title">
                 Tạm tính
@@ -135,7 +134,7 @@
             </div>
         </div>
 
-        <c:if test="${not empty sessionScope.discount}">
+        <c:if test="${not empty discount}">
             <div class="price">
                 <div class="sub-price-title">
                     Giảm giá
@@ -143,7 +142,7 @@
                 <div class="product-price discount-price">
                     -
                     <fmt:formatNumber
-                            value="${sessionScope.discount}"
+                            value="${discount}"
                             type="number"/>đ
                 </div>
             </div>
@@ -154,18 +153,9 @@
                 Tổng tiền
             </div>
             <div class="total-price">
-                <c:choose>
-                    <c:when test="${not empty sessionScope.finalPrice}">
-                        <fmt:formatNumber
-                                value="${sessionScope.finalPrice}"
-                                type="number"/>đ
-                    </c:when>
-                    <c:otherwise>
-                        <fmt:formatNumber
-                                value="${totalPrice}"
-                                type="number"/>đ
-                    </c:otherwise>
-                </c:choose>
+                <fmt:formatNumber
+                        value="${finalPrice}"
+                        type="number"/>đ
             </div>
         </div>
     </div>

@@ -15,7 +15,6 @@
     border-bottom: 2px solid #e5e7eb;
     font-size: 1.05rem;
 }
-/* form-row override for discount form (not inside .add-form) */
 .form-row {
     margin-bottom: 1.25rem;
     display: flex;
@@ -52,53 +51,84 @@
     color: #6b7280;
     font-size: .82rem;
 }
-.target-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .5rem;
-    max-height: 220px;
-    overflow-y: auto;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    padding: .75rem;
-}
-.target-list label {
-    display: flex;
-    align-items: center;
-    gap: .4rem;
-    background: #f4f4f4;
-    border-radius: 4px;
-    padding: .3rem .6rem;
-    cursor: pointer;
-    font-size: .88rem;
-}
-.target-list label:hover { background: #e0e7ff; }
 
-.tab-btns { display: flex; gap: .5rem; margin-bottom: .75rem; }
-.tab-btn {
-    padding: .35rem .9rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background: #f4f4f4;
+/* ── 2 cột trên màn rộng ── */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 2rem;
+    max-width: 1000px;
+}
+@media (max-width: 900px) {
+    .form-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Combo + input tuỳ chỉnh ── */
+.combo-with-custom { display: flex; flex-direction: column; gap: .5rem; max-width: 480px; }
+.combo-with-custom select { max-width: 480px; }
+.custom-input-wrap { display: none; }
+.custom-input-wrap.show { display: block; }
+
+/* ── Mã giảm giá: input + nút tạo tự động ── */
+.code-input-group {
+    display: flex;
+    gap: .5rem;
+    max-width: 480px;
+}
+.code-input-group input {
+    flex: 1;
+    max-width: none;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    font-weight: 700;
+}
+.btn-generate-code {
+    flex-shrink: 0;
+    padding: 9px 16px;
+    border: none;
+    border-radius: 7px;
+    background: #0396c7;
+    color: #fff;
+    font-weight: 600;
     cursor: pointer;
     font-size: .9rem;
+    white-space: nowrap;
+    transition: background .15s;
 }
-.tab-btn.active { background: #0396c7; color: #fff; border-color: #0396c7; }
-.tab-panel  { display: none; }
-.tab-panel.show { display: block; }
-.hint       { font-size: .8rem; color: #6b7280; margin-bottom: .5rem; }
-.free-label { color: #6b7280; font-size: .78rem; }
+.btn-generate-code:hover { background: #027ba3; }
 
-/* Dark mode — theo đúng pattern class .dark của project */
+/* ── Đồng bộ căn chỉnh tiêu đề bảng (giống admin-discount) ── */
+#voucherTable thead th {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+/* ── Badge trạng thái (danh sách) ── */
+.badge-status          { padding:.3em .7em; border-radius:99px; font-size:.8rem; font-weight:600; white-space: nowrap; }
+.badge-status.active   { background:#d1fae5; color:#065f46; }
+.badge-status.inactive { background:#fef3c7; color:#92400e; }
+.badge-status.expired  { background:#fee2e2; color:#991b1b; }
+.badge-status.pending  { background:#e0e7ff; color:#3730a3; }
+.badge-status.usedup   { background:#f3f4f6; color:#4b5563; }
+
+.code-pill {
+    display: inline-block;
+    background: #f4f4f4;
+    border-radius: 6px;
+    padding: .2rem .6rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+}
+
+/* Dark mode */
 body.dark .form-section          { background: #1e293b; }
 body.dark .form-section h4       { color: #e2e8f0; }
-body.dark .target-list           { border-color: #334155; }
-body.dark .target-list label     { background: #334155; color: #e2e8f0; }
-body.dark .target-list label:hover { background: #4f46e5; }
-body.dark .tab-btn               { background: #334155; color: #e2e8f0; border-color: #475569; }
-body.dark .tab-btn.active        { background: #0396c7; border-color: #0396c7; }
+body.dark .code-pill             { background: #334155; color: #e2e8f0; }
+body.dark .form-row input,
+body.dark .form-row select,
+body.dark .form-row textarea     { background: #334155; color: #f9fafb; border-color: #475569; }
 
-/* ── Discount input group ── */
+/* ── Input group có nút +/- (giống admin-discount-form) ── */
 .form-row .discount-input-group {
     display: flex;
     align-items: stretch;
@@ -125,7 +155,7 @@ body.dark .tab-btn.active        { background: #0396c7; border-color: #0396c7; }
 }
 
 .form-row .discount-input-group input:focus {
-    box-shadow: none;   /* focus shadow đã có trên wrapper */
+    box-shadow: none;
 }
 
 .form-row .discount-input-group:focus-within {
@@ -158,13 +188,6 @@ body.dark .tab-btn.active        { background: #0396c7; border-color: #0396c7; }
 .discount-btn:hover  { background: #0b5ed7; }
 .discount-btn:active { background: #0a58ca; }
 
-/* ── Combo + input tuỳ chỉnh ── */
-.combo-with-custom { display: flex; flex-direction: column; gap: .5rem; max-width: 480px; }
-.combo-with-custom select { max-width: 480px; }
-.custom-input-wrap { display: none; }
-.custom-input-wrap.show { display: block; }
-
-/* Dark mode */
 body.dark .discount-input-group {
     border-color: #475569;
     background: #334155;
@@ -172,4 +195,11 @@ body.dark .discount-input-group {
 body.dark .discount-input-group input {
     background: transparent;
     color: #f9fafb;
+}
+
+/* ── Chữ đọc số tiền ── */
+.amount-words {
+    color: #0396c7;
+    font-style: italic;
+    display: none;
 }

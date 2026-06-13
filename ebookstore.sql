@@ -11,7 +11,7 @@
  Target Server Version : 90400 (9.4.0)
  File Encoding         : 65001
 
- Date: 11/06/2026 12:22:12
+ Date: 12/06/2026 21:43:39
 */
 
 SET NAMES utf8mb4;
@@ -310,13 +310,14 @@ CREATE TABLE `bookshelf`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `userID`(`userID` ASC) USING BTREE,
   CONSTRAINT `bookshelf_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of bookshelf
 -- ----------------------------
 INSERT INTO `bookshelf` VALUES (1, 1, '2026-01-27 00:14:54');
 INSERT INTO `bookshelf` VALUES (2, 2, '2026-03-22 10:02:41');
+INSERT INTO `bookshelf` VALUES (3, 3, '2026-06-12 07:29:06');
 
 -- ----------------------------
 -- Table structure for bookshelfdetail
@@ -332,7 +333,7 @@ CREATE TABLE `bookshelfdetail`  (
   INDEX `eBookID`(`eBookID` ASC) USING BTREE,
   CONSTRAINT `bookshelfdetail_ibfk_1` FOREIGN KEY (`bsID`) REFERENCES `bookshelf` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `bookshelfdetail_ibfk_2` FOREIGN KEY (`eBookID`) REFERENCES `ebook` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 49 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 57 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of bookshelfdetail
@@ -371,6 +372,14 @@ INSERT INTO `bookshelfdetail` VALUES (45, 2, 209, '2026-05-27 20:07:16');
 INSERT INTO `bookshelfdetail` VALUES (46, 2, 290, '2026-05-27 20:12:28');
 INSERT INTO `bookshelfdetail` VALUES (47, 2, 8, '2026-05-27 20:12:54');
 INSERT INTO `bookshelfdetail` VALUES (48, 2, 288, '2026-05-27 20:18:08');
+INSERT INTO `bookshelfdetail` VALUES (49, 1, 134, '2026-06-11 14:49:50');
+INSERT INTO `bookshelfdetail` VALUES (50, 1, 142, '2026-06-11 14:49:51');
+INSERT INTO `bookshelfdetail` VALUES (51, 1, 285, '2026-06-11 14:50:40');
+INSERT INTO `bookshelfdetail` VALUES (52, 3, 289, '2026-06-12 07:29:07');
+INSERT INTO `bookshelfdetail` VALUES (53, 3, 142, '2026-06-12 08:10:58');
+INSERT INTO `bookshelfdetail` VALUES (54, 3, 146, '2026-06-12 08:28:09');
+INSERT INTO `bookshelfdetail` VALUES (55, 3, 59, '2026-06-12 09:00:29');
+INSERT INTO `bookshelfdetail` VALUES (56, 3, 207, '2026-06-12 09:02:38');
 
 -- ----------------------------
 -- Table structure for cart
@@ -406,13 +415,17 @@ CREATE TABLE `cartdetail`  (
   INDEX `bookID`(`bookID` ASC) USING BTREE,
   CONSTRAINT `cartdetail_ibfk_1` FOREIGN KEY (`cartID`) REFERENCES `cart` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `cartdetail_ibfk_2` FOREIGN KEY (`bookID`) REFERENCES `ebook` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 70 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 82 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of cartdetail
 -- ----------------------------
-INSERT INTO `cartdetail` VALUES (67, 6, 142, 200.00);
-INSERT INTO `cartdetail` VALUES (68, 6, 134, 250.00);
+INSERT INTO `cartdetail` VALUES (70, 5, 32, 1050000.00);
+INSERT INTO `cartdetail` VALUES (71, 5, 167, 199000.00);
+INSERT INTO `cartdetail` VALUES (72, 7, 292, 30000.00);
+INSERT INTO `cartdetail` VALUES (73, 7, 291, 10000.00);
+INSERT INTO `cartdetail` VALUES (78, 7, 22, 0.00);
+INSERT INTO `cartdetail` VALUES (81, 7, 63, 680000.00);
 
 -- ----------------------------
 -- Table structure for category
@@ -456,7 +469,7 @@ CREATE TABLE `checkout`  (
   INDEX `pmID`(`pmID` ASC) USING BTREE,
   CONSTRAINT `checkout_ibfk_1` FOREIGN KEY (`userID`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `checkout_ibfk_2` FOREIGN KEY (`pmID`) REFERENCES `paymentmethod` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 2825 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 2834 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of checkout
@@ -3275,6 +3288,13 @@ INSERT INTO `checkout` VALUES (2821, 2, 1, 50.00, '2026-05-27 20:07:15', 'succes
 INSERT INTO `checkout` VALUES (2822, 2, 1, 69.00, '2026-05-27 20:12:28', 'success');
 INSERT INTO `checkout` VALUES (2823, 2, 1, 970.00, '2026-05-27 20:12:54', 'success');
 INSERT INTO `checkout` VALUES (2824, 2, 1, 66.00, '2026-05-27 20:18:08', 'success');
+INSERT INTO `checkout` VALUES (2825, 1, 1, 450000.00, '2026-06-11 14:49:50', 'success');
+INSERT INTO `checkout` VALUES (2826, 1, 1, 27200.00, '2026-06-11 14:50:39', 'success');
+INSERT INTO `checkout` VALUES (2829, 3, 1, 36000.00, '2026-06-12 07:29:06', 'success');
+INSERT INTO `checkout` VALUES (2830, 3, 1, 200000.00, '2026-06-12 08:10:58', 'success');
+INSERT INTO `checkout` VALUES (2831, 3, 1, 480000.00, '2026-06-12 08:28:09', 'success');
+INSERT INTO `checkout` VALUES (2832, 3, 2, 0.00, '2026-06-12 09:00:28', 'success');
+INSERT INTO `checkout` VALUES (2833, 3, 1, 30000.00, '2026-06-12 09:02:38', 'success');
 
 -- ----------------------------
 -- Table structure for checkoutdetail
@@ -3290,7 +3310,7 @@ CREATE TABLE `checkoutdetail`  (
   INDEX `bookID`(`bookID` ASC) USING BTREE,
   CONSTRAINT `checkoutdetail_ibfk_1` FOREIGN KEY (`checkoutID`) REFERENCES `checkout` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `checkoutdetail_ibfk_2` FOREIGN KEY (`bookID`) REFERENCES `ebook` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 2838 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 2846 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of checkoutdetail
@@ -6127,6 +6147,14 @@ INSERT INTO `checkoutdetail` VALUES (2834, 2821, 209, 50.00);
 INSERT INTO `checkoutdetail` VALUES (2835, 2822, 290, 69.00);
 INSERT INTO `checkoutdetail` VALUES (2836, 2823, 8, 970.00);
 INSERT INTO `checkoutdetail` VALUES (2837, 2824, 288, 66.00);
+INSERT INTO `checkoutdetail` VALUES (2838, 2825, 134, 250000.00);
+INSERT INTO `checkoutdetail` VALUES (2839, 2825, 142, 200000.00);
+INSERT INTO `checkoutdetail` VALUES (2840, 2826, 285, 34000.00);
+INSERT INTO `checkoutdetail` VALUES (2841, 2829, 289, 72000.00);
+INSERT INTO `checkoutdetail` VALUES (2842, 2830, 142, 200000.00);
+INSERT INTO `checkoutdetail` VALUES (2843, 2831, 146, 480000.00);
+INSERT INTO `checkoutdetail` VALUES (2844, 2832, 59, 0.00);
+INSERT INTO `checkoutdetail` VALUES (2845, 2833, 207, 30000.00);
 
 -- ----------------------------
 -- Table structure for discount
@@ -6149,7 +6177,7 @@ CREATE TABLE `discount`  (
 -- Records of discount
 -- ----------------------------
 INSERT INTO `discount` VALUES (1, 'Mudadmuad', 'siéuale\r\n', 'PERCENT', 50.00, '2026-06-10 18:17:00', NULL, 'ACTIVE');
-INSERT INTO `discount` VALUES (2, 'test', 'sssss', 'FIXED', 500000.00, NULL, NULL, 'ACTIVE');
+INSERT INTO `discount` VALUES (2, 'test', 'sssss', 'FIXED', 90000.00, NULL, NULL, 'ACTIVE');
 
 -- ----------------------------
 -- Table structure for discount_author
@@ -6164,7 +6192,7 @@ CREATE TABLE `discount_author`  (
   INDEX `fk_disc_auth_auth`(`authorID` ASC) USING BTREE,
   CONSTRAINT `fk_disc_auth_auth` FOREIGN KEY (`authorID`) REFERENCES `author` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `fk_disc_auth_disc` FOREIGN KEY (`discountID`) REFERENCES `discount` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of discount_author
@@ -6183,13 +6211,13 @@ CREATE TABLE `discount_category`  (
   INDEX `fk_disc_cat_cat`(`categoryID` ASC) USING BTREE,
   CONSTRAINT `fk_disc_cat_cat` FOREIGN KEY (`categoryID`) REFERENCES `category` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `fk_disc_cat_disc` FOREIGN KEY (`discountID`) REFERENCES `discount` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 18 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of discount_category
 -- ----------------------------
-INSERT INTO `discount_category` VALUES (14, 1, 4);
-INSERT INTO `discount_category` VALUES (15, 1, 8);
+INSERT INTO `discount_category` VALUES (16, 1, 4);
+INSERT INTO `discount_category` VALUES (17, 1, 8);
 
 -- ----------------------------
 -- Table structure for discount_ebook
@@ -6204,21 +6232,22 @@ CREATE TABLE `discount_ebook`  (
   INDEX `fk_disc_ebook_ebook`(`ebookID` ASC) USING BTREE,
   CONSTRAINT `fk_disc_ebook_disc` FOREIGN KEY (`discountID`) REFERENCES `discount` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `fk_disc_ebook_ebook` FOREIGN KEY (`ebookID`) REFERENCES `ebook` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 35 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 66 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of discount_ebook
 -- ----------------------------
-INSERT INTO `discount_ebook` VALUES (22, 1, 2);
-INSERT INTO `discount_ebook` VALUES (23, 1, 253);
-INSERT INTO `discount_ebook` VALUES (24, 1, 273);
-INSERT INTO `discount_ebook` VALUES (25, 1, 289);
-INSERT INTO `discount_ebook` VALUES (26, 1, 290);
-INSERT INTO `discount_ebook` VALUES (27, 1, 292);
-INSERT INTO `discount_ebook` VALUES (31, 2, 3);
-INSERT INTO `discount_ebook` VALUES (32, 2, 20);
-INSERT INTO `discount_ebook` VALUES (33, 2, 87);
-INSERT INTO `discount_ebook` VALUES (34, 2, 291);
+INSERT INTO `discount_ebook` VALUES (51, 1, 2);
+INSERT INTO `discount_ebook` VALUES (52, 1, 253);
+INSERT INTO `discount_ebook` VALUES (53, 1, 273);
+INSERT INTO `discount_ebook` VALUES (54, 1, 289);
+INSERT INTO `discount_ebook` VALUES (55, 1, 290);
+INSERT INTO `discount_ebook` VALUES (56, 1, 292);
+INSERT INTO `discount_ebook` VALUES (61, 2, 3);
+INSERT INTO `discount_ebook` VALUES (62, 2, 20);
+INSERT INTO `discount_ebook` VALUES (63, 2, 87);
+INSERT INTO `discount_ebook` VALUES (64, 2, 165);
+INSERT INTO `discount_ebook` VALUES (65, 2, 291);
 
 -- ----------------------------
 -- Table structure for ebook
@@ -6244,7 +6273,7 @@ CREATE TABLE `ebook`  (
 -- ----------------------------
 -- Records of ebook
 -- ----------------------------
-INSERT INTO `ebook` VALUES (1, 'T1.0', 'Clean Code — Robert C. Martin (Uncle Bob)', 250000.00, 'Cuốn Clean Code: A Handbook of Agile Software Craftsmanship của Robert C. Martin (thường gọi là \"Uncle Bob\") là một trong những cuốn sách kinh điển dành cho lập trình viên muốn nâng cao chất lượng mã nguồn.\n\nMô tả ngắn gọn:\n\nMục tiêu chính: Giúp lập trình viên viết mã sạch, dễ đọc, dễ bảo trì và dễ mở rộng.', 1, 1, 'active', NULL);
+INSERT INTO `ebook` VALUES (1, 'T1.0', 'Clean Code — Robert C. Martin (Uncle Bob)', 250000.00, 'Cuốn Clean Code: A Handbook of Agile Software Craftsmanship của Robert C. Martin (thường gọi là \"Uncle Bob\") là một trong những cuốn sách kinh điển dành cho lập trình viên muốn nâng cao chất lượng mã nguồn.\n\nMô tả ngắn gọn:\n\nMục tiêu chính: Giúp lập trình viên viết mã sạch, dễ đọc, dễ bảo trì và dễ mở rộng.', 1, 301, 'active', NULL);
 INSERT INTO `ebook` VALUES (2, 'T2.0', 'The Pragmatic Programmer — Andrew Hunt & David Thomas', 300000.00, 'Cung cấp các nguyên tắc, mẹo và triết lý giúp lập trình viên trở nên chuyên nghiệp và hiệu quả hơn.\n\nTập trung vào tư duy linh hoạt, chủ động, và khả năng giải quyết vấn đề trong phát triển phần mềm.\n', 1, 2, 'active', NULL);
 INSERT INTO `ebook` VALUES (3, 'T3.0', 'Design Patterns: Elements of Reusable Object-Oriented Software — Gamma et al.', 400000.00, 'Xuất bản lần đầu năm 1994, cuốn sách giới thiệu 23 mẫu thiết kế phần mềm (design patterns) giúp giải quyết các vấn đề phổ biến trong phát triển phần mềm hướng đối tượng.\n\nCuốn sách không chỉ giúp bạn viết mã tái sử dụng, dễ bảo trì, mà còn nâng cao tư duy thiết kế phần mềm chuyên nghiệp.', 1, 3, 'active', NULL);
 INSERT INTO `ebook` VALUES (4, 'T4.0', 'Refactoring — Martin Fowler', 280000.00, 'Mục tiêu chính: Giúp bạn cải thiện thiết kế của mã hiện có mà không phá vỡ chức năng.\nCuốn sách này rất phù hợp cho những ai đang làm việc với mã legacy, hoặc muốn nâng cao kỹ năng viết mã sạch và có cấu trúc tốt.', 1, 4, 'active', NULL);
@@ -6531,7 +6560,318 @@ INSERT INTO `ebook` VALUES (288, 'V36.0', 'Vu Quy', 66000.00, 'Vu quy dường n
 INSERT INTO `ebook` VALUES (289, 'V37.0', 'Trúng Số Độc Đắc', 72000.00, 'Trúng Số Độc Đắc là tác phẩm cuối đời của Vũ Trọng Phụng. Khác với lối viết tiểu thuyết trước, cứ đến ngày báo ra mới viết một chương, đưa in xong hết mới mới thành sách, Trúng Số Độc Đắc được Vũ Trọng Phụng viết một mạch đến khi hoàn thành, tự tay đi đóng thành quyển rồi mới đưa cho nhà xuất bản. Người bạn cố tri của Vũ Trọng Phụng là Ngọc Giao kể lại rằng mấy hôm trước khi qua đời, Vũ Trọng Phụng đã nhờ mình dìu đến tận nhà in, xin mấy tờ bản thảo đã xếp chữ rồi, vẫn còn lấm lem mực in và dấu ta thợ in, đưa và dặn Ngọc Giao giữ lại để lót đầu cho mình khi đăt thi hài mình vào áo quan.\r\n\r\nKhông đậm chất trào phúng khiến người ta phải vỗ đùi bôm bốp, phá lên mà cười như Số Đỏ, mà nhiều lý lẽ sâu sắc, thăng trầm hơn, nhưng vẫn mang giọng kể tự nhiên, châm biến hài hước của Vũ Trọng Phụng.\r\n\r\nCả tiểu thuyết chỉ tập trung vào nhân vật Phúc (nhân vật chính trúng số). Không có trang nào mà không có Phúc, tất cả chỉ để biểu đạt tâm tư suy nghĩ của anh, cả ngoại hình anh cũng chỉ được phác họa vài dòng ngắn gọn. Vũ Trọng Phụng mượn nhân vật Phúc để kể về về nhân tình thế thái, về thói đời, lòng người đổi trắng thay đen. Và cả chính Phúc, được dịp may đổi đời, rồi có cơ hội chứng kiến, hiểu và cười lòng người thế, cũng không tránh khỏi việc bản thân thay đổi theo hoàn cảnh, thời thế. Bởi vì Phúc cũng là con người. ', 9, 289, 'active', NULL);
 INSERT INTO `ebook` VALUES (290, 'V38.0', 'Một Chủ Nhật Khác', 69000.00, 'Truyện dài Một Chủ Nhật Khác, tác phẩm sau cùng của Thanh Tâm Tuyền trước năm 1975, được in lại do sự đóng góp của một số bạn hữu nhà văn ở Hoa Kỳ, là ấn phẩm thứ nhất của cơ sở xuất bản Văn.\r\n\r\nMở đầu với tác phẩm một nhà văn lớn hiện đang sống ở quê nhà sau nhiều năm bị giam cầm trong ngục tù cộng sản, chủ đích trước hết của cơ sở vừa thành hình với tái bản Một Chủ Nhật Khác là tạo phương tiện để lần lượt in nhiều tác phẩm khác, lựa chọn trong những tác phẩm chủ yếu đã làm nên 30 năm văn chương của 30 năm tiểu thuyết miền Nam. Và trước hết, của những tác giả còn ở quê nhà như Thanh Tâm Tuyền.\r\nKhông trừ một trường hợp nào, mọi tác phẩm tái bản, tiền lời bán sách nếu có, sẽ được gửi trọn vẹn về cho tác giả hoặc gia đình tác giả ở Việt Nam. Việc làm hoàn toàn đặt trên căn bản bất vụ lợi này của chúng tôi, mong dành được sự hỗ trợ và tiếp tay quý báu của thân hữu và bạn đọc.', 9, 290, 'active', NULL);
 INSERT INTO `ebook` VALUES (291, 'V39.0', 'Bên Kia Bờ Ảo Vọng', 100000.00, 'Cái nổi bật của tiểu thuyết nằm ở ngay vấn đề mà tác giả đặt ra: lên án thói giả trá, ti tiện, lột trần thực chất tầm thường của những thần tượng trong cuộc sống thông thường của mỗi người. Ý nghĩa khái quát rút ra là: người ta không nên đem cả cuộc đời mình, hạnh phúc của mình đặt dưới chân những thần tượng có bề ngoài hào nhoáng nhưng thực chất tầm thường, phàm tục. Đây không chỉ là vấn đề của các cá nhân riêng lẻ mà ít nhiều còn là vấn đề của thời đại. Với tiểu thuyết này, tác giả đã tấn công vào thành lũy thói quen ngộ nhận cũ. Sự mạnh mẽ ấy làm cho tiểu thuyết có sức hấp dẫn, lôi cuốn ngay từ khi mới xuất bản.\r\n\r\nCái mạnh của tác giả Bên kia bờ ảo vọng còn ở nghệ thuật xây dựng nhân vật. Tác phẩm của chị không có ý định phán quyết số phận cuộc đời của một con người mà chỉ là một phần, một khúc của đời sống con người. Câu chuyện cũng chỉ xoay quanh chuyện tình ái vặt vãnh của một vài nhân vật thuộc giới văn hóa, văn nghệ, nhà báo, nhà giáo… Thời gian gói tròn trong hơn một năm từ mùa xuân năm nay đến mùa xuân năm sau. Còn không gian thì cũng không quá trải rộng, quá xa nội thành Hà Nội. Mặc dù vậy, nhân vật của chị rất sống, có cá tính riêng. Dương Thu Hương tỏ ra khá già dặn trong việc miêu tả những biến thái tâm lý nhân vật, đôi khi chỉ thông qua những biểu hiện nhỏ nhặt bề ngoài: một câu nói lấp lửng, một vết nhăn hoặc một lằn gân xanh mới xuất hiện, một bàn tay buông thõng trước gối, một sải bước đĩnh đạc. Người đọc như cảm thông đến tận cùng nỗi đau mất vợ, tan vỡ tổ ấm gia đình của Nguyên một nhà báo đã từng phạm một tội lỗi thông thường: vì quá chăm chú cho cuộc sống vợ con nên đã trót “đánh đĩ” ngòi bút, viết lách chiều ý thủ trưởng của mình. Chính cái hành vi ấy khiến anh mất vai trò thần tượng trong mắt vợ và điều này kéo theo sự tan vỡ của hạnh phúc gia đình. Người đọc cũng đau xót trước những lầm lỡ của Phương Linh, cô giáo trẻ xinh đẹp, dạy văn giỏi song khá mơ mộng, dại dột, cả tin, trao gửi niềm tin và hy vọng của mình cho các thần tượng: lúc đầu là Nguyên, chồng mình và sau đó là Trần Phương, một nhạc sĩ nổi danh.', 9, 291, 'active', NULL);
-INSERT INTO `ebook` VALUES (292, 'V40.0', 'Thềm Hoang', 60000.00, 'Nhật Tiến, Tên Bùi Nhật Tiến; sinh ngày 24-81936 tại Hà Nội; Di cư vào Nam năm 1954. Viết truyên ngắn, truỵện dài trên các tạp chí: Văn Hóa Ngày Nay, Tân Phong, Đông Phương, Bách Khoa, Văn, Văn Học, chủ trương nhà xuất bản Huyền Trân (1962), chủ biên tuần báo Thiếu Nhi (1971-1975). Dạy Vật lý và Hoá học tại các trường Trung học ở Sài Gòn từ năm 1960. Giải thưởng Văn chương Toàn Quốc năm 1962. Nguyên Phó Chủ tịch Trung Tâm Văn Bút VN (1965-1975), nguyên Hội viên Hội Đồng Văn Hoá Giáo Dục (nhiệm kỳ II,1974). Năm 1979 vượt biển qua Thái Lan rồi định cư tại Hoa Kỳ từ năm 1980; Hoạt động văn hoá ở hải ngoại: Nguyên Phó Chủ tịch Hội Cựu Giáo Chức Việt Nam Hải Ngoại (1982- 1985). Nguyên Chủ tịch Ban Chấp hành Lâm thời Văn Bút Việt Nam Hải Ngoại Nam California (1988). Hiện cư ngụ tại California.', 9, 292, 'active', NULL);
+INSERT INTO `ebook` VALUES (292, 'V40.0', 'Thềm Hoang', 60000.00, 'Nhật Tiến, Tên Bùi Nhật Tiến; sinh ngày 24-81936 tại Hà Nội; Di cư vào Nam năm 1954. Viết truyên ngắn, truỵện dài trên các tạp chí: Văn Hóa Ngày Nay, Tân Phong, Đông Phương, Bách Khoa, Văn, Văn Học, chủ trương nhà xuất bản Huyền Trân (1962), chủ biên tuần báo Thiếu Nhi (1971-1975). Dạy Vật lý và Hoá học tại các trường Trung học ở Sài Gòn từ năm 1960. Giải thưởng Văn chương Toàn Quốc năm 1962. Nguyên Phó Chủ tịch Trung Tâm Văn Bút VN (1965-1975), nguyên Hội viên Hội Đồng Văn Hoá Giáo Dục (nhiệm kỳ II,1974). Năm 1979 vượt biển qua Thái Lan rồi định cư tại Hoa Kỳ từ năm 1980; Hoạt động văn hoá ở hải ngoại: Nguyên Phó Chủ tịch Hội Cựu Giáo Chức Việt Nam Hải Ngoại (1982- 1985). Nguyên Chủ tịch Ban Chấp hành Lâm thời Văn Bút Việt Nam Hải Ngoại Nam California (1988). Hiện cư ngụ tại California.', 9, 288, 'active', NULL);
+
+-- ----------------------------
+-- Table structure for ebook_files
+-- ----------------------------
+DROP TABLE IF EXISTS `ebook_files`;
+CREATE TABLE `ebook_files`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `ebookID` int NOT NULL,
+  `fileID` int NOT NULL,
+  `isDefault` tinyint(1) NULL DEFAULT 0,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `fk_ebook_files_ebook`(`ebookID` ASC) USING BTREE,
+  INDEX `fk_ebook_files_file`(`fileID` ASC) USING BTREE,
+  CONSTRAINT `fk_ebook_files_ebook` FOREIGN KEY (`ebookID`) REFERENCES `ebook` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_ebook_files_file` FOREIGN KEY (`fileID`) REFERENCES `files` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 514 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of ebook_files
+-- ----------------------------
+INSERT INTO `ebook_files` VALUES (1, 2, 2, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (2, 3, 3, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (3, 4, 4, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (4, 5, 5, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (5, 6, 6, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (6, 7, 7, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (7, 8, 8, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (8, 9, 9, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (9, 10, 10, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (10, 11, 11, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (11, 12, 12, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (12, 13, 13, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (13, 14, 14, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (14, 15, 15, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (15, 16, 16, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (16, 17, 17, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (17, 18, 18, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (18, 19, 19, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (19, 20, 20, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (20, 21, 21, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (21, 22, 22, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (22, 23, 23, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (23, 24, 24, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (24, 25, 25, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (25, 26, 26, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (26, 27, 27, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (27, 28, 28, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (28, 29, 29, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (29, 30, 30, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (30, 31, 31, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (31, 32, 32, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (32, 33, 33, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (33, 34, 34, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (34, 35, 35, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (35, 36, 36, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (36, 37, 37, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (37, 38, 38, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (38, 39, 39, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (39, 40, 40, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (40, 41, 41, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (41, 42, 42, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (42, 43, 43, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (43, 44, 44, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (44, 45, 45, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (45, 46, 46, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (46, 47, 47, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (47, 48, 48, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (48, 49, 49, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (49, 50, 50, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (50, 51, 51, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (51, 52, 52, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (52, 53, 53, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (53, 54, 54, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (54, 55, 55, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (55, 56, 56, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (56, 57, 57, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (57, 58, 58, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (58, 59, 59, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (59, 60, 60, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (60, 61, 61, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (61, 62, 62, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (62, 63, 63, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (63, 64, 64, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (64, 65, 65, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (65, 66, 66, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (66, 67, 67, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (67, 68, 68, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (68, 69, 69, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (69, 70, 70, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (70, 71, 71, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (71, 72, 72, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (72, 73, 73, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (73, 74, 74, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (74, 75, 75, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (75, 76, 76, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (76, 77, 77, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (77, 78, 78, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (78, 79, 79, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (79, 80, 80, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (80, 81, 81, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (81, 82, 82, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (82, 83, 83, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (83, 84, 84, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (84, 85, 85, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (85, 86, 86, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (86, 87, 87, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (87, 88, 88, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (88, 89, 89, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (89, 90, 90, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (90, 91, 91, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (91, 92, 92, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (92, 93, 93, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (93, 94, 94, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (94, 95, 95, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (95, 96, 96, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (96, 97, 97, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (97, 98, 98, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (98, 99, 99, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (99, 100, 100, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (100, 101, 101, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (101, 102, 102, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (102, 103, 103, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (103, 104, 104, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (104, 105, 105, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (105, 106, 106, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (106, 107, 107, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (107, 108, 108, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (108, 109, 109, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (109, 110, 110, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (110, 111, 111, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (111, 112, 112, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (112, 113, 113, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (113, 114, 114, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (114, 115, 115, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (115, 116, 116, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (116, 117, 117, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (117, 118, 118, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (118, 119, 119, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (119, 120, 120, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (120, 121, 121, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (121, 122, 122, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (122, 123, 123, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (123, 124, 124, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (124, 125, 125, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (125, 126, 126, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (126, 127, 127, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (127, 128, 128, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (128, 129, 129, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (129, 130, 130, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (130, 131, 131, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (131, 132, 132, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (132, 133, 133, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (133, 134, 134, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (134, 135, 135, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (135, 136, 136, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (136, 137, 137, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (137, 138, 138, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (138, 139, 139, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (139, 140, 140, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (140, 141, 141, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (141, 142, 142, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (142, 143, 143, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (143, 144, 144, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (144, 145, 145, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (145, 146, 146, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (146, 147, 147, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (147, 148, 148, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (148, 149, 149, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (149, 150, 150, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (150, 151, 151, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (151, 152, 152, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (152, 153, 153, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (153, 154, 154, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (154, 155, 155, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (155, 156, 156, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (156, 157, 157, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (157, 158, 158, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (158, 159, 159, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (159, 160, 160, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (160, 161, 161, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (161, 162, 162, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (162, 163, 163, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (163, 164, 164, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (164, 165, 165, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (165, 166, 166, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (166, 167, 167, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (167, 168, 168, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (168, 169, 169, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (169, 170, 170, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (170, 171, 171, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (171, 172, 172, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (172, 173, 173, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (173, 174, 174, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (174, 175, 175, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (175, 176, 176, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (176, 177, 177, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (177, 178, 178, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (178, 179, 179, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (179, 180, 180, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (180, 181, 181, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (181, 182, 182, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (182, 183, 183, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (183, 186, 186, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (184, 187, 187, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (185, 188, 188, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (186, 189, 189, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (187, 190, 190, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (188, 191, 191, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (189, 192, 192, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (190, 193, 193, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (191, 194, 194, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (192, 195, 195, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (193, 196, 196, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (194, 197, 197, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (195, 198, 198, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (196, 199, 199, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (197, 200, 200, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (198, 201, 201, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (199, 202, 202, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (200, 203, 203, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (201, 204, 204, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (202, 205, 205, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (203, 206, 206, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (204, 207, 207, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (205, 208, 208, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (206, 209, 209, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (207, 210, 210, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (208, 211, 211, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (209, 212, 212, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (210, 213, 213, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (211, 214, 214, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (212, 215, 215, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (213, 217, 217, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (214, 218, 218, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (215, 219, 219, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (216, 220, 220, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (217, 221, 221, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (218, 222, 222, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (219, 223, 223, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (220, 224, 224, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (221, 225, 225, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (222, 226, 226, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (223, 227, 227, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (224, 228, 228, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (225, 229, 229, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (226, 230, 230, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (227, 231, 231, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (228, 232, 232, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (229, 233, 233, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (230, 234, 234, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (231, 235, 235, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (232, 236, 236, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (233, 237, 237, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (234, 238, 238, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (235, 239, 239, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (236, 240, 240, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (237, 241, 241, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (238, 242, 242, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (239, 243, 243, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (240, 244, 244, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (241, 245, 245, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (242, 246, 246, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (243, 247, 247, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (244, 248, 248, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (245, 249, 249, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (246, 250, 250, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (247, 251, 251, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (248, 253, 253, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (249, 254, 254, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (250, 255, 255, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (251, 256, 256, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (252, 257, 257, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (253, 258, 258, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (254, 259, 259, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (255, 260, 260, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (256, 261, 261, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (257, 262, 262, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (258, 263, 263, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (259, 264, 264, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (260, 265, 265, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (261, 266, 266, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (262, 267, 267, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (263, 268, 268, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (264, 269, 269, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (265, 270, 270, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (266, 271, 271, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (267, 272, 272, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (268, 273, 273, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (269, 274, 274, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (270, 275, 275, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (271, 276, 276, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (272, 277, 277, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (273, 278, 278, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (274, 279, 279, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (275, 280, 280, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (276, 281, 281, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (277, 282, 282, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (278, 283, 283, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (279, 284, 284, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (280, 285, 285, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (281, 286, 286, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (282, 287, 287, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (283, 288, 288, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (284, 289, 289, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (285, 290, 290, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (286, 291, 291, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (287, 1, 301, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (288, 292, 302, 1, '2026-06-12 07:26:45');
+INSERT INTO `ebook_files` VALUES (512, 292, 306, 0, '2026-06-12 13:55:14');
+INSERT INTO `ebook_files` VALUES (513, 292, 307, 0, '2026-06-12 14:10:33');
 
 -- ----------------------------
 -- Table structure for ebookauthor
@@ -7234,12 +7574,12 @@ CREATE TABLE `files`  (
   `fileLink` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `fileStatus` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 301 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 308 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of files
 -- ----------------------------
-INSERT INTO `files` VALUES (1, 'Clean Code — Robert C. Martin (Uncle Bob)', 'pdf', 0, 'https://drive.google.com/drive/folders/1SjuS2_5SJi9JKcteheaWCuseQ0kYpU9q?usp=sharing', 'active');
+INSERT INTO `files` VALUES (1, 'Clean Code — Robert C. Martin (Uncle Bob)', 'pdf', 0, 'https://drive.google.com/file/d/1anGq4rROh7DAF-c35-k7a3cizXHu9F6L/view', 'active');
 INSERT INTO `files` VALUES (2, 'The Pragmatic Programmer — Andrew Hunt & David Thomas', 'pdf', 0, 'https://drive.google.com/drive/folders/1chlwry52vUSVHw9WNG4xtYlpSSQwxEkF?usp=drive_link', 'active');
 INSERT INTO `files` VALUES (3, 'Design Patterns: Elements of Reusable Object-Oriented Software — Gamma et al.', 'pdf', 0, '', 'active');
 INSERT INTO `files` VALUES (4, 'Refactoring — Martin Fowler', 'pdf', 0, 'https://drive.google.com/drive/folders/1qzv6c5D8Q6XLEqvYouzi4SEdHQs3HEyY?usp=drive_link', 'active');
@@ -7539,6 +7879,13 @@ INSERT INTO `files` VALUES (297, '', 'pdf', 0, '', 'active');
 INSERT INTO `files` VALUES (298, '', 'pdf', 0, '', 'active');
 INSERT INTO `files` VALUES (299, '', 'pdf', 0, '', 'active');
 INSERT INTO `files` VALUES (300, '', 'pdf', 0, '', 'active');
+INSERT INTO `files` VALUES (301, 'clean_code.pdf', 'pdf', 3782924, 'https://res.cloudinary.com/dgyufq33a/raw/upload/v1781237610/owpxa6scvuucsckygp2v', 'active');
+INSERT INTO `files` VALUES (302, 'them_hoang.pdf', 'pdf', 2190724, 'https://res.cloudinary.com/dgyufq33a/raw/upload/v1781270744/akpdy3tzneo7kuc5mogj', 'active');
+INSERT INTO `files` VALUES (303, 'them_hoang.pdf', 'pdf', 2190724, 'https://res.cloudinary.com/dgyufq33a/raw/upload/v1781271806/sd8xra72eoydpynl4nei', 'ACTIVE');
+INSERT INTO `files` VALUES (304, 'them_hoang.pdf', 'pdf', 2190724, 'https://res.cloudinary.com/dgyufq33a/raw/upload/v1781271935/hxc5fxbr4f1wv3zklmst', 'ACTIVE');
+INSERT INTO `files` VALUES (305, 'them_hoang.pdf', 'pdf', 2190724, 'https://res.cloudinary.com/dgyufq33a/raw/upload/v1781272087/dcxmwvzqgkxcvqydlspn', 'ACTIVE');
+INSERT INTO `files` VALUES (306, 'them_hoang.pdf', 'pdf', 2190724, 'https://res.cloudinary.com/dgyufq33a/raw/upload/v1781272513/w86x01dxsvt7h8all8sg', 'active');
+INSERT INTO `files` VALUES (307, 'them_hoang.pdf', 'pdf', 2190724, 'https://res.cloudinary.com/dgyufq33a/raw/upload/v1781273432/them_hoang.pdf', 'ACTIVE');
 
 -- ----------------------------
 -- Table structure for images
@@ -7692,7 +8039,7 @@ INSERT INTO `images` VALUES (132, 'The Dictionary of Lost Words', 'https://image
 INSERT INTO `images` VALUES (133, 'Practical English Usage — Michael Swan', 'https://tse1.mm.bing.net/th/id/OIP.hMx1-YNbhF2pts-rtETnGgHaFr?pid=Api&P=0&h=180', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728734/kdyzkzsomnjzgtrxowtb.jpg');
 INSERT INTO `images` VALUES (134, 'English Idioms in Use — Cambridge (Intermediate)', 'https://down-my.img.susercontent.com/file/vn-11134201-7r98o-ls9okmjdshguc2', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728738/r2uoo6rwp0rtkhum9bmo.jpg');
 INSERT INTO `images` VALUES (135, 'Phrasal Verbs in Use — Cambridge', 'https://cdn.ketabkonkour.com/uploads/2023/07/English-Phrasal-Verb-in-Use-Intermediate.jpg', 'active', 'FAILED', NULL);
-INSERT INTO `images` VALUES (136, 'Oxford Word Skills (Advanced) — Stuart Redman', 'https://dkstatics-public.digikala.com/digikala-products/be8302fd6e6c1b1b5cdf82beb504679f35031611_1604050887.jpg?x-oss-process=image/resize,m_lfit,h_800,w_800/quality,q_90', 'active', 'FAILED', NULL);
+INSERT INTO `images` VALUES (136, 'Oxford Word Skills (Advanced) — Stuart Redman', 'https://dkstatics-public.digikala.com/digikala-products/be8302fd6e6c1b1b5cdf82beb504679f35031611_1604050887.jpg?x-oss-process=image/resize,m_lfit,h_800,w_800/quality,q_90', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1781188736/ccq5wujn6h1jqnrwxc0n.jpg');
 INSERT INTO `images` VALUES (137, 'Cambridge Academic English (Course for Students)', 'https://englishbooks.cz/12531-home_default/cambridge-academic-english-intermediate-student-s-book.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728805/ndi50qngalibh5o0a2l3.jpg');
 INSERT INTO `images` VALUES (138, 'Academic Writing for Graduate Students — Swales & Feak', 'https://rahnamapress.com/wp-content/uploads/2018/10/Academic-Writing-for-Graduate-Students-3rd-Edition.webp', 'active', 'FAILED', NULL);
 INSERT INTO `images` VALUES (139, 'Collins COBUILD Advanced Learner’s Dictionary', 'https://down-th.img.susercontent.com/file/th-11134207-7r992-lns4yufdw300d4', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780728830/ojb7atszjn1rmw50qdxh.jpg');
@@ -7847,14 +8194,14 @@ INSERT INTO `images` VALUES (289, 'Trúng Số Độc Đắc', 'https://nhasachm
 INSERT INTO `images` VALUES (290, 'Một Chủ Nhật Khác', 'https://tse2.mm.bing.net/th/id/OIP.ia3hpeNkhGMIrsxpdZQBlwAAAA?rs=1&pid=ImgDetMain&o=7&rm=3', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780756766/beqiujiq0wx2yurdywpu.webp');
 INSERT INTO `images` VALUES (291, 'Bên Kia Bờ Ảo Vọng', 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1349664066i/16073951.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780756768/e6ymqzldwhze71zimhlq.jpg');
 INSERT INTO `images` VALUES (292, 'Thềm Hoang', 'https://metaisach.com/_ipx/_/https://media.metaisach.com/2025/05/them-hoang-14a6aebd.jpeg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780756771/nih3uc9qezve6hdzdfqr.jpg');
-INSERT INTO `images` VALUES (301, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780763748/r0q21oyaoms6lr7lf8b1.png', 'active', 'PENDING', NULL);
-INSERT INTO `images` VALUES (302, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780764523/tumccrbkwm8ybf1hq6po.jpg', 'active', 'PENDING', NULL);
-INSERT INTO `images` VALUES (303, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780764683/mm2uek58k1wpq0vlcgaz.jpg', 'active', 'PENDING', NULL);
-INSERT INTO `images` VALUES (304, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780764924/jxavyw8i4vugdik76r25.webp', 'active', 'PENDING', NULL);
-INSERT INTO `images` VALUES (305, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780765340/lzgqidev2azixznt9i4c.webp', 'active', 'PENDING', NULL);
-INSERT INTO `images` VALUES (306, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780765647/ytu2rdbynyazepwurgb8.jpg', 'active', 'PENDING', NULL);
-INSERT INTO `images` VALUES (307, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780765682/znj9dbcjed4qfig82kny.png', 'active', 'PENDING', NULL);
-INSERT INTO `images` VALUES (308, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780765708/z7tbnrcfxz2lueii59nm.jpg', 'active', 'PENDING', NULL);
+INSERT INTO `images` VALUES (301, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780763748/r0q21oyaoms6lr7lf8b1.png', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1781188936/gkxy7jl0f9fqngqxrxvy.png');
+INSERT INTO `images` VALUES (302, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780764523/tumccrbkwm8ybf1hq6po.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1781188938/aswlwnmp9orxl6ubbxih.jpg');
+INSERT INTO `images` VALUES (303, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780764683/mm2uek58k1wpq0vlcgaz.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1781188940/n9oc1l87rjwh32faw3cw.jpg');
+INSERT INTO `images` VALUES (304, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780764924/jxavyw8i4vugdik76r25.webp', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1781188942/ckb2vv7tzbxtgr9jrmya.webp');
+INSERT INTO `images` VALUES (305, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780765340/lzgqidev2azixznt9i4c.webp', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1781188944/lefnrr4oqcp76dte4cnh.webp');
+INSERT INTO `images` VALUES (306, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780765647/ytu2rdbynyazepwurgb8.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1781188946/efkjdkvectvp1gnhhege.jpg');
+INSERT INTO `images` VALUES (307, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780765682/znj9dbcjed4qfig82kny.png', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1781188948/hrwpmpufwqyuisw2mxln.png');
+INSERT INTO `images` VALUES (308, 'Thềm Hoang', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1780765708/z7tbnrcfxz2lueii59nm.jpg', 'active', 'MIGRATED', 'https://res.cloudinary.com/dgyufq33a/image/upload/v1781188950/m40hsrwfygkvxszkeilc.jpg');
 
 -- ----------------------------
 -- Table structure for passwordreset
@@ -7890,12 +8237,13 @@ CREATE TABLE `paymentmethod`  (
   `isActive` tinyint(1) NULL DEFAULT 1,
   `createdAt` datetime NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of paymentmethod
 -- ----------------------------
-INSERT INTO `paymentmethod` VALUES (1, 'Momo', 'e-wallet', 'momo', 1, '2026-01-27 00:14:48');
+INSERT INTO `paymentmethod` VALUES (1, 'vnpay', 'e-wallet', 'VNPay', 1, '2026-01-27 00:14:48');
+INSERT INTO `paymentmethod` VALUES (2, 'free', 'free', 'FREE', 1, '2026-06-12 08:56:26');
 
 -- ----------------------------
 -- Table structure for review
@@ -7946,6 +8294,51 @@ INSERT INTO `users` VALUES (2, 'osamabinladen', 'nakroth1504@gmail.com', '033253
 INSERT INTO `users` VALUES (3, 'osamabilade', '23130023@st.hcmuaf.edu.vn', '0332536386', '$2a$10$Vm0EsL0OHdwwqjFDaOoTfuT/9wN9opn2oxmFutg2yIdcENtvamkLO', 'admin', '2026-03-30 22:42:45', 'google', '105327686192281554397');
 
 -- ----------------------------
+-- Table structure for voucher_usage
+-- ----------------------------
+DROP TABLE IF EXISTS `voucher_usage`;
+CREATE TABLE `voucher_usage`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `voucher_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `used_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_vu_voucher_user`(`voucher_id` ASC, `user_id` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of voucher_usage
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for vouchers
+-- ----------------------------
+DROP TABLE IF EXISTS `vouchers`;
+CREATE TABLE `vouchers`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  `discount_type` enum('PERCENT','FIXED') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `discount_value` double NOT NULL,
+  `min_order_value` double NULL DEFAULT 0,
+  `max_discount` double NULL DEFAULT NULL,
+  `quantity` int NULL DEFAULT 0,
+  `used_count` int NULL DEFAULT 0,
+  `started_at` datetime NULL DEFAULT NULL COMMENT 'Thời điểm bắt đầu hiệu lực. NULL = có hiệu lực ngay khi tạo',
+  `max_uses_per_user` int NULL DEFAULT NULL COMMENT 'Số lần tối đa 1 user dùng. NULL = không giới hạn',
+  `expired_at` datetime NOT NULL,
+  `is_active` tinyint(1) NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `code`(`code` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of vouchers
+-- ----------------------------
+INSERT INTO `vouchers` VALUES (1, 'WELCOME20', 'Voucher cho người dùng mới', 'PERCENT', 20, 0, NULL, 100, 2, NULL, NULL, '2026-12-31 23:59:59', 1, '2026-06-11 09:20:16');
+
+-- ----------------------------
 -- Table structure for wishlist
 -- ----------------------------
 DROP TABLE IF EXISTS `wishlist`;
@@ -7985,7 +8378,6 @@ CREATE TABLE `wishlistdetail`  (
 -- Records of wishlistdetail
 -- ----------------------------
 INSERT INTO `wishlistdetail` VALUES (1, 1, 290, '2026-01-26 22:48:41');
-INSERT INTO `wishlistdetail` VALUES (2, 1, 285, '2026-01-26 22:48:47');
 INSERT INTO `wishlistdetail` VALUES (14, 2, 155, '2026-03-22 14:03:12');
 INSERT INTO `wishlistdetail` VALUES (15, 2, 112, '2026-03-22 14:03:15');
 INSERT INTO `wishlistdetail` VALUES (16, 2, 104, '2026-03-22 14:03:19');
