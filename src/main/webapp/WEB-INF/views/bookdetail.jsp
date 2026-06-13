@@ -45,7 +45,8 @@
       <!-- LEFT: IMAGE -->
       <div class="col-left gallery-section">
         <div class="main-image-box">
-          <img src="${ebook.images[0].imgLink} alt="${ebook.title}">
+          <img src="${thumbnail}" alt="${ebook.title}"
+          class="thumbnail">
         </div>
       </div>
 
@@ -162,9 +163,10 @@
       <div class="similar-list">
         <c:forEach items="${similarEbooks}" var="e">
           <a class="similar-item"
-             href="${pageContext.request.contextPath}/bookdetail?id=${e.id}">
+             href="${pageContext.request.contextPath}/bookdetail?id=${e.id}"
+          >
 
-            <img src="${e.images[0].imgLink}" alt="${e.title}">
+            <img src="${similarThumbnas[e.id]}" alt="${e.title}" class="thumbnail">
 
             <div class="similar-info">
               <span class="title">${e.title}</span>
@@ -246,5 +248,6 @@
   <script src="${pageContext.request.contextPath}/assets/js/cart.js"></script>
   <script src="${pageContext.request.contextPath}/assets/js/product-card.js"></script>
   <script src="${pageContext.request.contextPath}/assets/js/bookdetail.js"></script>
+  <script src="${pageContext.request.contextPath}/assets/js/handleErrorImage.js"></script>
   </body>
   </html>

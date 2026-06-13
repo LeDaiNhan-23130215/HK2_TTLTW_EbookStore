@@ -8,7 +8,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <c:if test="${file.fileFormat eq 'epub'}">
-    <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
   </c:if>
 
   <c:if test="${file.fileFormat eq 'pdf'}">
@@ -110,9 +111,9 @@
     }
 
     #epub-viewer{
-      width:100%;
-      height:100%;
-      background: #fafafa;
+        width:100%;
+        height:100%;overflow:hidden;
+        background: #fafafa;
     }
   </style>
 </head>
@@ -215,39 +216,62 @@
     <c:when test="${file.fileFormat eq 'epub'}">
       <div id="epub-viewer"></div>
 
-      <script>
-        const book = ePub('${file.fileLink}');
-        const rendition = book.renderTo("epub-viewer", {
-          width: "100%",
-          height: "100%",
-          spread: "always"
-        });
+        <script>
+            let rendition = null;
 
-        rendition.display();
+            async function loadBook() {
+                try {
 
-        book.ready.then(() => {
-          document.getElementById('page-info').textContent = "Sách đã tải xong";
-          return book.locations.generate(1024);
-        }).then(locations => {
-          rendition.on('relocated', location => {
-            const percent = book.locations.percentageFromCfi(location.start.cfi);
-            const percentageRounded = Math.round(percent * 100);
-            document.getElementById('page-info').textContent = `Tiến độ: ${percentageRounded}%`;
+                    document.getElementById("page-info").textContent = "Đang tải EPUB...";
 
-            // Bật/Tắt nút bấm dựa vào vị trí đầu/cuối sách
-            document.getElementById('prev-btn').disabled = location.atStart;
-            document.getElementById('next-btn').disabled = location.atEnd;
-          });
-        });
+                    const response = await fetch('${file.fileLink}');
+                    const buffer = await response.arrayBuffer();
 
-        document.getElementById('prev-btn').addEventListener('click', () => {
-          rendition.prev();
-        });
+                    const book = ePub(buffer);
 
-        document.getElementById('next-btn').addEventListener('click', () => {
-          rendition.next();
-        });
-      </script>
+                    rendition = book.renderTo("epub-viewer", {
+                        width: "100%",
+                        height: "100%",
+                        spread: "none",
+                        flow: "paginated",
+                        manager: "default"
+                    });
+
+                    await book.ready;
+
+                    console.log("Book ready");
+
+                    const firstSection = book.spine.get(0);
+
+                    console.log(firstSection);
+
+                    await rendition.display(firstSection.href);
+
+                    console.log("Display complete");
+
+                    document.getElementById("page-info").textContent = "Đã tải xong";
+
+                    rendition.on("relocated", (location) => {
+                        document.getElementById('prev-btn').disabled = location.atStart;
+                        document.getElementById('next-btn').disabled = location.atEnd;
+                    });
+
+                } catch (e) {
+                    console.error(e);
+                    document.getElementById("page-info").textContent = "Lỗi EPUB";
+                }
+            }
+
+            loadBook();
+
+            document.getElementById('prev-btn').addEventListener('click', () => {
+                if (rendition) rendition.prev();
+            });
+
+            document.getElementById('next-btn').addEventListener('click', () => {
+                if (rendition) rendition.next();
+            });
+        </script>
     </c:when>
 
     <c:otherwise>

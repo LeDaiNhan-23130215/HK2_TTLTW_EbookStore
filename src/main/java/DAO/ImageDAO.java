@@ -246,4 +246,43 @@ public class ImageDAO {
             throw new RuntimeException(e);
         }
     }
+
+    public String getThumbnailByEbookId (int id ) {
+        String sql = """
+                SELECT
+                COALESCE(
+                   MIN(CASE
+                        WHEN i.migration_status = 'MIGRATED'
+                             AND i.cloudinary_url IS NOT NULL
+                             AND i.cloudinary_url <> ''
+                        THEN i.cloudinary_url
+                   END),
+                   MIN(i.imgLink),
+                   '/assets/img/no-image.png'
+                ) AS thumbnail
+                FROM ebook e
+            LEFT JOIN ebookimage ei ON e.id = ei.ebookID
+            LEFT JOIN images i ON ei.imgID = i.id
+            WHERE e.status = 'ACTIVE'
+            AND ei.isCover = 1
+            AND e.id = ?
+            GROUP BY e.id, e.title, e.price
+            LIMIT 1
+               """;
+
+        try (Connection con = DBConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()) {
+                return rs.getString("thumbnail");
+            }
+            rs.close();
+        } catch (Exception e) {
+            logger.error("{} Can't get thumbnail for ebook id: {}", LOG_PREFIX, id, e);
+            throw new RuntimeException("Can't get thumbnail for ebook id: " + id, e);
+        }
+        return null;
+    }
 }

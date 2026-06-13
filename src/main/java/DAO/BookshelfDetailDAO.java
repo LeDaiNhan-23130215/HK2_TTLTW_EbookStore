@@ -44,7 +44,6 @@ public class BookshelfDetailDAO {
 
     public boolean exists(int bookshelfId, int ebookId) {
         logger.debug("{} Checking if ebookId {} exists in bookshelfId {}", LOG_PREFIX, ebookId, bookshelfId);
-        // Lưu ý: Trong code gốc của bạn có thể có nhầm lẫn giữa 'id' và 'bsID' ở câu WHERE, tôi đã sửa lại thành bsID để logic hợp lý hơn.
         String sql = """
             SELECT 1 FROM bookshelfdetail
             WHERE bsID = ? AND eBookID = ?
