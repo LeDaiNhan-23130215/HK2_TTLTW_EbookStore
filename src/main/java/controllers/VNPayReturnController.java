@@ -11,7 +11,6 @@ import jakarta.servlet.http.HttpSession;
 import models.Checkout;
 import models.PaymentMethod;
 import models.User;
-import models.Voucher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.BookshelfService;
@@ -116,10 +115,11 @@ public class VNPayReturnController extends HttpServlet {
             return;
         }
 
-        // 5. Tăng used count voucher (nếu có)
-        Voucher voucher = (Voucher) session.getAttribute("voucher");
-        if (voucher != null) {
-            try { new VoucherDAO().increaseUsedCount(voucher.getId()); } catch (Exception ignored) {}
+        // 5. Ghi nhận lượt sử dụng voucher (nếu có)
+        Integer voucherId = (Integer) session.getAttribute("vnp_voucherId");
+        session.removeAttribute("vnp_voucherId");
+        if (voucherId != null) {
+            try { new VoucherDAO().recordUsage(voucherId, userId); } catch (Exception ignored) {}
         }
 
         // 6. Cấp sách + xóa cart

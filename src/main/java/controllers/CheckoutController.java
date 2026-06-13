@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import services.BookshelfService;
 import services.CartService;
 import services.CheckoutService;
+import services.VoucherService;
 import services.WishlistService;
 import utils.MailUtil;
 import utils.VNPayUtil;
@@ -28,17 +29,16 @@ public class CheckoutController extends HttpServlet {
 
     private CheckoutService checkoutService;
     private CartService     cartService;
-
+    private VoucherService  voucherService;
     private static final Logger logger= LoggerFactory.getLogger(CheckoutController.class);
     private static final String LOG_PREFIX= "[CHECKOUT_CONTROLLER]";
 
-    private static final String SESSION_CHECKOUT_MODE= "checkoutMode";
-    private static final String SESSION_CHECKOUT_BOOK_ID= "checkoutBookId";
 
     @Override
     public void init() throws ServletException {
-        cartService = new CartService();
+        cartService    = new CartService();
         checkoutService = new CheckoutService();
+        voucherService = new VoucherService(); // THÊM
     }
 
     @Override
@@ -53,7 +53,7 @@ public class CheckoutController extends HttpServlet {
             return;
         }
 
-        // ── Access Control: kiểm tra token điều hướng 1 lần ──
+        // Access Control: kiểm tra token điều hướng 1 lần
         String tokenParam = req.getParameter("token");
         String sessionToken = (String) session.getAttribute(CartController.CHECKOUT_TOKEN_KEY);
 
@@ -70,30 +70,15 @@ public class CheckoutController extends HttpServlet {
         session.removeAttribute(CartController.CHECKOUT_TOKEN_KEY);
 
         int userId = user.getId();
-
         String mode = req.getParameter("mode");
         String bookIdParam = req.getParameter("bookId");
         boolean singleMode = "single".equalsIgnoreCase(mode)
                 && bookIdParam != null && !bookIdParam.isBlank();
-
-        Cart cart = cartService.getCartByUserID(userId);
-        if (cart == null) {
-            cartService.createCart(userId);
-            cart = cartService.getCartByUserID(userId);
-        }
-
-        List<CartItem> cartItems = cartService.getCartItemsByCartID(userId, cart.getId());
+        List<CartItem> cartItems = loadCartItems(userId, singleMode, bookIdParam);
 
         if (singleMode) {
-            int singleBookId = Integer.parseInt(bookIdParam);
-            cartItems = cartItems.stream()
-                    .filter(ci -> ci.getEbook().getId() == singleBookId)
-                    .collect(Collectors.toList());
-
             req.setAttribute("singleMode",   true);
-            req.setAttribute("singleBookId", singleBookId);
-            session.setAttribute(SESSION_CHECKOUT_MODE,    "single");
-            session.setAttribute(SESSION_CHECKOUT_BOOK_ID, singleBookId);
+            req.setAttribute("singleBookId", Integer.parseInt(bookIdParam));
 
             if (cartItems.isEmpty()) {
                 resp.sendRedirect(req.getContextPath() + "/cart");
@@ -101,19 +86,17 @@ public class CheckoutController extends HttpServlet {
             }
         } else {
             req.setAttribute("singleMode", false);
-            session.removeAttribute(SESSION_CHECKOUT_MODE);
-            session.removeAttribute(SESSION_CHECKOUT_BOOK_ID);
         }
 
         double totalPrice = cartItems.stream().mapToDouble(CartItem::getPriceAtADD).sum();
-        session.setAttribute("checkoutTotal", totalPrice);
 
-        session.setAttribute("checkoutItems",  cartItems);
-        session.setAttribute("checkoutCartId", cart.getId());
-
-        req.setAttribute("cart",      cart);
-        req.setAttribute("cartItems", cartItems);
+        req.setAttribute("cartItems",  cartItems);
         req.setAttribute("totalPrice", totalPrice);
+        req.setAttribute("voucherCode",    null);
+        req.setAttribute("discount",       null);
+        req.setAttribute("finalPrice",     totalPrice);
+        req.setAttribute("voucherError",   null);
+        req.setAttribute("appliedVoucher", null);
 
         req.getRequestDispatcher("/WEB-INF/views/payment.jsp").forward(req, resp);
     }
@@ -131,27 +114,64 @@ public class CheckoutController extends HttpServlet {
         }
 
         int userId = user.getId();
+        String step        = req.getParameter("step");
+        String mode        = req.getParameter("mode");
+        String bookIdParam = req.getParameter("bookId");
+        String voucherCode = req.getParameter("voucherCode");
+        boolean singleMode = "single".equalsIgnoreCase(mode)
+                && bookIdParam != null && !bookIdParam.isBlank();
 
-        List<CartItem> checkoutItems =
-                (List<CartItem>) session.getAttribute("checkoutItems");
-        Integer cartId = (Integer) session.getAttribute("checkoutCartId");
+        List<CartItem> cartItems = loadCartItems(userId, singleMode, bookIdParam);
 
-        if (checkoutItems == null || checkoutItems.isEmpty()) {
+        if (cartItems == null || cartItems.isEmpty()) {
             resp.sendRedirect(req.getContextPath() + "/cart");
             return;
         }
 
-        double rawTotal = checkoutItems.stream().mapToDouble(CartItem::getPriceAtADD).sum();
-        Double discount = (Double) session.getAttribute("discount");
-        double finalTotal = (discount != null) ? Math.max(0, rawTotal - discount) : rawTotal;
+        double total = cartItems.stream().mapToDouble(CartItem::getPriceAtADD).sum();
+        double  discount     = 0;
+        String  voucherError = null;
+        Voucher voucher      = null;
 
-        Integer singleBookId = resolveSingleBookId(req, session);
+        if (voucherCode != null && !voucherCode.isBlank()) {
+            voucher = new VoucherDAO().findByCode(voucherCode.trim().toUpperCase());
+            String error = voucherService.validateVoucher(voucher, total, userId);
+            if (error != null) {
+                voucherError = error;
+                voucher      = null;
+            } else {
+                discount = voucherService.calculateDiscount(voucher, total);
+            }
+        }
+
+        double finalTotal = total - discount;
+
+        if ("preview".equals(step)) {
+            req.setAttribute("cartItems",     cartItems);
+            req.setAttribute("totalPrice",    total);
+            req.setAttribute("discount",      discount > 0 ? discount : null);
+            req.setAttribute("finalPrice",    finalTotal);
+            req.setAttribute("voucherCode",   voucherCode);
+            req.setAttribute("voucherError",  voucherError);
+            req.setAttribute("appliedVoucher", voucher);
+            req.setAttribute("singleMode",    singleMode);
+            if (singleMode) {
+                req.setAttribute("singleBookId", Integer.parseInt(bookIdParam));
+            }
+
+            req.getRequestDispatcher("/WEB-INF/views/payment.jsp").forward(req, resp);
+            return;
+        }
+        Cart cart = cartService.getCartByUserID(userId);
+        Integer cartId = (cart != null) ? cart.getId() : null;
+
+        Integer singleBookId = singleMode ? Integer.parseInt(bookIdParam) : null;
 
         // Đơn hàng miễn phí: ghi thẳng DB, không qua VNPAY
         if (finalTotal == 0) {
             int pmId = checkoutService.getPMIDByName("free");
             Checkout checkout = new Checkout(userId, pmId, 0.0, "Pending");
-            boolean saved = checkoutService.checkout(checkout, checkoutItems);
+            boolean saved = checkoutService.checkout(checkout, cartItems);
 
             if (!saved) {
                 logger.error("{} Free order DB save failed. userId={}", LOG_PREFIX, userId);
@@ -160,25 +180,24 @@ public class CheckoutController extends HttpServlet {
                 return;
             }
 
-            // Tăng used count voucher nếu có
-            Voucher voucher = (Voucher) session.getAttribute("voucher");
+            // Ghi nhận lượt sử dụng voucher (nếu có)
             if (voucher != null) {
-                try { new VoucherDAO().increaseUsedCount(voucher.getId()); } catch (Exception ignored) {}
+                try { new VoucherDAO().recordUsage(voucher.getId(), userId); } catch (Exception ignored) {}
             }
 
             // Cấp sách
             try {
                 BookshelfService bookshelfService = new BookshelfService();
                 WishlistService wishlistService = new WishlistService();
-                for (CartItem item : checkoutItems) {
+                for (CartItem item : cartItems) {
                     bookshelfService.addBookToBookshelf(userId, item.getEbook().getId());
                     wishlistService.removeFromWishlist(userId, item.getEbook().getId());
                 }
-                if (singleBookId != null) {
+                if (singleBookId != null && cartId != null) {
                     cartService.removeItem(cartId, singleBookId);
                     session.setAttribute("totalCartDetails",
                             cartService.getTotalCartDetails(cartId));
-                } else {
+                } else if (cartId != null) {
                     cartService.clearCart(cartId);
                     session.removeAttribute("totalCartDetails");
                 }
@@ -186,24 +205,13 @@ public class CheckoutController extends HttpServlet {
                 logger.error("{} Free order post-save sync error: ", LOG_PREFIX, e);
             }
 
-            // Dọn session
-            session.removeAttribute("checkoutMode");
-            session.removeAttribute("checkoutBookId");
-            session.removeAttribute("checkoutItems");
-            session.removeAttribute("checkoutCartId");
-            session.removeAttribute("checkoutTotal");
-            session.removeAttribute("voucher");
-            session.removeAttribute("discount");
-            session.removeAttribute("finalPrice");
-            session.removeAttribute("voucherError");
-
             // Gửi email
             try {
                 Map<Integer, PaymentMethod> pmMap = checkoutService.getAllPMs();
                 PaymentMethod pm = pmMap.get(pmId);
                 MailUtil.sendOrderConfirmation(
                         user.getEmail(), user.getUsername(),
-                        checkout, checkoutItems, pm
+                        checkout, cartItems, pm
                 );
             } catch (Exception e) {
                 logger.warn("{} Free order email send failed: {}", LOG_PREFIX, e.getMessage());
@@ -214,17 +222,23 @@ public class CheckoutController extends HttpServlet {
             Map<Integer, PaymentMethod> pmMap = checkoutService.getAllPMs();
             req.setAttribute("checkout",      checkout);
             req.setAttribute("paymentMethod", pmMap.get(pmId));
-            req.setAttribute("checkoutItems", checkoutItems);
+            req.setAttribute("checkoutItems", cartItems);
             req.getRequestDispatcher("/WEB-INF/views/payment-success.jsp").forward(req, resp);
             return;
         }
 
         // ── Thanh toán qua VNPAY ──
-        session.setAttribute("vnp_checkoutItems", checkoutItems);
+        session.setAttribute("vnp_checkoutItems", cartItems);
         session.setAttribute("vnp_totalAmount",   (long) finalTotal);
         session.setAttribute("vnp_userId",        userId);
         session.setAttribute("vnp_cartId",        cartId);
         session.setAttribute("vnp_singleBookId",  singleBookId);
+
+        if (voucher != null) {
+            session.setAttribute("vnp_voucherId", voucher.getId());
+        } else {
+            session.removeAttribute("vnp_voucherId");
+        }
 
         String txnRef = VNPayUtil.generateTxnRef();
         session.setAttribute("vnp_txnRef", txnRef);
@@ -243,18 +257,22 @@ public class CheckoutController extends HttpServlet {
         resp.sendRedirect(paymentUrl);
     }
 
-    private Integer resolveSingleBookId(HttpServletRequest req, HttpSession session) {
-        String mode        = req.getParameter("mode");
-        String bookIdParam = req.getParameter("bookId");
-        if ("single".equalsIgnoreCase(mode) && bookIdParam != null && !bookIdParam.isBlank())
-            return Integer.parseInt(bookIdParam);
-
-        Object sessionMode   = session.getAttribute(SESSION_CHECKOUT_MODE);
-        Object sessionBookId = session.getAttribute(SESSION_CHECKOUT_BOOK_ID);
-        if ("single".equals(String.valueOf(sessionMode)) && sessionBookId != null) {
-            if (sessionBookId instanceof Integer) return (Integer) sessionBookId;
-            if (sessionBookId instanceof String)  return Integer.parseInt((String) sessionBookId);
+    private List<CartItem> loadCartItems(int userId, boolean singleMode, String bookIdParam) {
+        Cart cart = cartService.getCartByUserID(userId);
+        if (cart == null) {
+            cartService.createCart(userId);
+            cart = cartService.getCartByUserID(userId);
         }
-        return null;
+
+        List<CartItem> cartItems = cartService.getCartItemsByCartID(userId, cart.getId());
+
+        if (singleMode) {
+            int singleBookId = Integer.parseInt(bookIdParam);
+            cartItems = cartItems.stream()
+                    .filter(ci -> ci.getEbook().getId() == singleBookId)
+                    .collect(Collectors.toList());
+        }
+
+        return cartItems;
     }
 }

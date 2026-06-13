@@ -52,13 +52,9 @@ public class BookDetailController extends HttpServlet {
             return;
         }
 
-        // ===== 3. CHECK LOGIN =====
+        // ===== 3. GET USER =====
         HttpSession session = request.getSession(false);
-        Integer userID = (session != null) ? (Integer) session.getAttribute("userID") : null;
-        if (userID == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
+        int userID = ((models.User) session.getAttribute("user")).getId();
 
         // ===== 4. LOAD WISHLIST =====
         List<Ebook> wishlist = wishlistService.getWishlistWithDetails(userID);
@@ -90,13 +86,13 @@ public class BookDetailController extends HttpServlet {
         }
 
         // ===== 8. SET ATTRIBUTES =====
-        request.setAttribute("ebook",            ebook);
-        request.setAttribute("wishlist",         wishlist);
-        request.setAttribute("wishlistIds",      wishlistIds);
-        request.setAttribute("similarEbooks",    similarEbooks);
-        request.setAttribute("discountResult",   discountResult);
-        request.setAttribute("discountService",  discountService);
-        request.setAttribute("similarDiscounts", similarDiscounts);
+        request.setAttribute("ebook",ebook);
+        request.setAttribute("wishlist",wishlist);
+        request.setAttribute("wishlistIds",wishlistIds);
+        request.setAttribute("similarEbooks",similarEbooks);
+        request.setAttribute("discountResult",discountResult);
+        request.setAttribute("discountService",discountService);
+        request.setAttribute("similarDiscounts",similarDiscounts);
 
         // ===== 9. FORWARD =====
         request.getRequestDispatcher("/WEB-INF/views/bookdetail.jsp")
