@@ -8,6 +8,11 @@
     </error-page>
 
     <error-page>
+        <error-code>403</error-code>
+        <location>/error/403.jsp</location>
+    </error-page>
+
+    <error-page>
         <error-code>500</error-code>
         <location>/error/500.jsp</location>
     </error-page>
@@ -22,4 +27,3 @@
         <session-timeout>20160</session-timeout>
     </session-config>
 </web-app>
-

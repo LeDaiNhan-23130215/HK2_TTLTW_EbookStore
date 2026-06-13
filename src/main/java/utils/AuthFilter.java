@@ -46,7 +46,7 @@ public class AuthFilter implements Filter {
 
             HttpSession newSession = req.getSession();
             newSession.setAttribute("redirectAfterLogin", fullURL);
-            newSession.setAttribute("toastWarning", "⚠️ Vui lòng đăng nhập để sử dụng chức năng này.");
+            newSession.setAttribute("toastWarning", "⚠️ Vui lòng đăng nhập để tiếp tục.");
 
             resp.sendRedirect(
                     req.getContextPath() + "/login"

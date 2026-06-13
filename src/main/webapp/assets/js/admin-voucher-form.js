@@ -363,9 +363,4 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-function confirmDeleteVoucher(id, code) {
-    if (confirm('Xóa mã giảm giá "' + code + '"?')) {
-        const ctx = document.body.getAttribute('data-context') || '';
-        window.location.href = ctx + '/admin-voucher?action=delete&id=' + id;
-    }
-}
+

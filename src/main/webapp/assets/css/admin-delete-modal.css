@@ -1,0 +1,53 @@
+/* ===========================================================
+   Admin Delete Modal — style giống ui-modal ở trang cart
+   =========================================================== */
+
+.ui-modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 10000;
+    display: flex; align-items: center; justify-content: center;
+    animation: uiModalFadeIn .18s ease;
+}
+@keyframes uiModalFadeIn { from { opacity:0; } to { opacity:1; } }
+
+.ui-modal-box {
+    background: #fff; border-radius: 16px;
+    padding: 32px 28px 24px; max-width: 400px; width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,.18);
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    animation: uiModalSlideUp .2s ease;
+}
+@keyframes uiModalSlideUp {
+    from { transform: translateY(20px); opacity:0; }
+    to   { transform: translateY(0);    opacity:1; }
+}
+
+.ui-modal-icon {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: #fef2f2;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; color: #e53e3e; margin-bottom: 4px;
+}
+.ui-modal-title { font-size:1.1rem; font-weight:700; color:#1a202c; text-align:center; margin:0; }
+.ui-modal-desc  { font-size:13px; color:#555; text-align:center; line-height:1.65; margin:0; }
+
+.ui-modal-actions {
+    display: flex; gap: 10px; margin-top: 8px;
+    width: 100%; justify-content: center; flex-wrap: wrap;
+}
+.ui-modal-cancel {
+    flex:1; min-width:120px; padding:11px 16px; border-radius:8px;
+    border:1px solid #ddd; background:#f7f7f7; color:#444;
+    font-size:14px; font-weight:500; cursor:pointer; transition:background .15s;
+}
+.ui-modal-cancel:hover { background:#efefef; }
+
+.ui-modal-confirm {
+    flex:1; min-width:120px; padding:11px 16px; border-radius:8px;
+    border:none; background:#e53e3e; color:#fff;
+    font-size:14px; font-weight:600; cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    transition:background .15s;
+}
+.ui-modal-confirm:hover { background:#c53030; }
