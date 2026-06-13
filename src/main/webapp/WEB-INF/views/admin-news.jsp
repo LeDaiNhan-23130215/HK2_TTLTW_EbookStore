@@ -9,6 +9,7 @@
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-news.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-form.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-delete-modal.css">
     <link rel="icon" href="${pageContext.request.contextPath}/assets/img/ebook-logo2.png"/>
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -222,8 +223,9 @@
                         </a>
 
                         <a href="${pageContext.request.contextPath}/admin-news?action=delete&id=${n.id}"
-                           class="btn btn-danger btn-sm"
-                           onclick="return confirm('Bạn chắc chắn muốn xóa?');">
+                           class="btn btn-danger btn-sm admin-delete-trigger"
+                           data-title="Xoá tin tức?"
+                           data-desc="Bạn có chắc muốn xoá tin tức '${n.title}'? Hành động này không thể hoàn tác.">
                             <i class="fa-solid fa-trash"></i> Xóa
                         </a>
                     </td>
@@ -236,6 +238,22 @@
 
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div id="adminDeleteModal" class="ui-modal-overlay" style="display:none;" aria-modal="true" role="dialog">
+    <div class="ui-modal-box">
+        <div class="ui-modal-icon"><i class="fa-solid fa-trash-can"></i></div>
+        <h3 class="ui-modal-title" id="adminDeleteModalTitle">Xác nhận xoá</h3>
+        <p class="ui-modal-desc" id="adminDeleteModalDesc"></p>
+        <div class="ui-modal-actions">
+            <button type="button" class="ui-modal-cancel" id="adminDeleteModalCancel">Quay lại</button>
+            <button type="button" class="ui-modal-confirm" id="adminDeleteModalConfirm">
+                <i class="fa-solid fa-trash-can"></i> Xoá
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="${pageContext.request.contextPath}/assets/js/admin-delete-modal.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/admin-darkmode.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/showForm.js"></script>
 

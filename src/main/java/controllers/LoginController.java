@@ -27,7 +27,7 @@ import java.util.Set;
 @WebServlet(name = "LoginController", value = "/login")
 public class LoginController extends HttpServlet {
 
-    private UserDAO     userDAO;
+    private UserDAO userDAO;
     private CartService cartService;
     private BookshelfService bookshelfService;
     private static final Logger logger     = LoggerFactory.getLogger(LoginController.class);
@@ -49,8 +49,8 @@ public class LoginController extends HttpServlet {
             conn.setDoOutput(true);
             String params = "secret=" + secretKey + "&response=" + token;
             conn.getOutputStream().write(params.getBytes());
-            Scanner sc       = new Scanner(conn.getInputStream());
-            String response  = sc.useDelimiter("\\A").next();
+            Scanner sc      = new Scanner(conn.getInputStream());
+            String response = sc.useDelimiter("\\A").next();
             boolean isSuccess = response.contains("\"success\": true");
             if (!isSuccess) logger.warn("{} reCAPTCHA failed. Google: {}", LOG_PREFIX, response);
             return isSuccess;
@@ -97,10 +97,9 @@ public class LoginController extends HttpServlet {
                 return;
 
             case OAUTH_ACCOUNT:
-                // Phát hiện sớm: account tồn tại nhưng là OAuth — hướng dẫn cụ thể
                 logger.warn("{} OAuth account attempted form-login: '{}'", LOG_PREFIX, input);
                 req.setAttribute("error_msg", "oauth_account");
-                req.setAttribute("oauthInput", input);  // giữ lại email để pre-fill nếu cần
+                req.setAttribute("oauthInput", input);
                 req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
                 return;
 
@@ -119,6 +118,7 @@ public class LoginController extends HttpServlet {
 
     private void loginSuccess(HttpServletRequest req, HttpServletResponse resp, User user)
             throws IOException {
+
         HttpSession session = req.getSession();
         session.setAttribute("user",     user);
         session.setAttribute("userID",   user.getId());
@@ -147,13 +147,55 @@ public class LoginController extends HttpServlet {
         session.setAttribute("toastSuccess", "✅ Đăng nhập thành công!");
 
         String redirectUrl = (String) session.getAttribute("redirectAfterLogin");
-        if (redirectUrl != null && !redirectUrl.isEmpty()) {
-            session.removeAttribute("redirectAfterLogin");
-            logger.info("{} User '{}' logged in, redirect to: {}", LOG_PREFIX, user.getUsername(), redirectUrl);
-            resp.sendRedirect(redirectUrl);
+        session.removeAttribute("redirectAfterLogin");
+
+        if ("admin".equalsIgnoreCase(user.getRole())) {
+            // Admin: dùng URL đã lưu nếu là trang admin, còn lại về dashboard
+            if (redirectUrl != null && !redirectUrl.isEmpty()
+                    && isSafeAdminRedirect(redirectUrl, req)) {
+                logger.info("{} Admin '{}' logged in, restoring admin URL: {}",
+                        LOG_PREFIX, user.getUsername(), redirectUrl);
+                resp.sendRedirect(redirectUrl);
+            } else {
+                logger.info("{} Admin '{}' logged in, redirecting to /admin-dashboard",
+                        LOG_PREFIX, user.getUsername());
+                resp.sendRedirect(req.getContextPath() + "/admin-dashboard");
+            }
         } else {
-            logger.info("{} User '{}' logged in, redirect to home", LOG_PREFIX, user.getUsername());
-            resp.sendRedirect(req.getContextPath() + "/home");
+            // User thường: dùng URL đã lưu nếu có (và an toàn), còn lại về /home
+            if (redirectUrl != null && !redirectUrl.isEmpty()
+                    && isSafeUserRedirect(redirectUrl, req)) {
+                logger.info("{} User '{}' logged in, restoring URL: {}",
+                        LOG_PREFIX, user.getUsername(), redirectUrl);
+                resp.sendRedirect(redirectUrl);
+            } else {
+                logger.info("{} User '{}' logged in, redirecting to /home",
+                        LOG_PREFIX, user.getUsername());
+                resp.sendRedirect(req.getContextPath() + "/home");
+            }
+        }
+    }
+
+    private boolean isSafeAdminRedirect(String url, HttpServletRequest req) {
+        try {
+            java.net.URI uri= new java.net.URI(url);
+            String path= uri.getPath();
+            String base= req.getContextPath();
+            return path != null && path.startsWith(base + "/admin");
+        } catch (java.net.URISyntaxException e) {
+            return false;
+        }
+    }
+
+    private boolean isSafeUserRedirect(String url, HttpServletRequest req) {
+        try {
+            java.net.URI uri= new java.net.URI(url);
+            String path= uri.getPath();
+            String base= req.getContextPath();
+            if (path == null) return false;
+            return path.startsWith(base + "/") && !path.startsWith(base + "/admin");
+        } catch (java.net.URISyntaxException e) {
+            return false;
         }
     }
 }

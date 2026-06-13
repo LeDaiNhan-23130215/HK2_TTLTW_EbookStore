@@ -62,7 +62,7 @@
             System Logs
         </a>
         <hr>
-        <a href="${pageContext.request.contextPath}/admin-login"
+        <a href="${pageContext.request.contextPath}/logout" class="logout">Đăng xuất</a>
            class="logout">
             Đăng xuất
         </a>

@@ -9,6 +9,7 @@
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-ebook.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-form.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-delete-modal.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
     <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/assets/img/ebook-logo2.png"/>
 
@@ -195,9 +196,10 @@
                             <i class="fa-solid fa-pen-to-square"></i> Sửa
                         </a>
 
-                        <a class="btn-Del"
-                           onclick="return confirm('Bạn có chắc muốn xóa ebook này?')"
-                           href="${pageContext.request.contextPath}/admin-ebook?action=delete&id=${e.id}">
+                        <a class="btn-Del admin-delete-trigger"
+                           href="${pageContext.request.contextPath}/admin-ebook?action=delete&id=${e.id}"
+                           data-title="Xoá ebook?"
+                           data-desc="Bạn có chắc muốn xoá ebook '${e.title}'? Hành động này không thể hoàn tác.">
                             <i class="fa-solid fa-trash"></i> Xóa
                         </a>
                     </td>
@@ -209,6 +211,22 @@
 
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div id="adminDeleteModal" class="ui-modal-overlay" style="display:none;" aria-modal="true" role="dialog">
+    <div class="ui-modal-box">
+        <div class="ui-modal-icon"><i class="fa-solid fa-trash-can"></i></div>
+        <h3 class="ui-modal-title" id="adminDeleteModalTitle">Xác nhận xoá</h3>
+        <p class="ui-modal-desc" id="adminDeleteModalDesc"></p>
+        <div class="ui-modal-actions">
+            <button type="button" class="ui-modal-cancel" id="adminDeleteModalCancel">Quay lại</button>
+            <button type="button" class="ui-modal-confirm" id="adminDeleteModalConfirm">
+                <i class="fa-solid fa-trash-can"></i> Xoá
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="${pageContext.request.contextPath}/assets/js/admin-delete-modal.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/admin-darkmode.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/showForm.js"></script>
 <script>
@@ -264,29 +282,29 @@
         const categorySelect = document.querySelector("select[name='categoryId']");
 
         if (!authorSelect || !categorySelect) {
-        console.error("Không tìm thấy select author/category");
-        return;
-    }
+            console.error("Không tìm thấy select author/category");
+            return;
+        }
 
         fetch("${pageContext.request.contextPath}/admin-ebook/form-data")
-        .then(res => res.json())
-        .then(data => {
+            .then(res => res.json())
+            .then(data => {
 
-        console.log("FORM DATA:", data);
+                console.log("FORM DATA:", data);
 
-        authorSelect.innerHTML = `<option value="">-- Chọn tác giả --</option>`;
-        categorySelect.innerHTML = `<option value="">-- Chọn thể loại --</option>`;
+                authorSelect.innerHTML = `<option value="">-- Chọn tác giả --</option>`;
+                categorySelect.innerHTML = `<option value="">-- Chọn thể loại --</option>`;
 
-            data.authors.forEach(a => {
-                authorSelect.add(new Option(a.label, a.id));
-            });
+                data.authors.forEach(a => {
+                    authorSelect.add(new Option(a.label, a.id));
+                });
 
-            data.categories.forEach(c => {
-                categorySelect.add(new Option(c.label, c.id));
-            });
+                data.categories.forEach(c => {
+                    categorySelect.add(new Option(c.label, c.id));
+                });
 
-    })
-        .catch(err => console.error("Load form data error:", err));
+            })
+            .catch(err => console.error("Load form data error:", err));
     });
 </script>
 </body>

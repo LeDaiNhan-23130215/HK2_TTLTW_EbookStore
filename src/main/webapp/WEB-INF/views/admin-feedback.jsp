@@ -8,6 +8,7 @@
     <meta charset="UTF-8">
     <title>Admin - Quản lý Feedback</title>
     <link rel="stylesheet" href="assets/css/admin-feedback.css" />
+    <link rel="stylesheet" href="assets/css/admin-delete-modal.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="assets/img/ebook-logo2.png" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
@@ -48,37 +49,37 @@
     </script>
 </head>
 <body>
-    <aside class="sidebar">
-        <div class="sidebar-logo"><h2>Ebook Admin</h2></div>
-        <nav class="sidebar-nav">
-            <a href="${pageContext.request.contextPath}/admin-dashboard">Dashboard</a>
-            <a href="${pageContext.request.contextPath}/admin-ebook">Ebook</a>
-            <a href="${pageContext.request.contextPath}/admin-author">Tác giả</a>
-            <a href="${pageContext.request.contextPath}/admin-category">Danh mục</a>
-            <a href="${pageContext.request.contextPath}/admin-user">Người dùng</a>
-            <a href="${pageContext.request.contextPath}/admin-payment">Thanh toán</a>
-            <a href="${pageContext.request.contextPath}/admin-banner">Banner</a>
-            <a href="${pageContext.request.contextPath}/admin-news">Tin tức</a>
-            <a href="${pageContext.request.contextPath}/admin-review">Review</a>
-            <a href="${pageContext.request.contextPath}/admin-feedback" class="active">Feedback</a>
-            <a href="${pageContext.request.contextPath}/admin-discount">Giảm giá</a>
-            <a href="${pageContext.request.contextPath}/admin-voucher">Mã giảm giá</a>
-            <a href="${pageContext.request.contextPath}/admin-logs">
-                System Logs
-            </a>
-            <hr>
-            <a href="${pageContext.request.contextPath}/admin-login" class="logout">Đăng xuất</a>
-        </nav>
-    </aside>
+<aside class="sidebar">
+    <div class="sidebar-logo"><h2>Ebook Admin</h2></div>
+    <nav class="sidebar-nav">
+        <a href="${pageContext.request.contextPath}/admin-dashboard">Dashboard</a>
+        <a href="${pageContext.request.contextPath}/admin-ebook">Ebook</a>
+        <a href="${pageContext.request.contextPath}/admin-author">Tác giả</a>
+        <a href="${pageContext.request.contextPath}/admin-category">Danh mục</a>
+        <a href="${pageContext.request.contextPath}/admin-user">Người dùng</a>
+        <a href="${pageContext.request.contextPath}/admin-payment">Thanh toán</a>
+        <a href="${pageContext.request.contextPath}/admin-banner">Banner</a>
+        <a href="${pageContext.request.contextPath}/admin-news">Tin tức</a>
+        <a href="${pageContext.request.contextPath}/admin-review">Review</a>
+        <a href="${pageContext.request.contextPath}/admin-feedback" class="active">Feedback</a>
+        <a href="${pageContext.request.contextPath}/admin-discount">Giảm giá</a>
+        <a href="${pageContext.request.contextPath}/admin-voucher">Mã giảm giá</a>
+        <a href="${pageContext.request.contextPath}/admin-logs">
+            System Logs
+        </a>
+        <hr>
+        <a href="${pageContext.request.contextPath}/admin-login" class="logout">Đăng xuất</a>
+    </nav>
+</aside>
 
-    <div class="main-content">
-        <header class="topbar">
-            <div class="topbar-title">Quản lý Feedback</div>
-            <button id="toggle-theme">🌙 Dark Mode</button>
-        </header>
+<div class="main-content">
+    <header class="topbar">
+        <div class="topbar-title">Quản lý Feedback</div>
+        <button id="toggle-theme">🌙 Dark Mode</button>
+    </header>
 
-        <section class="table-section">
-            <table id="activityTable" class="table table-striped table-bordered">
+    <section class="table-section">
+        <table id="activityTable" class="table table-striped table-bordered">
             <thead>
             <tr>
                 <th>ID</th>
@@ -121,9 +122,10 @@
                             <i class="fa-solid fa-eye"></i> Xem
                         </a>
 
-                        <a class="btn btn-sm btn-danger"
+                        <a class="btn btn-sm btn-danger admin-delete-trigger"
                            href="${pageContext.request.contextPath}/admin-feedback?action=delete&id=${f.id}"
-                           onclick="return confirm('Bạn có chắc muốn xóa feedback này?')">
+                           data-title="Xoá feedback?"
+                           data-desc="Bạn có chắc muốn xoá feedback này? Hành động này không thể hoàn tác.">
                             <i class="fa-solid fa-trash"></i> Xóa
                         </a>
                     </td>
@@ -131,9 +133,25 @@
             </c:forEach>
             </tbody>
         </table>
-        </section>
-    </div>
+    </section>
+</div>
 
-    <script src="assets/js/admin-darkmode.js"></script>
+<!-- Delete Confirmation Modal -->
+<div id="adminDeleteModal" class="ui-modal-overlay" style="display:none;" aria-modal="true" role="dialog">
+    <div class="ui-modal-box">
+        <div class="ui-modal-icon"><i class="fa-solid fa-trash-can"></i></div>
+        <h3 class="ui-modal-title" id="adminDeleteModalTitle">Xác nhận xoá</h3>
+        <p class="ui-modal-desc" id="adminDeleteModalDesc"></p>
+        <div class="ui-modal-actions">
+            <button type="button" class="ui-modal-cancel" id="adminDeleteModalCancel">Quay lại</button>
+            <button type="button" class="ui-modal-confirm" id="adminDeleteModalConfirm">
+                <i class="fa-solid fa-trash-can"></i> Xoá
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="assets/js/admin-delete-modal.js"></script>
+<script src="assets/js/admin-darkmode.js"></script>
 </body>
 </html>

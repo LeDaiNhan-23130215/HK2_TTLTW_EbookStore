@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
     <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/assets/img/ebook-logo2.png" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-confirm.css"/>
 </head>
 
 <body>
@@ -46,7 +47,7 @@
             System Logs
         </a>
         <hr>
-        <a href="${pageContext.request.contextPath}/admin-login" class="logout">Đăng xuất</a>
+        <a href="${pageContext.request.contextPath}/logout" class="logout">Đăng xuất</a>
     </nav>
 </aside>
 
@@ -106,6 +107,21 @@
         </div>
     </section>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div id="confirmModalOverlay" class="confirm-modal-overlay">
+    <div class="confirm-modal-box">
+        <div class="confirm-modal-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <p class="confirm-modal-title">Xác nhận xóa</p>
+        <p id="confirmModalMessage" class="confirm-modal-message"></p>
+        <div class="confirm-modal-actions">
+            <button type="button" class="confirm-modal-cancel" onclick="closeConfirmModal()">Hủy</button>
+            <button type="button" id="confirmModalConfirmBtn" class="confirm-modal-confirm">Xóa</button>
+        </div>
+    </div>
+</div>
+
+<script src="${pageContext.request.contextPath}/assets/js/admin-confirm.js"></script>
 
 <script src="assets/js/admin-darkmode.js"></script>
 <script src="assets/js/showForm.js"></script>

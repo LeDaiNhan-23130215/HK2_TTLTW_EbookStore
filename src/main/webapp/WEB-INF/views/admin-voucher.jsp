@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-category.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-form.css"/>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-voucher.css"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/admin-delete-modal.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
     <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/assets/img/ebook-logo2.png"/>
 
@@ -149,10 +150,12 @@
                                class="btn btn-sm btn-warning">
                                 <i class="fa-solid fa-pen"></i> Sửa
                             </a>
-                            <button type="button" class="btn btn-sm btn-danger"
-                                    onclick="confirmDeleteVoucher(${v.id}, '${v.code}')">
+                            <a href="${pageContext.request.contextPath}/admin-voucher?action=delete&id=${v.id}"
+                               class="btn btn-sm btn-danger admin-delete-trigger"
+                               data-title="Xoá mã giảm giá?"
+                               data-desc="Bạn có chắc muốn xoá mã giảm giá '${v.code}'? Hành động này không thể hoàn tác.">
                                 <i class="fa-solid fa-trash"></i> Xóa
-                            </button>
+                            </a>
                         </td>
                     </tr>
                 </c:forEach>
@@ -162,6 +165,22 @@
     </section>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div id="adminDeleteModal" class="ui-modal-overlay" style="display:none;" aria-modal="true" role="dialog">
+    <div class="ui-modal-box">
+        <div class="ui-modal-icon"><i class="fa-solid fa-trash-can"></i></div>
+        <h3 class="ui-modal-title" id="adminDeleteModalTitle">Xác nhận xoá</h3>
+        <p class="ui-modal-desc" id="adminDeleteModalDesc"></p>
+        <div class="ui-modal-actions">
+            <button type="button" class="ui-modal-cancel" id="adminDeleteModalCancel">Quay lại</button>
+            <button type="button" class="ui-modal-confirm" id="adminDeleteModalConfirm">
+                <i class="fa-solid fa-trash-can"></i> Xoá
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="${pageContext.request.contextPath}/assets/js/admin-delete-modal.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/admin-theme.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/admin-voucher-form.js"></script>
