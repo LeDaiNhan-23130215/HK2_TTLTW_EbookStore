@@ -12,9 +12,7 @@ import models.Ebook;
 import models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import services.CartService;
-import services.DiscountResult;
-import services.DiscountService;
+import services.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -23,9 +21,9 @@ import java.util.*;
 public class CartController extends HttpServlet {
 
     private CartService     cartService;
-    private BookshelfDAO    bookshelfDAO;
     private EbookDAO        ebookDAO;
     private DiscountService discountService;
+    private ImageServices imageServices;
     private static final Logger logger     = LoggerFactory.getLogger(CartController.class);
     private static final String LOG_PREFIX = "[CART_CONTROLLER]";
     public static final String GUEST_CART_KEY = "guestCart";
@@ -33,9 +31,9 @@ public class CartController extends HttpServlet {
     @Override
     public void init() throws ServletException {
         cartService     = new CartService();
-        bookshelfDAO    = new BookshelfDAO();
         ebookDAO        = new EbookDAO();
         discountService = new DiscountService();
+        imageServices = new ImageServices();
     }
 
     @Override
@@ -49,12 +47,13 @@ public class CartController extends HttpServlet {
             Map<Integer, Double> guestCart =
                     (Map<Integer, Double>) session.getAttribute(GUEST_CART_KEY);
             if (guestCart == null) guestCart = new LinkedHashMap<>();
-
+            Map<Integer, String> ebookThumbnails = new HashMap<>();
             List<CartItem> guestItems = new ArrayList<>();
             for (Map.Entry<Integer, Double> e : guestCart.entrySet()) {
                 Ebook ebook = ebookDAO.getEbookWithDetailsById(e.getKey());
                 if (ebook != null) {
                     guestItems.add(new CartItem(0, ebook, e.getValue()));
+                    ebookThumbnails.put(ebook.getId(), imageServices.getThumbnailByEbookId(ebook.getId()));
                 }
             }
 
@@ -66,6 +65,7 @@ public class CartController extends HttpServlet {
             req.setAttribute("guestItems",  guestItems);
             req.setAttribute("isGuest",     true);
             req.setAttribute("totalPrice",  guestTotal);
+            req.setAttribute("ebookThumbnails", ebookThumbnails);
             req.getRequestDispatcher("/WEB-INF/views/cart.jsp").forward(req, resp);
             return;
         }
@@ -73,7 +73,16 @@ public class CartController extends HttpServlet {
         int userId = user.getId();
         Cart cart  = getOrCreateCart(userId);
         List<CartItem> cartItems = cartService.getCartItemsByCartID(userId, cart.getId());
+        Map<Integer, String> ebookThumbnails = new HashMap<>();
 
+        for (CartItem item : cartItems) {
+            Ebook ebook = item.getEbook();
+            if (ebook != null) {
+                ebookThumbnails.put(ebook.getId(), imageServices.getThumbnailByEbookId(ebook.getId()));
+            }
+        }
+
+        req.setAttribute("ebookThumbnails", ebookThumbnails);
         enrichCartItems(cartItems, cart.getId(), null, null);
 
         double totalPrice = cartItems.stream().mapToDouble(CartItem::getPriceAtADD).sum();
@@ -82,6 +91,7 @@ public class CartController extends HttpServlet {
         req.setAttribute("cartItems",  cartItems);
         req.setAttribute("totalPrice", totalPrice);
         req.setAttribute("isGuest",    false);
+        req.setAttribute("ebookThumbnails", ebookThumbnails);
         req.getRequestDispatcher("/WEB-INF/views/cart.jsp").forward(req, resp);
     }
 

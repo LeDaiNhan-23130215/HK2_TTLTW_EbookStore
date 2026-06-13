@@ -159,4 +159,29 @@ public class BookshelfDetailDAO {
         }
         return false;
     }
+
+    public List<Integer> getBookIdsOfUserId(int userId) {
+        String sql = """
+                SELECT e.id
+                FROM bookshelfdetail bd
+                JOIN bookshelf b ON bd.bsID = b.id
+                JOIN ebook e ON bd.ebookID = e.id
+                WHERE b.userID = ?
+                """;
+        List<Integer> result = new ArrayList<>();
+
+        try (Connection con = DBConnection.getConnection();
+        PreparedStatement ps = con.prepareStatement(sql);) {
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()) {
+                result.add(rs.getInt(1));
+            }
+        } catch (Exception e) {
+            logger.error("{} Can't get owned ebook's ids for user id: {}", LOG_PREFIX, userId);
+            throw new RuntimeException("Can't get owned ebook's ids for user id: " + userId, e);
+        }
+        return result;
+    }
 }

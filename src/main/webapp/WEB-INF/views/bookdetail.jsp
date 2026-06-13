@@ -24,6 +24,7 @@
 
   <script>
     function showTab(index) {
+
       const buttons = document.querySelectorAll(".tab-btn");
       const contents = document.querySelectorAll(".tab-content");
 
@@ -41,7 +42,6 @@
 
   <div class="container">
     <div class="product-wrapper">
-
       <!-- LEFT: IMAGE -->
       <div class="col-left gallery-section">
         <div class="main-image-box">
@@ -118,6 +118,8 @@
             </form>
 
             <!-- READ SAMPLE -->
+            <c:choose>
+            <c:when test="${isOwned}">
             <a href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&format=epub">
               Đọc EPUB
             </a>
@@ -125,6 +127,18 @@
             <a href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&format=pdf">
               Đọc PDF
             </a>
+            </c:when>
+
+            <c:otherwise>
+              <a href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&format=epub">
+                Đọc thử EPUB
+              </a>
+
+              <a href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&format=pdf">
+                Đọc thử PDF
+              </a>
+            </c:otherwise>
+            </c:choose>
 
             <!-- ❤️ WISHLIST -->
             <c:choose>
@@ -165,8 +179,7 @@
           <a class="similar-item"
              href="${pageContext.request.contextPath}/bookdetail?id=${e.id}"
           >
-
-            <img src="${similarThumbnas[e.id]}" alt="${e.title}" class="thumbnail">
+            <img src="${similarThumbnails[e.id]}" alt="${e.title}" class="thumbnail">
 
             <div class="similar-info">
               <span class="title">${e.title}</span>

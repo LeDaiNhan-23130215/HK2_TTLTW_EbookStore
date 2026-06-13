@@ -9,16 +9,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import models.Ebook;
 import models.Image;
-import services.DiscountResult;
-import services.DiscountService;
-import services.ImageServices;
-import services.WishlistService;
+import services.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @WebServlet("/bookdetail")
 public class BookDetailController extends HttpServlet {
@@ -55,10 +49,13 @@ public class BookDetailController extends HttpServlet {
             return;
         }
 
-        String thumbnail = imageServices.getThumbnailByEbookId(ebookId);
 
         HttpSession session = request.getSession(false);
         models.User user = (session != null) ? (models.User) session.getAttribute("user") : null;
+        String thumbnail = imageServices.getThumbnailByEbookId(ebookId);
+
+        Set<Integer> ownedEbooks = (session != null) ? (Set<Integer>) session.getAttribute("ownedEbooks") : null;
+        boolean isOwned = ownedEbooks != null && ownedEbooks.contains(ebookId);
         int userID = (user != null) ? user.getId() : 0;
 
         List<Ebook> wishlist = wishlistService.getWishlistWithDetails(userID);
@@ -85,10 +82,9 @@ public class BookDetailController extends HttpServlet {
             DiscountResult r = discountService.calculateBestDiscount(e.getId(), e.getPrice());
             if (r.hasDiscount()) {
                 similarDiscounts.put(e.getId(), r);
-                similarThumbnails.put(e.getId(), imageServices.getThumbnailByEbookId(e.getId()));
             }
+            similarThumbnails.put(e.getId(), imageServices.getThumbnailByEbookId(e.getId()));
         }
-
 
         request.setAttribute("ebook", ebook);
         request.setAttribute("thumbnail", thumbnail);
@@ -99,7 +95,7 @@ public class BookDetailController extends HttpServlet {
         request.setAttribute("discountResult",discountResult);
         request.setAttribute("discountService",discountService);
         request.setAttribute("similarDiscounts",similarDiscounts);
-
+        request.setAttribute("isOwned", isOwned);
         // ===== 9. FORWARD =====
         request.getRequestDispatcher("/WEB-INF/views/bookdetail.jsp")
                 .forward(request, response);

@@ -11,12 +11,10 @@ import jakarta.servlet.http.HttpSession;
 import models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import services.BookshelfService;
-import services.CartService;
-import services.CheckoutService;
-import services.WishlistService;
+import services.*;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,6 +24,7 @@ public class CheckoutController extends HttpServlet {
 
     private CheckoutService checkoutService;
     private CartService cartService;
+    private ImageServices imageServices;
 
     private static final Logger logger = LoggerFactory.getLogger(CheckoutController.class);
     private static final String LOG_PREFIX = "[CHECKOUT_CONTROLLER]";
@@ -37,6 +36,7 @@ public class CheckoutController extends HttpServlet {
     public void init() throws ServletException {
         cartService = new CartService();
         checkoutService = new CheckoutService();
+        imageServices = new ImageServices();
     }
 
     @Override
@@ -91,6 +91,14 @@ public class CheckoutController extends HttpServlet {
             session.removeAttribute(SESSION_CHECKOUT_BOOK_ID);
         }
 
+        Map<Integer, String> ebookThumbnails = new HashMap<>();
+        for (CartItem item : cartItems) {
+            Ebook ebook = item.getEbook();
+            if (ebook != null) {
+                ebookThumbnails.put(ebook.getId(), imageServices.getThumbnailByEbookId(ebook.getId()));
+            }
+        }
+
         double totalPrice = 0;
         for (CartItem ci : cartItems) {
             totalPrice += ci.getPriceAtADD();
@@ -99,7 +107,7 @@ public class CheckoutController extends HttpServlet {
         req.setAttribute("cart", cart);
         req.setAttribute("cartItems", cartItems);
         req.setAttribute("totalPrice", totalPrice);
-
+        req.setAttribute("ebookThumbnails", ebookThumbnails);
         req.getRequestDispatcher("/WEB-INF/views/payment.jsp").forward(req, resp);
     }
 

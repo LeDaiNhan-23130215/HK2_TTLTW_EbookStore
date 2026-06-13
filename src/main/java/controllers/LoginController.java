@@ -7,9 +7,11 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import models.Cart;
+import models.Ebook;
 import models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import services.BookshelfService;
 import services.CartService;
 import utils.ActivityType;
 import utils.MailUtil;
@@ -17,13 +19,17 @@ import utils.MailUtil;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 @WebServlet(name = "LoginController", value = "/login")
 public class LoginController extends HttpServlet {
 
     private UserDAO     userDAO;
     private CartService cartService;
+    private BookshelfService bookshelfService;
     private static final Logger logger     = LoggerFactory.getLogger(LoginController.class);
     private static final String LOG_PREFIX = "[LOGIN_CONTROLLER]";
 
@@ -31,6 +37,7 @@ public class LoginController extends HttpServlet {
     public void init() throws ServletException {
         userDAO     = new UserDAO();
         cartService = new CartService();
+        bookshelfService = new BookshelfService();
     }
 
     private boolean verifyRecaptcha(String token) {
@@ -119,6 +126,10 @@ public class LoginController extends HttpServlet {
         session.setAttribute("email",    user.getEmail());
         session.setAttribute("phoneNum", user.getPhoneNum());
         session.setAttribute("role",     user.getRole());
+
+        List<Integer> ownedEbookIds = bookshelfService.getBookIdsOfUserId(user.getId());
+        Set<Integer> ownedEbooks = new HashSet<>(ownedEbookIds);
+        session.setAttribute("ownedEbooks", ownedEbooks);
 
         Cart cart = cartService.getCartByUserID(user.getId());
         CartController.mergeGuestCartToUser(session, cartService,
