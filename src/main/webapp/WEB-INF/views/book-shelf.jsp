@@ -58,10 +58,19 @@
                       />
                       <h3>${book.title}</h3>
 
-                      <a href="${pageContext.request.contextPath}/read-book?id=${book.id}"
-                         class="btn-read">
-                          📖 Đọc sách
-                      </a>
+                      <div class="read-actions">
+                          <a href="${pageContext.request.contextPath}/read-book?id=${book.id}&format=pdf"
+                             class="btn-read-pdf">
+                              <i class="fa-solid fa-file-pdf"></i>
+                              PDF
+                          </a>
+
+                          <a href="${pageContext.request.contextPath}/read-book?id=${book.id}&format=epub"
+                             class="btn-read-epub">
+                              <i class="fa-solid fa-book-open"></i>
+                              EPUB
+                          </a>
+                      </div>
                   </div>
               </c:forEach>
           </div>

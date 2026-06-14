@@ -116,55 +116,6 @@ body {
   color: #fff;
 }
 
-/* ================== READ SAMPLE ROW ================== */
-.read-sample-group {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-/* Read  */
-.btn-docthu {
-  height: 34px;
-  padding: 0 14px;
-  border-radius: 6px;
-  font-weight: 500;
-  font-size: 0.85rem;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  white-space: nowrap;
-  text-decoration: none;
-  background: #eaf4ff;
-  border: 1px solid #bfdcff;
-  color: #007bff;
-  transition: background .15s, color .15s, border-color .15s;
-}
-
-.btn-docthu i {
-  font-size: 0.85rem;
-}
-
-.btn-docthu:hover {
-  background: #007bff;
-  border-color: #007bff;
-  color: #fff;
-}
-
-@media (max-width: 768px) {
-  .read-sample-group {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .btn-docthu {
-    width: 100%;
-    height: 44px;
-  }
-}
 
 /* ================== WISHLIST ================== */
 .favorite-btn {

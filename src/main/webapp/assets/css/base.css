@@ -206,3 +206,49 @@ body {
 .price-box .current-price.price--final {
   color: #e53935 !important;
 }
+
+.read-actions {
+  width: 100%;
+  max-width: 540px;
+  display: flex;
+  gap: 12px;
+  margin: 15px 0 25px;
+}
+
+.read-actions a {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 0;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  transition: all 0.25s ease;
+}
+
+.btn-read-pdf {
+  background: linear-gradient(135deg, #7f1d1d, #b91c1c);
+  box-shadow: 0 4px 12px rgba(127, 29, 29, 0.22);
+}
+
+.btn-read-pdf:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #991b1b, #dc2626);
+  box-shadow: 0 10px 22px rgba(127, 29, 29, 0.5);
+}
+
+.btn-read-epub {
+  background: linear-gradient(135deg, #6d28d9, #7c3aed);
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.22);
+}
+
+.btn-read-epub:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+  box-shadow: 0 10px 22px rgba(109, 40, 217, 0.5);
+}

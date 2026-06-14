@@ -106,27 +106,32 @@
         <div class="read-sample-group">
           <c:choose>
             <c:when test="${isOwned}">
-              <a class="btn-docthu" href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&format=epub">
+              <div class="read-actions">
+              <a class="btn-read-epub" href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&format=epub">
                 <i class="fa-solid fa-book-open"></i> Đọc EPUB
               </a>
 
-              <a class="btn-docthu" href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&format=pdf">
+              <a class="btn-read-pdf" href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&format=pdf">
                 <i class="fa-solid fa-file-pdf"></i> Đọc PDF
               </a>
+              </div>
             </c:when>
 
             <c:otherwise>
-              <a class="btn-docthu" href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&format=epub">
+              <div class="read-actions">
+              <a class="btn-read-epub" href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&format=epub">
                 <i class="fa-solid fa-book-open"></i> Đọc thử EPUB
               </a>
 
-              <a class="btn-docthu" href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&format=pdf">
+              <a class="btn-read-pdf" href="${pageContext.request.contextPath}/readbook?id=${ebook.id}&format=pdf">
                 <i class="fa-solid fa-file-pdf"></i> Đọc thử PDF
               </a>
+              </div>
             </c:otherwise>
           </c:choose>
         </div>
 
+        <c:if test="${not isOwned}">
         <div class="btn-group">
 
           <!-- ADD TO CART -->
@@ -170,8 +175,8 @@
               </button>
             </c:otherwise>
           </c:choose>
-
         </div>
+        </c:if>
       </div>
 
     </div>
