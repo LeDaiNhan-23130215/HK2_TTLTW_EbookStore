@@ -285,9 +285,7 @@
                     try {
                         document.getElementById("page-info").textContent = "Đang tải...";
 
-                        const response = await fetch(
-                            '${pageContext.request.contextPath}/stream-book?id=${ebook.id}&format=${format}'
-                        );
+                        const response = await fetch('${file.fileLink}');
                         if(!response.ok) throw new Error("HTTP error " + response.status);
 
                         const buffer = await response.arrayBuffer();
