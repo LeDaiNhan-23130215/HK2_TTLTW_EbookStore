@@ -21,7 +21,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
     </c:if>
-
+    <c:set var="watermarkText" value="${userEmail}" />
     <c:if test="${fmt eq 'pdf'}">
         <script type="module">
             import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs';
@@ -147,6 +147,22 @@
             font-size: 16px;
             color: #fff;
         }
+
+        .reader-container,
+        canvas {
+            user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .watermark {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 99999;
+            opacity: 0.08;
+            font-size: 28px;
+        }
     </style>
 </head>
 <body>
@@ -187,6 +203,7 @@
             </div>
 
             <script type="module">
+                const watermarkText = '${watermarkText}';
                 const pdfUrl = '${pageContext.request.contextPath}/stream-book?id=${ebook.id}&format=${format}';
                 let pdfDoc = null,
                     pageNum = 1,
@@ -198,31 +215,39 @@
 
                 const previewLimit = ${previewPages};
 
+                function drawWatermark(ctx, canvas, text) {
+                    ctx.save();
+                    ctx.globalAlpha = 0.08;
+                    ctx.font = '28px Arial';
+                    ctx.fillStyle = 'red';
+                    ctx.fillText(text, 10, 50)
+                    ctx.restore();
+                }
+
                 async function renderPage(num) {
                     pageRendering = true;
                     try {
                         const page = await pdfDoc.getPage(num);
-                        const viewport = page.getViewport({ scale: scale });
-
+                        const viewport = page.getViewport({ scale });
                         canvas.height = viewport.height;
-                        canvas.width = viewport.width;
+                        canvas.width  = viewport.width;
 
-                        const renderContext = { canvasContext: ctx, viewport: viewport };
-                        await page.render(renderContext).promise;
+                        await page.render({ canvasContext: ctx, viewport }).promise;
+
+                        drawWatermark(ctx, canvas, watermarkText);   <%-- ← gọi sau khi render xong --%>
+
                     } catch(e) {
                         console.error("Lỗi kết xuất trang:", e);
                     }
 
                     pageRendering = false;
-
                     if (pageNumPending !== null) {
                         renderPage(pageNumPending);
                         pageNumPending = null;
                     }
 
-                    document.getElementById('page-info').textContent = `Trang \${num} / \${pdfDoc.numPages}`;
+                    document.getElementById('page-info').textContent = `Trang ${num} / ${pdfDoc.numPages}`;
                     document.getElementById('prev-btn').disabled = (num <= 1);
-
                     document.getElementById('next-btn').disabled = (num >= pdfDoc.numPages);
                 }
 
@@ -285,10 +310,8 @@
                     try {
                         document.getElementById("page-info").textContent = "Đang tải...";
 
-                        const response = await fetch(
-                            '${pageContext.request.contextPath}/stream-book?id=${ebook.id}&format=${format}'
-                        );
-                        if(!response.ok) throw new Error("HTTP error " + response.status);
+                        const response = await fetch('${file.fileLink}');
+                        if (!response.ok) throw new Error("HTTP error " + response.status);
 
                         const buffer = await response.arrayBuffer();
                         const book = ePub(buffer);
@@ -298,7 +321,8 @@
                             height: "100%",
                             spread: "none",
                             flow: "paginated",
-                            manager: "default"
+                            manager: "default",
+                            allowScriptedContent: true
                         });
 
                         await book.ready;
@@ -365,6 +389,39 @@
         </c:otherwise>
     </c:choose>
 </div>
+<script>
+    const watermarkText = '${watermarkText}';
 
+    (function buildWatermarkOverlay(text) {
+        if (!text) return;
+        const div = document.createElement('div');
+        div.className = 'watermark';
+        const safe = text.replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
+        div.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                <defs>
+                    <pattern id="wm-pat" x="0" y="0" width="260" height="160"
+                             patternUnits="userSpaceOnUse"
+                             patternTransform="rotate(-25)">
+                        <text x="10" y="90"
+                              font-family="Arial" font-size="22"
+                              fill="red" opacity="1">${safe}</text>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#wm-pat)"/>
+            </svg>`;
+        document.body.appendChild(div);
+    })(watermarkText);
+
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'F12') e.preventDefault();
+        if (e.ctrlKey && ['c','s','u','p'].includes(e.key)) e.preventDefault();
+    });
+    document.addEventListener('visibilitychange', () => {
+        document.getElementById('main-container').style.filter =
+            document.hidden ? 'blur(20px)' : 'none';
+    });
+</script>
 </body>
 </html>

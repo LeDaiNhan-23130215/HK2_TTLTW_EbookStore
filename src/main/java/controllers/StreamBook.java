@@ -13,6 +13,7 @@ import services.FileServices;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.http.HttpResponse;
@@ -103,7 +104,6 @@ public class StreamBook extends HttpServlet {
             String range = rangeHeader.substring(6);
             String parts[] = range.split("-");
 
-
             try {
                 start = Long.parseLong(parts[0]);
                 if (parts.length > 1 && parts[1].isBlank()) {
@@ -130,8 +130,8 @@ public class StreamBook extends HttpServlet {
 
         if (format.equalsIgnoreCase("pdf")) {
             response.setContentType("application/pdf");
-        } else if (format.equalsIgnoreCase("epub")) {
-            response.setContentType("application/epub+zip");
+//        } else if (format.equalsIgnoreCase("epub")) {
+//            response.setContentType("application/epub+zip");
         } else {
             response.setContentType("applicaion/ocet-stream");
         }
@@ -146,8 +146,16 @@ public class StreamBook extends HttpServlet {
 
 
         //Streaming
+        HttpURLConnection conn =
+                (HttpURLConnection) url.openConnection();
 
-        try (InputStream input = url.openStream();
+        conn.setRequestProperty(
+                "Range",
+                "bytes=" + start + "-" + end
+        );
+
+
+        try (InputStream input = conn.getInputStream();
              OutputStream output = response.getOutputStream();) {
             input.skip(start);
 

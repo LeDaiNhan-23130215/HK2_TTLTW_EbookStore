@@ -19,10 +19,12 @@ import java.util.Set;
 public class ReadbookController extends HttpServlet {
     private AdminServices adminService;
     private BookshelfService bookshelfService;
+    private FileServices fileServices;
     @Override
     public void init() {
         adminService = new AdminServices();
         bookshelfService = new BookshelfService();
+        fileServices = new FileServices();
     }
 
     @Override
@@ -57,9 +59,14 @@ public class ReadbookController extends HttpServlet {
             isOwned = bookshelfService.userOwnsBook(user.getId(), ebookId);
         }
 
+        if (format.equalsIgnoreCase("epub")) {
+            File file = fileServices.getFileByFormat(ebookId, "epub");
+            request.setAttribute("file",file);
+        }
         request.setAttribute("isOwned", isOwned);
         request.setAttribute("ebook", ebook);
         request.setAttribute("format", format);
+        request.setAttribute("userEmail", user.getEmail());
         request.getRequestDispatcher("/WEB-INF/views/readbook.jsp")
                 .forward(request, response);
     }
