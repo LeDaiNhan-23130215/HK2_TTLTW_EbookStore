@@ -15,7 +15,7 @@
     </c:choose>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <c:set var="fmt" value="${fn:toLowerCase(file.fileFormat)}" />
+    <c:set var="fmt" value="${fn:toLowerCase(format)}" />
 
     <c:if test="${fmt eq 'epub'}">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -187,7 +187,7 @@
             </div>
 
             <script type="module">
-                const pdfUrl = '${file.fileLink}';
+                const pdfUrl = '${pageContext.request.contextPath}/stream-book?id=${ebook.id}&format=${format}';
                 let pdfDoc = null,
                     pageNum = 1,
                     pageRendering = false,
@@ -285,7 +285,9 @@
                     try {
                         document.getElementById("page-info").textContent = "Đang tải...";
 
-                        const response = await fetch('${file.fileLink}');
+                        const response = await fetch(
+                            '${pageContext.request.contextPath}/stream-book?id=${ebook.id}&format=${format}'
+                        );
                         if(!response.ok) throw new Error("HTTP error " + response.status);
 
                         const buffer = await response.arrayBuffer();
@@ -355,7 +357,7 @@
 
         <c:otherwise>
             <div style="padding:40px; text-align:center; color: #ff6b6b;">
-                Định dạng tập tin (${file.fileFormat}) không được hệ thống hỗ trợ.
+                Định dạng tập tin (${format}) không được hệ thống hỗ trợ.
             </div>
             <script>
                 document.getElementById('page-info').textContent = "Lỗi định dạng";
