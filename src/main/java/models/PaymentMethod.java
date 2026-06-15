@@ -1,6 +1,8 @@
 package models;
 
-public class PaymentMethod extends Base {
+import java.io.Serializable;
+
+public class PaymentMethod extends Base implements Serializable {
     private String name;
     private String type;
     private String description;

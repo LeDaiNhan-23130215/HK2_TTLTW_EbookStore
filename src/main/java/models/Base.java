@@ -1,6 +1,8 @@
 package models;
 
-public abstract class Base {
+import java.io.Serializable;
+
+public abstract class Base implements Serializable {
     protected int id;
 
     public Base(int id) {

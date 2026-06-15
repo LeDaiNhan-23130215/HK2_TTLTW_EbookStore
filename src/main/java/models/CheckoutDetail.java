@@ -1,6 +1,8 @@
 package models;
 
-public class CheckoutDetail extends Base {
+import java.io.Serializable;
+
+public class CheckoutDetail extends Base implements Serializable {
     private int checkoutID;
     private int bookID;
     private double price;

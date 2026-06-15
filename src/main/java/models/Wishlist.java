@@ -1,8 +1,9 @@
 package models;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class Wishlist extends Base {
+public class Wishlist extends Base implements Serializable {
     private int userID;
     private LocalDateTime createdAt;
 

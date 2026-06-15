@@ -1,9 +1,10 @@
 package models;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
-public class Bookshelf {
+public class Bookshelf implements Serializable {
     private int id;
     private int userId;
     private LocalDateTime addedAt;

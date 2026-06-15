@@ -1,6 +1,8 @@
 package models;
 
-public class CartDetail extends Base{
+import java.io.Serializable;
+
+public class CartDetail extends Base implements Serializable {
     private int cartID;
     private int bookID;
     private double price;

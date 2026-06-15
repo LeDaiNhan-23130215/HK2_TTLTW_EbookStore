@@ -1,8 +1,9 @@
 package models;
 
+import java.io.Serializable;
 import java.sql.Date;
 
-public class Review extends Base {
+public class Review extends Base implements Serializable {
     private int userId;
     private int ebookId;
     private int rating;

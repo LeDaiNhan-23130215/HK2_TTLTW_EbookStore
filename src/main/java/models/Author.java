@@ -1,6 +1,8 @@
 package models;
 
-public class Author extends Base {
+import java.io.Serializable;
+
+public class Author extends Base implements Serializable {
     private String authorName;
     private String authorDetail;
 

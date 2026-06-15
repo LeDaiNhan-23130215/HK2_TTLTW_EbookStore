@@ -1,6 +1,8 @@
 package models;
 
-public class News extends Base {
+import java.io.Serializable;
+
+public class News extends Base implements Serializable {
     private String title;
     private String content;
     private String imgURL;

@@ -1,9 +1,10 @@
 package models;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
-public class Cart extends Base {
+public class Cart extends Base implements Serializable {
     private int userID;
     private Timestamp createdAt;
 

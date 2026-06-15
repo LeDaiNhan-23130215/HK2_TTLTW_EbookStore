@@ -1,6 +1,8 @@
 package models;
 
-public class Banner extends Base {
+import java.io.Serializable;
+
+public class Banner extends Base implements Serializable {
     private String url;
     private String position;
     private String startDate;

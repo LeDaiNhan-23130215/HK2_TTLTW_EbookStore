@@ -1,6 +1,8 @@
 package models;
 
-public class Image extends Base {
+import java.io.Serializable;
+
+public class Image extends Base implements Serializable {
     private String imgName;
     private String imgLink;
     private String imgStatus;

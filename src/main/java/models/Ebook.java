@@ -2,11 +2,12 @@ package models;
 
 import java.awt.*;
 import java.io.File;
+import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 
-public class Ebook extends Base {
+public class Ebook extends Base  implements Serializable {
     private String title;
     private double price;
     private String description;

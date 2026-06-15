@@ -1,8 +1,9 @@
 package models;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class BookshelfDetail {
+public class BookshelfDetail implements Serializable {
     private int id;
     private int bookshelfId;
     private int ebookId;

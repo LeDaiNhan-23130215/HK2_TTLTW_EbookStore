@@ -1,8 +1,9 @@
 package models;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class PasswordReset extends Base {
+public class PasswordReset extends Base implements Serializable {
     private int userID;
     private String tokenHash;
     private Timestamp createdAt;

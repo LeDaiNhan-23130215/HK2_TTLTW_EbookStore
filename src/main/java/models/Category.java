@@ -1,6 +1,8 @@
 package models;
 
-public class Category extends Base {
+import java.io.Serializable;
+
+public class Category extends Base implements Serializable {
     private String name;
     private String description;
     private String icon;

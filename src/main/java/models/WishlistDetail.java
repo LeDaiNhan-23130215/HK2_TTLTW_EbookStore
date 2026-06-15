@@ -1,8 +1,9 @@
 package models;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
-public class WishlistDetail extends Base {
+public class WishlistDetail extends Base implements Serializable {
     private int wishlistID;
     private int bookID;
     private LocalDateTime addedAt;

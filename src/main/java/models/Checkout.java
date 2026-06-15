@@ -1,8 +1,9 @@
 package models;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class Checkout extends Base {
+public class Checkout extends Base implements Serializable {
     private int userID;
     private int paymentMethodID;
     private double totalAmount;

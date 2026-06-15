@@ -1,6 +1,8 @@
 package models;
 
-public class Feedback extends Base{
+import java.io.Serializable;
+
+public class Feedback extends Base implements Serializable {
     private int userID;
     private String message;
     private int status;
