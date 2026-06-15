@@ -107,34 +107,17 @@ public class AdminRoleFilter implements Filter {
     }
 
     private boolean hasValidReferer(HttpServletRequest req, String referer, String contextPath) {
-        if (referer == null || referer.isEmpty()) {
-            return false;
-        }
+        if (referer == null || referer.isEmpty()) return false;
 
         try {
             URI refUri = new URI(referer);
-
-            String refScheme = refUri.getScheme();
-            String refHost   = refUri.getHost();
-            String refPath   = refUri.getPath();
-
-            if (refScheme == null || refHost == null || refPath == null) {
-                return false;
-            }
-
-            int refPort = refUri.getPort();
-            if (refPort == -1) {
-                refPort = "https".equalsIgnoreCase(refScheme) ? 443 : 80;
-            }
-
-            int reqPort = req.getServerPort();
-
-            return req.getScheme().equalsIgnoreCase(refScheme)
-                    && req.getServerName().equalsIgnoreCase(refHost)
-                    && reqPort == refPort
-                    && refPath.startsWith(contextPath + "/");
+            String refPath = refUri.getPath();
+            if (refPath == null) return false;
+            String basePath = contextPath.isEmpty() ? "/" : contextPath + "/";
+            return refPath.startsWith(basePath);
 
         } catch (URISyntaxException e) {
+            logger.warn("{} Invalid Referer URI: {}", LOG_PREFIX, referer);
             return false;
         }
     }

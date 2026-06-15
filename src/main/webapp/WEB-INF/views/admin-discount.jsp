@@ -66,8 +66,7 @@
     <a href="${pageContext.request.contextPath}/admin-voucher">Mã giảm giá</a>
     <a href="${pageContext.request.contextPath}/admin-logs">System Logs</a>
     <hr>
-    <a href="${pageContext.request.contextPath}/admin-login" class="logout">Đăng xuất</a>
-  </nav>
+    <a href="${pageContext.request.contextPath}/logout" class="logout">Đăng xuất</a>  </nav>
 </aside>
 
 <!-- Main -->
@@ -181,4 +180,5 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/admin-theme.js"></script>
 </body>
+<jsp:include page="/WEB-INF/views/admin-header-fragment.jsp"/>
 </html>

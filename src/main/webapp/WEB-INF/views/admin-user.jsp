@@ -75,7 +75,7 @@
             System Logs
         </a>
         <hr>
-        <a href="${pageContext.request.contextPath}/admin-login" class="logout">Đăng xuất</a>
+        <a href="${pageContext.request.contextPath}/logout" class="logout">Đăng xuất</a>
     </nav>
 </aside>
 
@@ -229,4 +229,5 @@
 <script src="assets/js/admin-darkmode.js"></script>
 <script src="assets/js/showForm.js"></script>
 </body>
+<jsp:include page="/WEB-INF/views/admin-header-fragment.jsp"/>
 </html>

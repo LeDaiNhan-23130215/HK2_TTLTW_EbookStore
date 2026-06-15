@@ -77,7 +77,7 @@
             System Logs
         </a>
         <hr>
-        <a href="${pageContext.request.contextPath}/admin-login" class="logout">Đăng xuất</a>
+        <a href="${pageContext.request.contextPath}/logout" class="logout">Đăng xuất</a>
     </nav>
 </aside>
 
@@ -257,4 +257,5 @@
 <script src="${pageContext.request.contextPath}/assets/js/showForm.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/admin-demoIMG.js"></script>
 </body>
+<jsp:include page="/WEB-INF/views/admin-header-fragment.jsp"/>
 </html>

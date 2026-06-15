@@ -129,4 +129,5 @@
 <!-- JS -->
 <script src="assets/js/admin-darkmode.js"></script>
 </body>
+<jsp:include page="/WEB-INF/views/admin-header-fragment.jsp"/>
 </html>

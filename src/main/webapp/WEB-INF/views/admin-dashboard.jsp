@@ -156,4 +156,5 @@
     <script src="${pageContext.request.contextPath}/assets/js/admin-darkmode.js"></script>
     <script src="${pageContext.request.contextPath}/assets/js/admin-dashboard.js"></script>
 </body>
+<jsp:include page="/WEB-INF/views/admin-header-fragment.jsp"/>
 </html>

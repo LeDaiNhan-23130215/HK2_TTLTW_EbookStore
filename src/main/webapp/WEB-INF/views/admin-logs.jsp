@@ -63,9 +63,6 @@
         </a>
         <hr>
         <a href="${pageContext.request.contextPath}/logout" class="logout">Đăng xuất</a>
-           class="logout">
-            Đăng xuất
-        </a>
     </nav>
 </aside>
 
@@ -120,4 +117,5 @@
 </script>
 <script src="${pageContext.request.contextPath}/assets/js/admin-darkmode.js"></script>
 </body>
+<jsp:include page="/WEB-INF/views/admin-header-fragment.jsp"/>
 </html>

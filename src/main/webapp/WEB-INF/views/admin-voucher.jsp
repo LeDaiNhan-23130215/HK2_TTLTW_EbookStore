@@ -60,7 +60,7 @@
         <a href="${pageContext.request.contextPath}/admin-voucher" class="active">Mã giảm giá</a>
         <a href="${pageContext.request.contextPath}/admin-logs">System Logs</a>
         <hr>
-        <a href="${pageContext.request.contextPath}/admin-login" class="logout">Đăng xuất</a>
+        <a href="${pageContext.request.contextPath}/logout" class="logout">Đăng xuất</a>
     </nav>
 </aside>
 
@@ -185,4 +185,5 @@
 <script src="${pageContext.request.contextPath}/assets/js/admin-theme.js"></script>
 <script src="${pageContext.request.contextPath}/assets/js/admin-voucher-form.js"></script>
 </body>
+<jsp:include page="/WEB-INF/views/admin-header-fragment.jsp"/>
 </html>

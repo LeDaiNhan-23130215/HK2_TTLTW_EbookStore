@@ -15,7 +15,7 @@ public class VNPayUtil {
 
     static {
         try (InputStream in = VNPayUtil.class.getClassLoader()
-                .getResourceAsStream("vnpay.properties")) {
+                .getResourceAsStream("vnpay-deploy.properties")) {
             if (in == null) throw new RuntimeException("Không tìm thấy vnpay.properties");
             props.load(in);
         } catch (Exception e) {
