@@ -66,6 +66,7 @@ public class ReadbookController extends HttpServlet {
         request.setAttribute("isOwned", isOwned);
         request.setAttribute("ebook", ebook);
         request.setAttribute("format", format);
+        request.setAttribute("userEmail", user.getEmail());
         request.getRequestDispatcher("/WEB-INF/views/readbook.jsp")
                 .forward(request, response);
     }
