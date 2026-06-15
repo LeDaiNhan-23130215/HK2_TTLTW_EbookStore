@@ -6,7 +6,9 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import models.Ebook;
 import models.File;
+import models.User;
 import services.AdminServices;
+import services.BookshelfService;
 import services.EbookService;
 import services.FileServices;
 
@@ -16,16 +18,24 @@ import java.util.Set;
 @WebServlet(name = "ReadbookController", value = "/readbook")
 public class ReadbookController extends HttpServlet {
     private AdminServices adminService;
-    private FileServices fileServices;
+    private BookshelfService bookshelfService;
     @Override
     public void init() {
         adminService = new AdminServices();
-        fileServices = new FileServices();
+        bookshelfService = new BookshelfService();
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
+        User user = (session != null)
+                ? (User) session.getAttribute("user")
+                : null;
+        if (user == null) {
+            response.sendRedirect("/login");
+            return;
+        }
+
         int ebookId = Integer.parseInt(request.getParameter("id"));
         Ebook ebook = adminService.getEbookByID(ebookId);
                 if (ebook == null) {
@@ -39,18 +49,17 @@ public class ReadbookController extends HttpServlet {
             return;
         }
 
-        File file = fileServices.getFileByFormat(ebookId, format);
-        if (file == null) {
-            response.sendError(404);
-            return;
-        }
-
         Set<Integer> ownedEbookIds = (Set<Integer>) session.getAttribute("ownedEbooksIds");
-        boolean isOwned = ownedEbookIds != null && ownedEbookIds.contains(ebookId);
+        boolean isOwned = false;
+
+        if (ownedEbookIds != null &&
+                ownedEbookIds.contains(ebookId)) {
+            isOwned = bookshelfService.userOwnsBook(user.getId(), ebookId);
+        }
 
         request.setAttribute("isOwned", isOwned);
         request.setAttribute("ebook", ebook);
-        request.setAttribute("file", file);
+        request.setAttribute("format", format);
         request.getRequestDispatcher("/WEB-INF/views/readbook.jsp")
                 .forward(request, response);
     }
