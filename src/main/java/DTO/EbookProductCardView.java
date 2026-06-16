@@ -7,17 +7,19 @@ public class EbookProductCardView {
     private String title;
     private double price;
     private String imageLink;
+    private String authorName;
 
     private BigDecimal finalPrice;
     private String discountLabel;
     private boolean hasDiscount;
 
-    public EbookProductCardView(int id, String title, double price, String imageLink) {
+    public EbookProductCardView(int id, String title, double price, String imageLink, String authorName) {
         this.id        = id;
         this.title     = title;
         this.price     = price;
         this.imageLink = imageLink;
         this.hasDiscount = false;
+        this.authorName = authorName;
     }
 
     public void applyDiscount(BigDecimal finalPrice, String discountLabel) {

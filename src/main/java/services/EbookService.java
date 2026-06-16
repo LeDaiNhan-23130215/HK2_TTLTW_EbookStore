@@ -6,13 +6,12 @@ import DAO.EbookDAO;
 import DTO.EbookFilterView;
 import DTO.EbookProductCardView;
 import DTO.PageView;
+import filter.FilterBuilder;
+import filter.QueryBase;
 import models.Category;
-import models.Ebook;
-import models.Image;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class EbookService {
     private final CheckoutDetailDAO checkoutDetailDAO = new CheckoutDetailDAO();
@@ -25,19 +24,24 @@ public class EbookService {
         return ebookDAO.getNewEbookCardsWithThumbnail(15);
     }
 
-    public PageView<EbookProductCardView> getBooks(int page, EbookFilterView filter) {
+    public PageView<EbookProductCardView> getBooks(int page,
+             EbookFilterView filter) {
+        if (page < 1) {
+            page = 1;
+        }
+        QueryBase countQuery = FilterBuilder.buildForCount(filter).apply(new QueryBase());
 
-        if (page < 1) page = 1;
+        QueryBase listQuery = FilterBuilder.buildForList(filter).apply(new QueryBase());
 
-        int totalItems = ebookDAO.countProductCards(filter);
+        int totalItems = ebookDAO.countProductCards(countQuery);
+
         int totalPages = (int) Math.ceil((double) totalItems / PAGE_SIZE);
 
         if (page > totalPages && totalPages > 0) {
             page = totalPages;
         }
 
-        List<EbookProductCardView> items =
-                ebookDAO.findProductCards(page, PAGE_SIZE, filter);
+        List<EbookProductCardView> items = ebookDAO.findProductCards(page, PAGE_SIZE, listQuery);
 
         return new PageView<>(items, page, totalPages);
     }

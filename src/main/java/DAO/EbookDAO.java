@@ -3,6 +3,7 @@ package DAO;
 import DTO.AdminEbookView;
 import DTO.EbookFilterView;
 import DTO.EbookProductCardView;
+import filter.QueryBase;
 import models.Author;
 import models.Ebook;
 import models.Image;
@@ -70,7 +71,10 @@ public class EbookDAO {
     }
 
     public int countTotalEBook() {
-        String sql = "SELECT COUNT(*) FROM ebook";
+        String sql = """
+        SELECT COUNT(DISTINCT e.id)
+        FROM ebook e
+        """;
         logger.debug("{} Counting total ebooks", LOG_PREFIX);
 
         try (Connection connection = DBConnection.getConnection();
@@ -189,67 +193,33 @@ public class EbookDAO {
         return ebook;
     }
 
-    public List<EbookProductCardView> findProductCards(int page, int pageSize, EbookFilterView filter) {
+    public List<EbookProductCardView> findProductCards(int page, int pageSize, QueryBase queryBase) {
         logger.info("{} Finding product cards - Page: {}, Size: {}", LOG_PREFIX, page, pageSize);
-        List<EbookProductCardView> result = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("""
-                        SELECT
-                                e.id,
-                                e.title,
-                                e.price,
-                                COALESCE(
-                                    MIN(CASE
-                                        WHEN i.migration_status = 'MIGRATED'
-                                             AND i.cloudinary_url IS NOT NULL
-                                             AND i.cloudinary_url <> ''
-                                        THEN i.cloudinary_url
-                                    END),
-                                    MIN(i.imgLink),
-                                    '/assets/img/no-image.png'
-                                ) AS thumbnail
-                            FROM ebook e
-                            LEFT JOIN ebookimage ei ON e.id = ei.ebookID
-                            LEFT JOIN images i ON ei.imgID = i.id
-                            LEFT JOIN ebookauthor ea ON e.id = ea.ebookID
-                            LEFT JOIN author a ON ea.authorID = a.id
-                            LEFT JOIN files f ON f.id = e.id
-                            WHERE i.imgStatus = 'ACTIVE'
-                            AND e.status = 'ACTIVE'
-                """);
+            List<EbookProductCardView> result = new ArrayList<>();
 
-        List<Object> params = new ArrayList<>();
-        applyFilter(sql, params, filter);
-        sql.append(" GROUP BY e.id, e.title, e.price ");
+            String sql = queryBase.getBaseSql() + " LIMIT ? OFFSET ?";
 
-        sql.append(" ORDER BY ");
-        String sortBy = (filter.getSortBy() == null || filter.getSortBy().isEmpty()) ? "created_at" : filter.getSortBy();
-        String sortDir = (filter.getSortDir() == null || filter.getSortDir().isEmpty()) ? "desc" : filter.getSortDir();
+            List<Object> params = new ArrayList<>(queryBase.getParams());
 
-        switch (sortBy.toLowerCase()) {
-            case "title" -> sql.append("e.title");
-            case "price" -> sql.append("e.price");
-            default -> sql.append("e.id");
-        }
-        sql.append(" ").append("desc".equalsIgnoreCase(sortDir) ? "DESC" : "ASC");
-        sql.append(" LIMIT ? OFFSET ?");
-
-        params.add(pageSize);
-        params.add((page - 1) * pageSize);
-
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql.toString())) {
-            bindParams(ps, params);
-            logger.debug("{} Executing query for cards with params: {}", LOG_PREFIX, params);
-
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                result.add(new EbookProductCardView(
-                        rs.getInt("id"),
-                        rs.getString("title"),
-                        rs.getDouble("price"),
-                        rs.getString("thumbnail")
-                ));
-            }
+            params.add(pageSize);
+            params.add((page - 1) * pageSize);
+            try (
+                    Connection con = DBConnection.getConnection();
+                    PreparedStatement ps = con.prepareStatement(sql)
+            ) {
+                bindParams(ps, params);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    result.add(
+                            new EbookProductCardView(
+                                    rs.getInt("id"),
+                                    rs.getString("title"),
+                                    rs.getDouble("price"),
+                                    rs.getString("thumbnail"),
+                                    rs.getString("authorName")
+                                    )
+                    );
+                }
             logger.debug("{} Found {} product cards", LOG_PREFIX, result.size());
         } catch (SQLException e) {
             logger.error("{} Error finding product cards", LOG_PREFIX, e);
@@ -258,22 +228,15 @@ public class EbookDAO {
         return result;
     }
 
-    public int countProductCards(EbookFilterView filter) {
+    public int countProductCards(QueryBase queryBase) {
         logger.debug("{} Counting filtered product cards", LOG_PREFIX);
-        StringBuilder sql = new StringBuilder("""
-                SELECT COUNT(DISTINCT e.id)
-                FROM ebook e
-                LEFT JOIN ebookauthor ea ON e.id = ea.ebookID
-                LEFT JOIN author a ON ea.authorID = a.id
-                JOIN files f ON f.id = e.id
-                WHERE e.status = 'ACTIVE'
-                """);
 
-        List<Object> params = new ArrayList<>();
-        applyFilter(sql, params, filter);
+        String sql = "SELECT COUNT(*) FROM (" + queryBase.getBaseSql() + " GROUP BY e.id) AS sub";
+
+        List<Object> params = new ArrayList<>(queryBase.getParams());
 
         try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(String.valueOf(sql))) {
+             PreparedStatement ps = con.prepareStatement(sql)) {
             bindParams(ps, params);
             ResultSet rs = ps.executeQuery();
             int count = rs.next() ? rs.getInt(1) : 0;
@@ -458,31 +421,6 @@ public class EbookDAO {
         }
     }
 
-    private void applyFilter(StringBuilder sql, List<Object> params, EbookFilterView f) {
-        if (f.getFree() != null) {
-            sql.append(f.getFree() ? " AND e.price = 0 " : " AND e.price > 0 ");
-        }
-        if (f.getCategoryId() != null && !f.getCategoryId().isEmpty()) {
-            sql.append(" AND e.categoryID IN (");
-            sql.repeat("?,", f.getCategoryId().size() - 1).append("?)");
-            params.addAll(f.getCategoryId());
-        }
-        if (f.getFormats() != null && !f.getFormats().isEmpty()) {
-            sql.append(" AND f.fileFormat IN (");
-            for (int i = 0; i < f.getFormats().size(); i++) {
-                sql.append("?");
-                if (i < f.getFormats().size() - 1) sql.append(",");
-            }
-            sql.append(")");
-            params.addAll(f.getFormats());
-        }
-        if (f.getKeywords() != null && !f.getKeywords().isEmpty()) {
-            sql.append(" AND (e.title LIKE ? OR a.authorName LIKE ?)");
-            params.add("%" + f.getKeywords() + "%");
-            params.add("%" + f.getKeywords() + "%");
-        }
-    }
-
     public List<Ebook> getAdminEbooks(int page, int size) {
         List<Ebook> list = new ArrayList<>();
         String sql = """
@@ -519,6 +457,14 @@ public class EbookDAO {
             SELECT e.id,
                 e.title,
                 e.price,
+                GROUP_CONCAT(
+                    DISTINCT a.authorName
+                    SEPARATOR ', '
+                ) AS authorName,
+                GROUP_CONCAT(
+                    DISTINCT a.authorName
+                    SEPARATOR ', '
+                ) AS authorName,
                 COALESCE(
                     MIN(CASE
                         WHEN i.migration_status = 'MIGRATED'
@@ -530,6 +476,8 @@ public class EbookDAO {
                     '/assets/img/no-image.png'
                 ) AS thumbnail
             FROM ebook e
+            JOIN ebookauthor ea ON e.id = ea.ebookID
+            JOIN author a ON a.id = ea.authorID
             LEFT JOIN ebookimage ei ON e.id = ei.ebookID
             LEFT JOIN images i ON ei.imgID = i.id
             WHERE e.status = 'ACTIVE'
@@ -550,7 +498,8 @@ public class EbookDAO {
                         rs.getInt("id"),
                         rs.getString("title"),
                         rs.getDouble("price"),
-                        rs.getString("thumbnail")
+                        rs.getString("thumbnail"),
+                        rs.getString("authorName")
                 ));
             }
 
@@ -570,6 +519,10 @@ public class EbookDAO {
                 e.id,
                 e.title,
                 e.price,
+                GROUP_CONCAT(
+                    DISTINCT a.authorName
+                    SEPARATOR ', '
+                ) AS authorName,
                 COALESCE(
                     MIN(CASE 
                         WHEN i.migration_status = 'MIGRATED'
@@ -581,6 +534,8 @@ public class EbookDAO {
                     '/assets/img/no-image.png'
                 ) AS thumbnail
             FROM ebook e
+            JOIN ebookauthor ea ON e.id = ea.ebookID
+            JOIN author a ON a.id = ea.authorID
             LEFT JOIN ebookimage ei ON e.id = ei.ebookID
             LEFT JOIN images i ON ei.imgID = i.id
             WHERE e.status = 'ACTIVE'
@@ -601,7 +556,8 @@ public class EbookDAO {
                         rs.getInt("id"),
                         rs.getString("title"),
                         rs.getDouble("price"),
-                        rs.getString("thumbnail")
+                        rs.getString("thumbnail"),
+                        rs.getString("authorName")
                 ));
             }
 
@@ -621,6 +577,10 @@ public class EbookDAO {
                 e.id,
                 e.title,
                 e.price,
+                GROUP_CONCAT(
+                    DISTINCT a.authorName
+                    SEPARATOR ', '
+                ) AS authorName,
                 COALESCE(
                     MIN(CASE 
                         WHEN i.migration_status = 'MIGRATED'
@@ -632,6 +592,8 @@ public class EbookDAO {
                     '/assets/img/no-image.png'
                 ) AS thumbnail
             FROM ebook e
+            JOIN ebookauthor ea ON e.id = ea.ebookID
+            JOIN author a ON a.id = ea.authorID
             LEFT JOIN ebookimage ei ON e.id = ei.ebookID
             LEFT JOIN images i ON ei.imgID = i.id
             WHERE e.status = 'ACTIVE'
@@ -650,7 +612,8 @@ public class EbookDAO {
                         rs.getInt("id"),
                         rs.getString("title"),
                         rs.getDouble("price"),
-                        rs.getString("thumbnail")
+                        rs.getString("thumbnail"),
+                        rs.getString("authorName")
                 );
             }
 
