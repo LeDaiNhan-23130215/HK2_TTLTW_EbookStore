@@ -7,16 +7,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function fetchData() {
     const params = new URLSearchParams(new FormData(form));
+    const keywordInput = form.querySelector('[name="keyword"]');
+    let keyword = keywordInput ? keywordInput.value.trim() : "";
 
-    // ===== LẤY KEYWORD TỪ URL =====
-    const urlParams = new URLSearchParams(window.location.search);
-    const keyword = urlParams.get("keyword");
-
-    if (keyword && keyword.trim() !== "") {
-      params.set("keyword", keyword.trim());
+    if (!keyword) {
+      const urlParams = new URLSearchParams(window.location.search);
+      keyword = (urlParams.get("keyword") || "").trim();
     }
 
-    // ===== RESET VỀ TRANG 1 KHI FILTER =====
+    if (keyword) {
+      params.set("keyword", keyword);
+      if (keywordInput) keywordInput.value = keyword;
+    } else {
+      params.delete("keyword");
+    }
+
     params.set("page", "1");
 
     // ===== CẬP NHẬT URL KHÔNG RELOAD =====
@@ -169,31 +174,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ===== XỬ LÝ PAGINATION LINKS (sau khi AJAX render lại) =====
   function setupPaginationLinks() {
     document.querySelectorAll('.pagination a').forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
 
-        // Lấy page number từ href
         const url = new URL(link.href);
-        const page = url.searchParams.get('page') || 1;
-
-        // Tạo params từ form hiện tại
+        const page = (url.searchParams.get('page') || '1').trim();
         const params = new URLSearchParams(new FormData(form));
 
-        // Thêm keyword nếu có
         const urlParams = new URLSearchParams(window.location.search);
         const keyword = urlParams.get("keyword");
         if (keyword && keyword.trim() !== "") {
           params.set("keyword", keyword.trim());
         }
 
-        // Set page number
         params.set("page", page);
 
-        // Cập nhật URL
         const newUrl = `${window.location.pathname}?${params.toString()}`;
         window.history.pushState({}, "", newUrl);
 

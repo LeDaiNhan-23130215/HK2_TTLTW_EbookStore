@@ -35,7 +35,7 @@
 <main class="container">
   <aside class="sidebar">
     <form id="filterForm" method="get" action="list-book">
-
+      <input type="hidden" name="keyword" value="${filter.keywords}">
       <input type="hidden" name="sortBy" value="${filter.sortBy}">
       <input type="hidden" name="sortDir" value="${filter.sortDir}">
 
@@ -103,12 +103,41 @@
           <i class="fa-solid fa-bars"></i> Bộ lọc
         </button>
 
+        <div class="local-filter-button-container">
+          <a href="list-book?sortBy=title&sortDir=asc<c:if test='${not empty queryString}'>&${queryString}</c:if>"
+             class="sort-button ${filter.sortBy == 'title' && filter.sortDir == 'asc' ? 'active' : ''}">
+            <i class="fa-solid fa-arrow-down-a-z"></i> A - Z
+          </a>
+
+          <a href="list-book?sortBy=title&sortDir=desc<c:if test='${not empty queryString}'>&${queryString}</c:if>"
+             class="sort-button ${filter.sortBy == 'title' && filter.sortDir == 'desc' ? 'active' : ''}">
+            <i class="fa-solid fa-arrow-up-a-z"></i> Z - A
+          </a>
+
+          <a href="list-book?sortBy=price&sortDir=asc<c:if test='${not empty queryString}'>&${queryString}</c:if>"
+             class="sort-button ${filter.sortBy == 'price' && filter.sortDir == 'asc' ? 'active' : ''}">
+            <i class="fa-solid fa-arrow-up"></i> Giá ↑
+          </a>
+
+          <a href="list-book?sortBy=price&sortDir=desc<c:if test='${not empty queryString}'>&${queryString}</c:if>"
+             class="sort-button ${filter.sortBy == 'price' && filter.sortDir == 'desc' ? 'active' : ''}">
+            <i class="fa-solid fa-arrow-down"></i> Giá ↓
+          </a>
+
+          <a href="list-book?sortBy=id&sortDir=desc<c:if test='${not empty queryString}'>&${queryString}</c:if>"
+             class="sort-button ${filter.sortBy == 'id' && filter.sortDir == 'desc' ? 'active' : ''}">
+            <i class="fa-solid fa-calendar"></i> Mới nhất
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div id="active-filters"></div>
+
     <div id="grid-container">
       <jsp:include page="/WEB-INF/views/list-book-grid.jsp"/>
     </div>
-
   </section>
-
 </main>
 
 <jsp:include page="/WEB-INF/views/footer.jsp"/>
