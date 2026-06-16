@@ -33,15 +33,12 @@
 <jsp:include page="/WEB-INF/views/header.jsp"/>
 
 <main class="container">
-  <!-- ================= FILTER SIDEBAR ================= -->
   <aside class="sidebar">
     <form id="filterForm" method="get" action="list-book">
 
-      <!-- Hidden inputs to preserve sorting when filtering -->
       <input type="hidden" name="sortBy" value="${filter.sortBy}">
       <input type="hidden" name="sortDir" value="${filter.sortDir}">
 
-      <!-- ===== CATEGORY ===== -->
       <div class="filter">
         <h3>Thể loại</h3>
 
@@ -58,9 +55,7 @@
         </a>
       </div>
 
-
-      <!-- ===== PRICE ===== -->
-      <div class="filter">
+        <div class="filter">
         <h3>Giá</h3>
 
         <label>
@@ -82,7 +77,6 @@
         </label>
       </div>
 
-      <!-- ===== FORMAT ===== -->
       <div class="filter">
         <h3>Loại file</h3>
 
@@ -101,45 +95,14 @@
     </form>
   </aside>
 
-  <!-- ================= MAIN CONTENT ================= -->
   <section class="content">
 
-    <!-- ===== SORT BAR ===== -->
     <div class="local-filters">
       <div class="local-filter-menu">
         <button class="hamburger-btn">
           <i class="fa-solid fa-bars"></i> Bộ lọc
         </button>
 
-        <div class="local-filter-button-container">
-          <a href="list-book?sortBy=title&sortDir=asc<c:if test='${not empty queryStringForSort}'>&${queryStringForSort}</c:if>"
-             class="sort-button ${filter.sortBy == 'title' && filter.sortDir == 'asc' ? 'active' : ''}">
-            <i class="fa-solid fa-arrow-down-a-z"></i> A - Z
-          </a>
-
-          <a href="list-book?sortBy=title&sortDir=desc<c:if test='${not empty queryStringForSort}'>&${queryStringForSort}</c:if>"
-             class="sort-button ${filter.sortBy == 'title' && filter.sortDir == 'desc' ? 'active' : ''}">
-            <i class="fa-solid fa-arrow-up-a-z"></i> Z - A
-          </a>
-
-          <a href="list-book?sortBy=price&sortDir=asc<c:if test='${not empty queryStringForSort}'>&${queryStringForSort}</c:if>"
-             class="sort-button ${filter.sortBy == 'price' && filter.sortDir == 'asc' ? 'active' : ''}">
-            <i class="fa-solid fa-arrow-up"></i> Giá ↑
-          </a>
-
-          <a href="list-book?sortBy=price&sortDir=desc<c:if test='${not empty queryStringForSort}'>&${queryStringForSort}</c:if>"
-             class="sort-button ${filter.sortBy == 'price' && filter.sortDir == 'desc' ? 'active' : ''}">
-            <i class="fa-solid fa-arrow-down"></i> Giá ↓
-          </a>
-
-          <a href="list-book?sortBy=created_at&sortDir=desc<c:if test='${not empty queryStringForSort}'>&${queryStringForSort}</c:if>"
-             class="sort-button ${filter.sortBy == 'created_at' && filter.sortDir == 'desc' ? 'active' : ''}">
-            <i class="fa-solid fa-calendar"></i> Mới nhất
-          </a>
-        </div>
-      </div>
-    </div>
-    <div id="active-filters" class="active-filters"></div>
     <div id="grid-container">
       <jsp:include page="/WEB-INF/views/list-book-grid.jsp"/>
     </div>
