@@ -25,5 +25,10 @@
     <!-- Session timeout: 2 tuần = 20160 phút -->
     <session-config>
         <session-timeout>20160</session-timeout>
+        <cookie-config>
+            <http-only>true</http-only>
+            <max-age>1209600</max-age>
+        </cookie-config>
+        <tracking-mode>COOKIE</tracking-mode>
     </session-config>
 </web-app>
