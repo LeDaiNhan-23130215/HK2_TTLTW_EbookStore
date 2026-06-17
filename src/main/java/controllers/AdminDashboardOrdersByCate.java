@@ -9,12 +9,18 @@ import services.AdminServices;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @WebServlet("/admin-chart-category")
 public class AdminDashboardOrdersByCate extends HttpServlet {
-    private final AdminServices adminServices = new AdminServices();
     private final Gson gson = new Gson();
+    private AdminServices adminServices;
+
+    @Override
+    public void init() {
+        adminServices = new AdminServices();
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -22,13 +28,27 @@ public class AdminDashboardOrdersByCate extends HttpServlet {
 
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
+        String yearParam = req.getParameter("year");
 
-        Map<String, Double> data = adminServices.getRevenuePerCategory();
+        int year = java.time.Year.now().getValue();
+
+        if (yearParam != null && !yearParam.isBlank()) {
+            year = Integer.parseInt(yearParam);
+        }
+        Map<String, Double> data = adminServices.getRevenuePerCategory(year);
+
+        List<String> labels = new ArrayList<>();
+        List<Double> values = new ArrayList<>();
+
+        for (Map.Entry<String, Double> entry : data.entrySet()) {
+            labels.add(entry.getKey());
+            values.add(entry.getValue());
+        }
 
         resp.getWriter().write(
                 gson.toJson(Map.of(
-                        "labels", new ArrayList<>(data.keySet()),
-                        "values", new ArrayList<>(data.values())
+                        "labels", labels,
+                        "values", values
                 ))
         );
 }

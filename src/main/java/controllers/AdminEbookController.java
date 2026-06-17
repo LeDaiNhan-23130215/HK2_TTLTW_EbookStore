@@ -83,7 +83,7 @@ public class AdminEbookController extends HttpServlet {
                 req.getParameter("page") != null ? req.getParameter("page") : "1"
         );
 
-        List<Ebook> ebooks = adminServices.listBooksForAdmin(page, 20);
+        List<Ebook> ebooks = adminServices.listBooksForAdmin(page, 300);
 
         req.setAttribute("ebooks", ebooks);
         req.setAttribute("page", page);

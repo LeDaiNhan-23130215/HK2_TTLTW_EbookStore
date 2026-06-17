@@ -13,9 +13,13 @@ import java.util.Map;
 
 @WebServlet("/admin-chart-top-ebooks")
 public class AdminDashboardTop5Ebook extends HttpServlet {
-    private final AdminServices adminServices = new AdminServices();
+    private AdminServices adminServices;
     private final Gson gson = new Gson();
 
+    @Override
+    public void init() {
+        adminServices = new AdminServices();
+    }
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
@@ -23,7 +27,15 @@ public class AdminDashboardTop5Ebook extends HttpServlet {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
 
-        Map<String, Double> data = adminServices.getTop5Ebook();
+        String yearParam = req.getParameter("year");
+
+        int year = java.time.Year.now().getValue();
+
+        if (yearParam != null && !yearParam.isBlank()) {
+            year = Integer.parseInt(yearParam);
+        }
+
+        Map<String, Double> data = adminServices.getTop5Ebook(year);
 
         resp.getWriter().write(
                 gson.toJson(Map.of(

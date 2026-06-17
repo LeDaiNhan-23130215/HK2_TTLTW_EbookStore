@@ -21,13 +21,14 @@ public class BookDetailController extends HttpServlet {
     private EbookDAO ebookDAO;
     private DiscountService discountService;
     private ImageServices imageServices;
-
+    private BookshelfService bookshelfService;
     @Override
     public void init() throws ServletException {
         wishlistService  = new WishlistService();
         ebookDAO         = new EbookDAO();
         discountService  = new DiscountService();
         imageServices = new ImageServices();
+        bookshelfService = new BookshelfService();
     }
 
     @Override
@@ -55,7 +56,11 @@ public class BookDetailController extends HttpServlet {
         String thumbnail = imageServices.getThumbnailByEbookId(ebookId);
 
         Set<Integer> ownedEbooks = (session != null) ? (Set<Integer>) session.getAttribute("ownedEbooks") : null;
+
         boolean isOwned = ownedEbooks != null && ownedEbooks.contains(ebookId);
+        if (user != null) {
+            isOwned = bookshelfService.userOwnsBook(user.getId(), ebookId);
+        }
         int userID = (user != null) ? user.getId() : 0;
 
         List<Ebook> wishlist = wishlistService.getWishlistWithDetails(userID);

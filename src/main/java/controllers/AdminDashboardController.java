@@ -22,12 +22,10 @@ public class AdminDashboardController extends HttpServlet {
         int totalUsers = adminServices.getTotalUsers();
         int totalOrders = adminServices.getTotalSuccessOrders();
         double totalMonthlyRevenue = adminServices.getTotalMonthlyRevenue();
-
         req.setAttribute("totalEbooks", totalEbooks);
         req.setAttribute("totalUsers", totalUsers);
         req.setAttribute("totalOrders", totalOrders);
         req.setAttribute("totalMonthlyRevenue", totalMonthlyRevenue);
-
         req.getRequestDispatcher("/WEB-INF/views/admin-dashboard.jsp").forward(req, resp);
     }
 }

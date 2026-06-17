@@ -1,87 +1,275 @@
-document.querySelectorAll('.card').forEach(card => {
-    card.addEventListener('click', () => {
-        if (card.id === 'totalEbooks') {
-            window.location.href = '../pages/admin-ebook.html'
-        }
-        if (card.id === 'totalUsers') {
-            window.location.href = '../pages/admin-user.html'
-        }
-        if (card.id === 'totalOrders' || card.id === 'totalRevenue'){
-            window.location.href = '../pages/admin-payment.html'
-        }
-    });
-});
+let revenueChart;
+let orderChart;
+let categoryChart;
+let ebookChart;
 
+/* =========================
+   DOM READY
+========================= */
 document.addEventListener("DOMContentLoaded", () => {
 
-    fetch(BASE_URL + "/admin-dashboard-revenue")
+    setupCardClick();
+    setupYearSelect();
+    loadYears();
+});
+
+/* =========================
+   CARD CLICK
+========================= */
+function setupCardClick() {
+
+    document.querySelectorAll('.card').forEach(card => {
+
+        card.addEventListener('click', () => {
+
+            switch (card.id) {
+
+                case 'cardEbooks':
+                    window.location.href = BASE_URL + "/admin-ebook";
+                    break;
+
+                case 'cardUsers':
+                    window.location.href = BASE_URL + "/admin-user";
+                    break;
+
+                case 'cardOrders':
+                case 'cardRevenue':
+                    window.location.href = BASE_URL + "/admin-payment";
+                    break;
+            }
+        });
+    });
+}
+
+/* =========================
+   YEAR SELECT
+========================= */
+function setupYearSelect() {
+
+    const select = document.getElementById("yearSelect");
+
+    select.addEventListener("change", function () {
+
+        reloadAllCharts(this.value);
+    });
+}
+
+/* =========================
+   LOAD YEARS
+========================= */
+function loadYears() {
+
+    fetch(BASE_URL + "/admin-chart-year")
+        .then(res => {
+                console.log("admin-chart-year status:", res.status, res.url); // thêm dòng này
+                if (!res.ok) throw new Error("HTTP " + res.status);
+                return res.json();
+            })
+        .then(years => {
+            console.log("Years received:", years);
+            console.log("YEARS:", years);
+            const select = document.getElementById("yearSelect");
+
+            if (!select) {
+                console.error("yearSelect not found");
+                return;
+            }
+
+            select.innerHTML = "";
+
+            years.forEach(year => {
+
+                const option = document.createElement("option");
+
+                option.value = year;
+                option.textContent = year;
+
+                select.appendChild(option);
+            });
+
+            const maxYear = Math.max(...years);
+
+            select.value = maxYear;
+
+            reloadAllCharts(maxYear);
+        })
+        .catch(err => {
+            console.error("Load years error:", err);
+        });
+}
+
+/* =========================
+   RELOAD ALL CHARTS
+========================= */
+function reloadAllCharts(year) {
+
+    loadRevenueChart(year);
+    loadOrderChart(year);
+    loadCategoryChart(year);
+    loadTopEbookChart(year);
+}
+
+/* =========================
+   REVENUE CHART
+========================= */
+function loadRevenueChart(year) {
+
+    fetch(BASE_URL + "/admin-dashboard-revenue?year=" + year)
         .then(res => res.json())
         .then(data => {
-            new Chart(document.getElementById("revenueChart"), {
-                type: 'line',
-                data: {
-                    labels: data.labels,
-                    datasets: [{
-                        label: "Doanh thu (VND)",
-                        data: data.values,
-                        borderWidth: 3,
-                        tension: 0.3,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
-            });
-        })
 
-    fetch(BASE_URL + "/admin-chart-orders")
-        .then(r => r.json())
-        .then(d => {
-            new Chart(document.getElementById("orderChart"), {
-                type: 'bar',
-                data: {
-                    labels: d.labels,
-                    datasets: [{ label: "Số đơn", data: d.values }]
-                }
-            });
-        });
+            if (!revenueChart) {
 
-    fetch(BASE_URL + "/admin-chart-category")
-        .then(r => r.json())
-        .then(d => {
-            new Chart(document.getElementById("categoryChart"), {
-                type: 'doughnut',
-                data: {
-                    labels: d.labels,
-                    datasets: [{ data: d.values }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
+                revenueChart = new Chart(
+                    document.getElementById("revenueChart"),
+                    {
+                        type: 'line',
+
+                        data: {
+                            labels: data.labels,
+
+                            datasets: [{
+                                label: "Doanh thu (VND)",
+                                data: data.values,
+                                borderWidth: 3,
+                                tension: 0.3,
+                                fill: true
+                            }]
+                        },
+
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
                         }
                     }
-                }
-            });
-        });
+                );
 
-    fetch(BASE_URL + "/admin-chart-top-ebooks")
-        .then(r => r.json())
-        .then(d => {
-            new Chart(document.getElementById("ebookChart"), {
-                type: 'bar',
-                data: {
-                    labels: d.labels,
-                    datasets: [{ label: "Doanh thu", data: d.values }]
-                },
-                options: { indexAxis: 'y' }
-            });
+            } else {
+
+                revenueChart.data.labels = data.labels;
+                revenueChart.data.datasets[0].data = data.values;
+
+                revenueChart.update();
+            }
         });
-});
+}
+
+/* =========================
+   ORDER CHART
+========================= */
+function loadOrderChart(year) {
+
+    fetch(BASE_URL + "/admin-chart-orders?year=" + year)
+        .then(res => res.json())
+        .then(data => {
+
+            if (!orderChart) {
+
+                orderChart = new Chart(
+                    document.getElementById("orderChart"),
+                    {
+                        type: 'bar',
+
+                        data: {
+                            labels: data.labels,
+
+                            datasets: [{
+                                label: "Số đơn",
+                                data: data.values
+                            }]
+                        }
+                    }
+                );
+
+            } else {
+
+                orderChart.data.labels = data.labels;
+                orderChart.data.datasets[0].data = data.values;
+
+                orderChart.update();
+            }
+        });
+}
+
+/* =========================
+   CATEGORY CHART
+========================= */
+function loadCategoryChart(year) {
+
+    fetch(BASE_URL + "/admin-chart-category?year=" + year)
+        .then(res => res.json())
+        .then(data => {
+
+            if (!categoryChart) {
+
+                categoryChart = new Chart(
+                    document.getElementById("categoryChart"),
+                    {
+                        type: 'doughnut',
+
+                        data: {
+                            labels: data.labels,
+
+                            datasets: [{
+                                data: data.values
+                            }]
+                        }
+                    }
+                );
+
+            } else {
+
+                categoryChart.data.labels = data.labels;
+                categoryChart.data.datasets[0].data = data.values;
+
+                categoryChart.update();
+            }
+        });
+}
+
+/* =========================
+   TOP EBOOK CHART
+========================= */
+function loadTopEbookChart(year) {
+
+    fetch(BASE_URL + "/admin-chart-top-ebooks?year=" + year)
+        .then(res => res.json())
+        .then(data => {
+
+            if (!ebookChart) {
+
+                ebookChart = new Chart(
+                    document.getElementById("ebookChart"),
+                    {
+                        type: 'bar',
+
+                        data: {
+                            labels: data.labels,
+
+                            datasets: [{
+                                label: "Doanh thu",
+                                data: data.values
+                            }]
+                        },
+
+                        options: {
+                            indexAxis: 'y'
+                        }
+                    }
+                );
+
+            } else {
+
+                ebookChart.data.labels = data.labels;
+                ebookChart.data.datasets[0].data = data.values;
+
+                ebookChart.update();
+            }
+        });
+}

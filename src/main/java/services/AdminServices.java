@@ -164,11 +164,13 @@ public class AdminServices {
 
     public Map<Integer, Double> monthlyRevenueData(int year) { return checkoutDAO.getMonthlyRevenue(year); }
 
-    public Map<Integer, Integer> getCheckoutPerMonth() { return checkoutDAO.checkoutPerMonth(); }
+    public Map<Integer, Integer> getCheckoutPerMonth(int year) { return checkoutDAO.checkoutPerMonth(year); }
 
-    public Map<String, Double> getRevenuePerCategory() {return checkoutDAO.revenueByCategory(); }
+    public Map<String, Double> getRevenuePerCategory(int year) {return checkoutDAO.revenueByCategory(year); }
 
-    public Map<String, Double> getTop5Ebook() { return checkoutDAO.top5Ebook(); }
+    public Map<String, Double> getTop5Ebook(int year) { return checkoutDAO.top5Ebook(year); }
+    public Map<String, Double> getBot5Ebook(int year) { return checkoutDAO.bot5Ebook(year); }
+
 
     //CheckoutDetail
     public List<CheckoutDetail> getCheckoutDetails(int checkoutID) {
@@ -414,5 +416,9 @@ public class AdminServices {
             code.append(w.charAt(0));
         }
         return code.toString();
+    }
+
+    public List<Integer> getAvailableYear() {
+        return checkoutDAO.getAvailableYears();
     }
 }

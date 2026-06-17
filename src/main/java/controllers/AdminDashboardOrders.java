@@ -14,9 +14,12 @@ import java.util.Map;
 
 @WebServlet("/admin-chart-orders")
 public class AdminDashboardOrders extends HttpServlet {
-
-    private final AdminServices adminServices = new AdminServices();
+    private AdminServices adminServices;
     private final Gson gson = new Gson();
+    @Override
+    public void init() {
+        adminServices = new AdminServices();
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -25,7 +28,15 @@ public class AdminDashboardOrders extends HttpServlet {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
 
-        Map<Integer, Integer> data = adminServices.getCheckoutPerMonth();
+        String yearParam = req.getParameter("year");
+
+        int year = java.time.Year.now().getValue();
+
+        if (yearParam != null && !yearParam.isBlank()) {
+            year = Integer.parseInt(yearParam);
+        }
+
+        Map<Integer, Integer> data = adminServices.getCheckoutPerMonth(year);
 
         List<String> labels = new ArrayList<>();
         List<Integer> values = new ArrayList<>();

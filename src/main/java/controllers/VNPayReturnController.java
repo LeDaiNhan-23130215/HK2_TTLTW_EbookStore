@@ -22,8 +22,10 @@ import utils.VNPayUtil;
 import utils.VNPayErrorCodeUtil;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @WebServlet(name = "VNPayReturnController", value = "/vnpay-return")
 public class VNPayReturnController extends HttpServlet {
@@ -128,6 +130,10 @@ public class VNPayReturnController extends HttpServlet {
                 bookshelfService.addBookToBookshelf(userId, item.getEbook().getId());
                 wishlistService.removeFromWishlist(userId, item.getEbook().getId());
             }
+            session.removeAttribute("ownedEbooks");
+            List<Integer> ownedEbookIds = bookshelfService.getBookIdsOfUserId(user.getId());
+            Set<Integer> ownedEbooks = new HashSet<>(ownedEbookIds);
+            session.setAttribute("ownedEbooks", ownedEbooks);
             if (singleBookId != null) {
                 cartService.removeItem(cartId, singleBookId);
                 session.setAttribute("totalCartDetails",

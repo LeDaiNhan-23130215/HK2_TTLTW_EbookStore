@@ -250,18 +250,20 @@ public class CheckoutDAO {
         return list;
     }
 
-    public Map<Integer, Integer> checkoutPerMonth() {
+    public Map<Integer, Integer> checkoutPerMonth(int year) {
         logger.debug("{} Fetching checkout count per month", LOG_PREFIX);
         Map<Integer, Integer> result = new LinkedHashMap<>();
         String sql = """
             SELECT MONTH(checkoutDate) AS month, COUNT(*) AS total
-            FROM checkout WHERE YEAR(checkoutDate) = YEAR(CURDATE())
+            FROM checkout WHERE YEAR(checkoutDate) = ?
             GROUP BY MONTH(checkoutDate) ORDER BY month
         """;
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+            ) {
+            ps.setInt(1, year);
+            ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 result.put(rs.getInt("month"), rs.getInt("total"));
             }
@@ -271,7 +273,7 @@ public class CheckoutDAO {
         return result;
     }
 
-    public Map<String, Double> revenueByCategory() {
+    public Map<String, Double> revenueByCategory(int year) {
         logger.info("{} Fetching revenue distribution by category", LOG_PREFIX);
         Map<String, Double> result = new LinkedHashMap<>();
         String sql = """
@@ -281,12 +283,15 @@ public class CheckoutDAO {
             JOIN ebook e ON cd.bookID = e.id
             JOIN category cat ON e.categoryID = cat.id
             WHERE co.status = 'success'
+            AND YEAR(co.checkoutDate) = ?
             GROUP BY cat.id
         """;
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+             ) {
+            ps.setInt(1, year);
+            ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 result.put(rs.getString("categoryName"), rs.getDouble("revenue"));
             }
@@ -296,7 +301,7 @@ public class CheckoutDAO {
         return result;
     }
 
-    public Map<String, Double> top5Ebook() {
+    public Map<String, Double> top5Ebook(int year) {
         logger.info("{} Fetching top 5 ebooks by revenue", LOG_PREFIX);
         Map<String, Double> result = new LinkedHashMap<>();
         String sql = """
@@ -305,17 +310,47 @@ public class CheckoutDAO {
             JOIN ebook e ON cd.bookID = e.id
             JOIN checkout c ON cd.checkoutID = c.id
             WHERE c.status = 'success'
+            AND YEAR(c.checkoutDate) = ?
             GROUP BY e.id ORDER BY revenue DESC LIMIT 5
         """;
 
         try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+             PreparedStatement ps = con.prepareStatement(sql);) {
+            ps.setInt(1, year);
+            ResultSet rs = ps.executeQuery();
+
             while (rs.next()) {
                 result.put(rs.getString("title"), rs.getDouble("revenue"));
             }
         } catch (Exception e) {
             logger.error("{} Error in top5Ebook: {}", LOG_PREFIX, e.getMessage());
+        }
+        return result;
+    }
+
+    public Map<String, Double> bot5Ebook(int year) {
+        logger.info("{} Fetching bot 5 ebooks by revenue", LOG_PREFIX);
+        Map<String, Double> result = new LinkedHashMap<>();
+        String sql = """
+            SELECT e.title, SUM(cd.price) AS revenue
+            FROM checkoutdetail cd
+            JOIN ebook e ON cd.bookID = e.id
+            JOIN checkout c ON cd.checkoutID = c.id
+            WHERE c.status = 'success'
+            AND YEAR(c.checkoutDate) = ?
+            GROUP BY e.id ORDER BY revenue ASC LIMIT 5
+        """;
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);) {
+            ps.setInt(1, year);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                result.put(rs.getString("title"), rs.getDouble("revenue"));
+            }
+        } catch (Exception e) {
+            logger.error("{} Error in bot5Ebook: {}", LOG_PREFIX, e.getMessage());
         }
         return result;
     }
@@ -339,5 +374,28 @@ public class CheckoutDAO {
             logger.error("{} Error in hasPurchased: {}", LOG_PREFIX, e.getMessage());
         }
         return false;
+    }
+
+    public List<Integer> getAvailableYears() {
+        String sql = """
+        SELECT DISTINCT YEAR(checkoutDate) AS year
+        FROM checkout
+        ORDER BY year
+    """;
+
+        List<Integer> years = new ArrayList<>();
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                years.add(rs.getInt("year"));
+            }
+
+        } catch (Exception e) {
+            logger.error("{} Can't find available year", LOG_PREFIX, e);
+        }
+
+        return years;
     }
 }

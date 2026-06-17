@@ -1,3 +1,4 @@
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -91,24 +92,30 @@
         <!--Dashboard content-->
         <section class="dashboard">
             <div class="cards">
-                <div class="card">
+
+                <div class="card" id="cardEbooks">
                     <h3>Tổng số eBook</h3>
-                    <p id="totalEbooks">${totalEbooks}</p>
+                    <p>${totalEbooks}</p>
                 </div>
-                <div class="card">
+
+                <div class="card" id="cardUsers">
                     <h3>Người dùng</h3>
-                    <p id="totalUsers">${totalUsers}</p>
+                    <p>${totalUsers}</p>
                 </div>
-                <div class="card">
+
+                <div class="card" id="cardOrders">
                     <h3>Đơn hàng</h3>
-                    <p id="totalOrders">${totalOrders}</p>
+                    <p>${totalOrders}</p>
                 </div>
-                <div class="card">
+
+                <div class="card" id="cardRevenue">
                     <h3>Doanh thu tháng</h3>
-                    <p id="totalRevenue">${totalMonthlyRevenue} VND</p>
+                    <p><fmt:formatNumber value="${totalMonthlyRevenue}" type="number" groupingUsed="true"/> VND</p>
                 </div>
+
             </div>
         </section>
+
 
         <!-- Chart -->
         <div class="chart-grid">
@@ -116,9 +123,16 @@
             <!-- CHART CHÍNH -->
             <div class="chart-box full">
                 <div class="chart-header">
-                    <h3>📈 Doanh thu theo tháng</h3>
-                    <span>VNĐ / 2026</span>
+                    <div>
+                        <h3>📈 Doanh thu</h3>
+                    </div>
+
+                    <select id="yearSelect"
+                            class="form-select"
+                            style="width: 120px;">
+                    </select>
                 </div>
+
                 <canvas id="revenueChart"></canvas>
             </div>
 
@@ -142,10 +156,18 @@
             <!-- CHART FULL -->
             <div class="chart-box full">
                 <div class="chart-header">
-                    <h3>🔥 Top eBook</h3>
+                    <h3>🔥 Top eBook </h3>
                     <span>Doanh thu cao nhất</span>
                 </div>
-                <canvas id="ebookChart"></canvas>
+                <canvas id="ebookHighestChart"></canvas>
+            </div>
+
+            <div class="chart-box full">
+                <div class="chart-header">
+                    <h3>Bottom eBook </h3>
+                    <span>Doanh thu thấp nhất</span>
+                </div>
+                <canvas id="ebookLowestChart"></canvas>
             </div>
 
         </div>
@@ -154,7 +176,302 @@
         const BASE_URL = "${pageContext.request.contextPath}";
     </script>
     <script src="${pageContext.request.contextPath}/assets/js/admin-darkmode.js"></script>
-    <script src="${pageContext.request.contextPath}/assets/js/admin-dashboard.js"></script>
+    <script>
+        let revenueChart;
+        let orderChart;
+        let categoryChart;
+        let ebookHighestChart;
+        let ebookLowestChart;
+
+        /* =========================
+           DOM READY
+        ========================= */
+        document.addEventListener("DOMContentLoaded", () => {
+
+            setupCardClick();
+            setupYearSelect();
+            loadYears();
+        });
+
+        /* =========================
+           CARD CLICK
+        ========================= */
+        function setupCardClick() {
+
+            document.querySelectorAll('.card').forEach(card => {
+
+                card.addEventListener('click', () => {
+
+                    switch (card.id) {
+
+                        case 'cardEbooks':
+                            window.location.href = BASE_URL + "/admin-ebook";
+                            break;
+
+                        case 'cardUsers':
+                            window.location.href = BASE_URL + "/admin-user";
+                            break;
+
+                        case 'cardOrders':
+                        case 'cardRevenue':
+                            window.location.href = BASE_URL + "/admin-payment";
+                            break;
+                    }
+                });
+            });
+        }
+
+        /* =========================
+           YEAR SELECT
+        ========================= */
+        function setupYearSelect() {
+
+            const select = document.getElementById("yearSelect");
+
+            select.addEventListener("change", function () {
+
+                reloadAllCharts(this.value);
+            });
+        }
+
+        /* =========================
+           LOAD YEARS
+        ========================= */
+        function loadYears() {
+
+            fetch(BASE_URL + "/admin-chart-year")
+                .then(res => {
+                    console.log("admin-chart-year status:", res.status, res.url); // thêm dòng này
+                    if (!res.ok) throw new Error("HTTP " + res.status);
+                    return res.json();
+                })
+                .then(years => {
+                    console.log("Years received:", years);
+                    console.log("YEARS:", years);
+                    const select = document.getElementById("yearSelect");
+
+                    if (!select) {
+                        console.error("yearSelect not found");
+                        return;
+                    }
+
+                    select.innerHTML = "";
+
+                    years.forEach(year => {
+
+                        const option = document.createElement("option");
+
+                        option.value = year;
+                        option.textContent = year;
+
+                        select.appendChild(option);
+                    });
+
+                    const maxYear = Math.max(...years);
+
+                    select.value = maxYear;
+
+                    reloadAllCharts(maxYear);
+                })
+                .catch(err => {
+                    console.error("Load years error:", err);
+                });
+        }
+
+        /* =========================
+           RELOAD ALL CHARTS
+        ========================= */
+        function reloadAllCharts(year) {
+
+            loadRevenueChart(year);
+            loadOrderChart(year);
+            loadCategoryChart(year);
+            loadTopEbookChart(year);
+            loadBotEbookChart(year)
+        }
+
+        /* =========================
+           REVENUE CHART
+        ========================= */
+        function loadRevenueChart(year) {
+
+            fetch(BASE_URL + "/admin-dashboard-revenue?year=" + year)
+                .then(res => res.json())
+                .then(data => {
+
+                    if (!revenueChart) {
+
+                        revenueChart = new Chart(
+                            document.getElementById("revenueChart"),
+                            {
+                                type: 'line',
+
+                                data: {
+                                    labels: data.labels,
+
+                                    datasets: [{
+                                        label: "Doanh thu (VND)",
+                                        data: data.values,
+                                        borderWidth: 3,
+                                        tension: 0.3,
+                                        fill: true
+                                    }]
+                                },
+
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true
+                                        }
+                                    }
+                                }
+                            }
+                        );
+
+                    } else {
+
+                        revenueChart.data.labels = data.labels;
+                        revenueChart.data.datasets[0].data = data.values;
+
+                        revenueChart.update();
+                    }
+                });
+        }
+
+        /* =========================
+           ORDER CHART
+        ========================= */
+        function loadOrderChart(year) {
+
+            fetch(BASE_URL + "/admin-chart-orders?year=" + year)
+                .then(res => res.json())
+                .then(data => {
+
+                    if (!orderChart) {
+
+                        orderChart = new Chart(
+                            document.getElementById("orderChart"),
+                            {
+                                type: 'bar',
+
+                                data: {
+                                    labels: data.labels,
+
+                                    datasets: [{
+                                        label: "Số đơn",
+                                        data: data.values
+                                    }]
+                                }
+                            }
+                        );
+
+                    } else {
+
+                        orderChart.data.labels = data.labels;
+                        orderChart.data.datasets[0].data = data.values;
+
+                        orderChart.update();
+                    }
+                });
+        }
+
+        /* =========================
+           CATEGORY CHART
+        ========================= */
+        function loadCategoryChart(year) {
+
+            fetch(BASE_URL + "/admin-chart-category?year=" + year)
+                .then(res => res.json())
+                .then(data => {
+
+                    if (!categoryChart) {
+
+                        categoryChart = new Chart(
+                            document.getElementById("categoryChart"),
+                            {
+                                type: 'doughnut',
+
+                                data: {
+                                    labels: data.labels,
+
+                                    datasets: [{
+                                        data: data.values
+                                    }]
+                                }
+                            }
+                        );
+
+                    } else {
+
+                        categoryChart.data.labels = data.labels;
+                        categoryChart.data.datasets[0].data = data.values;
+
+                        categoryChart.update();
+                    }
+                });
+        }
+
+        /* =========================
+           TOP EBOOK CHART
+        ========================= */
+        function loadTopEbookChart(year) {
+            fetch(BASE_URL + "/admin-chart-top-ebooks?year=" + year)
+                .then(res => res.json())
+                .then(data => {
+                    if (!ebookHighestChart) {
+                        ebookHighestChart = new Chart(
+                            document.getElementById("ebookHighestChart"),
+                            {
+                                type: 'bar',
+                                data: {
+                                    labels: data.labels,
+                                    datasets: [{
+                                        label: "Doanh thu",
+                                        data: data.values
+                                    }]
+                                },
+                                options: { indexAxis: 'y' }
+                            }
+                        );
+                    } else {
+                        ebookHighestChart.data.labels = data.labels;
+                        ebookHighestChart.data.datasets[0].data = data.values;
+                        ebookHighestChart.update();
+                    }
+                });
+        }
+
+        function loadBotEbookChart(year) {
+            fetch(BASE_URL + "/admin-chart-bot-ebooks?year=" + year)
+                .then(res => res.json())
+                .then(data => {
+                    if (!ebookLowestChart) {
+                        ebookLowestChart = new Chart(
+                            document.getElementById("ebookLowestChart"),
+                            {
+                                type: 'bar',
+                                data: {
+                                    labels: data.labels,
+                                    datasets: [{
+                                        label: "Doanh thu",
+                                        data: data.values
+                                    }]
+                                },
+                                options: { indexAxis: 'y' }
+                            }
+                        );
+                    } else {
+                        ebookLowestChart.data.labels = data.labels;
+                        ebookLowestChart.data.datasets[0].data = data.values;
+                        ebookLowestChart.update();
+                    }
+                });
+        }
+    </script>
+    <jsp:include page="/WEB-INF/views/admin-header-fragment.jsp"/>
 </body>
-<jsp:include page="/WEB-INF/views/admin-header-fragment.jsp"/>
+
 </html>
